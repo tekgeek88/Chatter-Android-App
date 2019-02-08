@@ -47,7 +47,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     private EditText re_password_text;
     private Button register_btn;
 
-    //    Lab 3 Step 61a!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private EditText first_name_text;
     private EditText last_name_text;
     private EditText nickname_text;
@@ -100,7 +99,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     public interface OnRegisterFragmentInteractionListener extends
             WaitFragment.OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onRegisterSuccess(Credentials user_name_password);
+        void onRegisterSuccess(Credentials account_email);
     }
 
     @Override

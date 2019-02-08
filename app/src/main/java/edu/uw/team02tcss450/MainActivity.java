@@ -9,7 +9,8 @@ import java.io.Serializable;
 public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
         RegisterFragment.OnRegisterFragmentInteractionListener,
-        WaitFragment.OnFragmentInteractionListener {
+        WaitFragment.OnFragmentInteractionListener,
+        VerificationFragment.OnVerificationFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,18 +51,34 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRegisterSuccess(Credentials user_name_password) {
-        LoginFragment loginFragment = new LoginFragment();
+    public void onRegisterSuccess(Credentials account_email) {
+//        LoginFragment loginFragment = new LoginFragment();
+//        Bundle args = new Bundle();
+//        args.putSerializable(getString(R.string.email_back_to_login_fragment),
+//                user_name_password.getEmail());
+//        args.putSerializable(getString(R.string.password_back_to_login_fragment),
+//                user_name_password.getPassword());
+//        loginFragment.setArguments(args);
+        VerificationFragment verificationFragment = new VerificationFragment();
         Bundle args = new Bundle();
-        args.putSerializable(getString(R.string.email_back_to_login_fragment),
-                user_name_password.getEmail());
-        args.putSerializable(getString(R.string.password_back_to_login_fragment),
-                user_name_password.getPassword());
-        loginFragment.setArguments(args);
+        args.putSerializable(getString(R.string.string_fragment_from_register_to_login_email),
+                account_email.getEmail());
+        verificationFragment.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_container, loginFragment)
+                .replace(R.id.main_container, verificationFragment)
                 .addToBackStack(null);
+        // Commit the transaction
+        transaction.commit();
+    }
+
+    @Override
+    public void onGoBackLoginClicked() {
+        LoginFragment loginFragment = new LoginFragment();
+        FragmentTransaction transaction = getSupportFragmentManager()
+        .beginTransaction()
+        .replace(R.id.main_container, loginFragment)
+        .addToBackStack(null);
         // Commit the transaction
         transaction.commit();
     }

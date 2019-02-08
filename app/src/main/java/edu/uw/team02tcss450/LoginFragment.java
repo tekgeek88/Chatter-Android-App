@@ -142,14 +142,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        if (getArguments() != null) {
-            String email = getArguments().getString(getString(R.string.
-                    email_back_to_login_fragment));
-            updateContentEmail(email);
-            String password = getArguments().getString(getString(R.string.
-                    password_back_to_login_fragment));
-            updateContentPassword(password);
-        }
+//        if (getArguments() != null) {
+//            String email = getArguments().getString(getString(R.string.
+//                    email_back_to_login_fragment));
+//            updateContentEmail(email);
+//            String password = getArguments().getString(getString(R.string.
+//                    password_back_to_login_fragment));
+//            updateContentPassword(password);
+//        }
     }
 
     /**
