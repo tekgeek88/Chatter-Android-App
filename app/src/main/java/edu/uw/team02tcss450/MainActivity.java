@@ -4,6 +4,7 @@ import edu.uw.team02tcss450.model.Credentials;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+
 import java.io.Serializable;
 
 public class MainActivity extends AppCompatActivity implements
