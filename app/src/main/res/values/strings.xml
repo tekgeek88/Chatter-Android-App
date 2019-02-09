@@ -41,6 +41,9 @@
         BACK TO LOGIN
     </string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <!--<string name="password_back_to_login_fragment">Password back to login fragment</string>-->
 </resources>
 
