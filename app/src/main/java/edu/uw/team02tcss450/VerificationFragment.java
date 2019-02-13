@@ -65,16 +65,9 @@ public class VerificationFragment extends Fragment implements View.OnClickListen
             mListener = (OnVerificationFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnHomeFragmentInteractionListener");
         }
     }
-
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//        System.exit(0);
-//    }
 
     @Override
     public void onClick(View view) {

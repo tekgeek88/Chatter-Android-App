@@ -1,6 +1,8 @@
 package edu.uw.team02tcss450;
 
 import edu.uw.team02tcss450.model.Credentials;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +14,9 @@ public class MainActivity extends AppCompatActivity implements
         RegisterFragment.OnRegisterFragmentInteractionListener,
         WaitFragment.OnFragmentInteractionListener,
         VerificationFragment.OnVerificationFragmentInteractionListener {
+
+    private boolean mLoadFromChatNotification = false;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,14 +33,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoginSuccess(Credentials user_name_password, String jwt) {
-//        Bundle args  = new Bundle();
-//        args.putSerializable(getString(R.string.user_email), user_name_password.getEmail());
-//        Intent intent = new Intent(this, HomeActivity.class);
-//        intent.putExtras(args);
-//        intent.putExtra(getString(R.string.keys_intent_jwt), jwt);
-//
-//        startActivity(intent);
+    public void onLoginSuccess(Credentials credentials, String jwt) {
+        Intent i = new Intent(this, HomeActivity.class);
+        i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
+        i.putExtra(getString(R.string.keys_intent_jwt), jwt);
+        i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+        startActivity(i);
+        //End this Activity and remove it from the Activity back stack.
+        finish();
 
 
     }
@@ -53,13 +58,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRegisterSuccess(Credentials account_email) {
-//        LoginFragment loginFragment = new LoginFragment();
-//        Bundle args = new Bundle();
-//        args.putSerializable(getString(R.string.email_back_to_login_fragment),
-//                user_name_password.getEmail());
-//        args.putSerializable(getString(R.string.password_back_to_login_fragment),
-//                user_name_password.getPassword());
-//        loginFragment.setArguments(args);
         VerificationFragment verificationFragment = new VerificationFragment();
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.string_fragment_from_register_to_login_email),
@@ -71,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements
                 .addToBackStack(null);
         // Commit the transaction
         transaction.commit();
+
     }
 
     @Override
@@ -82,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements
         .addToBackStack(null);
         // Commit the transaction
         transaction.commit();
+
     }
 
     @Override

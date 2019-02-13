@@ -76,7 +76,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             mListener = (OnRegisterFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnHomeFragmentInteractionListener");
         }
     }
 

@@ -1,11 +1,16 @@
 package edu.uw.team02tcss450;
 
 
+import android.app.ActionBar;
 import android.content.Context;
 import edu.uw.team02tcss450.model.Credentials;
+
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
+import me.pushy.sdk.Pushy;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,54 +33,7 @@ import edu.uw.team02tcss450.utils.SendPostAsyncTask;
  * @author Zebin Zhou
  * @version 13 January 2019
  */
-public class LoginFragment extends Fragment implements View.OnClickListener {
-
-    private OnLoginFragmentInteractionListener mListener;
-
-    private Credentials mCredentials;
-
-
-    public LoginFragment() {
-        // Required empty public constructor
-    }
-
-    private EditText email_text;
-    private EditText password_text;
-    private Button register_btn;
-    private Button sign_in_btn;
-    private View v;
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        v = inflater.inflate(R.layout.fragment_login, container, false);
-        email_text = (EditText) v.findViewById(R.id.edittext_fragment_login_email);
-        password_text = (EditText) v.findViewById(R.id.edittext_fragment_login_password);
-        register_btn = (Button) v.findViewById(R.id.btn_fragment_login_register);
-        register_btn.setOnClickListener(this);
-        sign_in_btn = (Button) v.findViewById(R.id.btn_fragment_login_signin);
-        sign_in_btn.setOnClickListener(this);
-        return v;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnLoginFragmentInteractionListener) {
-            mListener = (OnLoginFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-        System.exit(0);
-    }
+public class LoginFragment extends Fragment {
 
     /**
      * This interface must be implemented by activities that contain this
@@ -88,69 +47,234 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
      */
     public interface OnLoginFragmentInteractionListener extends
             WaitFragment.OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+
         void onLoginSuccess(Credentials user_name_password, String jwt);
+
         void onRegisterClicked();
     }
 
+
+    private class RegisterForPushNotificationsAsync extends AsyncTask<Void, String, String> {
+
+        protected String doInBackground(Void... params) {
+            String deviceToken = "";
+
+            try {
+                // Assign a unique token to this device
+                deviceToken = Pushy.register(getActivity().getApplicationContext());
+
+                //subscribe to a topic (this is a Blocking call)
+                Pushy.subscribe("all", getActivity().getApplicationContext());
+            }
+            catch (Exception exc) {
+
+                cancel(true);
+                // Return exc to onCancelled
+                return exc.getMessage();
+            }
+
+            // Success
+            return deviceToken;
+        }
+
+        @Override
+        protected void onCancelled(String errorMsg) {
+            super.onCancelled(errorMsg);
+            Log.d("PhishApp", "Error getting Pushy Token: " + errorMsg);
+        }
+
+        @Override
+        protected void onPostExecute(String deviceToken) {
+            // Log it for debugging purposes
+            Log.d("PhishApp", "Pushy device token: " + deviceToken);
+
+            //build the web service URL
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_pushy))
+                    .appendPath(getString(R.string.ep_token))
+                    .build();
+
+            //build the JSONObject
+            JSONObject msg = mCredentials.asJSONObject();
+
+            try {
+                msg.put("token", deviceToken);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            //instantiate and execute the AsyncTask.
+            new SendPostAsyncTask.Builder(uri.toString(), msg)
+                    .onPostExecute(LoginFragment.this::handlePushyTokenOnPost)
+                    .onCancelled(LoginFragment.this::handleErrorsInTask)
+                    .addHeaderField("authorization", mJwt)
+                    .build().execute();
+
+        }
+    }
+
+
+    // Declare member variables
+    private OnLoginFragmentInteractionListener mListener;
+    private Credentials mCredentials;
+    private String mJwt;
+
+
+    public LoginFragment() {
+        // Required empty public constructor
+    }
+
+
     @Override
-    public void onClick(View view) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_login, container, false);
+//        ActionBar ab = getActivity().getActionBar();
+//        ab.setTitle("");
 
-        String email_string = email_text.getText().toString();
-        String password_string = password_text.getText().toString();
-        boolean is_email_contains_at = email_validation(email_string);
+        Button b = (Button) v.findViewById(R.id.btn_fragment_login_register);
+        b.setOnClickListener(this::attemptRegister);
 
-        if(mListener != null) {
-            switch (view.getId()) {
-                case R.id.btn_fragment_login_signin:
-                    attemptLogin(sign_in_btn);
-                    break;
-                case R.id.btn_fragment_login_register:
-                    mListener.onRegisterClicked();
-                    break;
-                default:
-                    Log.wtf("", "Didn't expect to see me...");
-            }
+        b = (Button) v.findViewById(R.id.btn_fragment_login_signin);
+        b.setOnClickListener(this::attemptLogin);
+
+        // Disable the ActionBar
+//        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
+
+
+        return v;
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnLoginFragmentInteractionListener) {
+            mListener = (OnLoginFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnHomeFragmentInteractionListener");
         }
     }
 
-    /*
-     * Methods to check whether email contains @.
-     *
-     * @param String Email in String type.
-     * @return true if email contains @, false if email doesn't contain @.
-     */
-    public boolean email_validation(String email_string) {
-        for(int i = 0; i < email_string.length(); i++) {
-            if(email_string.charAt(i) == '@') {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    public void updateContentEmail(String email) {
-        TextView tv = getActivity().findViewById(R.id.edittext_fragment_login_email);
-        tv.setText(email);
-    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
 
-    public void updateContentPassword(String email) {
-        TextView tv = getActivity().findViewById(R.id.edittext_fragment_login_password);
-        tv.setText(email);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-//        if (getArguments() != null) {
-//            String email = getArguments().getString(getString(R.string.
-//                    email_back_to_login_fragment));
-//            updateContentEmail(email);
-//            String password = getArguments().getString(getString(R.string.
-//                    password_back_to_login_fragment));
-//            updateContentPassword(password);
-//        }
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+
+        //retrieve the stored credentials from SharedPrefs
+        if (prefs.contains(getString(R.string.keys_prefs_email)) &&
+                prefs.contains(getString(R.string.keys_prefs_password))) {
+
+            final String email = prefs.getString(getString(R.string.keys_prefs_email), "");
+            final String password = prefs.getString(getString(R.string.keys_prefs_password), "");
+            //Load the two login EditTexts with the credentials found in SharedPrefs
+            EditText emailEdit = getActivity().findViewById(R.id.edittext_fragment_login_email);
+            emailEdit.setText(email);
+            EditText passwordEdit = getActivity().findViewById(R.id.edittext_fragment_login_password);
+            passwordEdit.setText(password);
+
+            doLogin(new Credentials.Builder(
+                    emailEdit.getText().toString(),
+                    passwordEdit.getText().toString())
+                    .build());
+        }
     }
+
+
+    private void attemptRegister(View view) {
+        if (mListener != null) {
+            mListener.onRegisterClicked();
+        }
+    }
+
+
+    private void attemptLogin(final View theButton) {
+
+        EditText emailEdit = getActivity().findViewById(R.id.edittext_fragment_login_email);
+        EditText passwordEdit = getActivity().findViewById(R.id.edittext_fragment_login_password);
+        boolean hasError = false;
+
+        if (emailEdit.getText().length() == 0) {
+            hasError = true;
+            emailEdit.setError("Field must not be empty.");
+        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
+            hasError = true;
+            emailEdit.setError("Field must contain a valid email address.");
+        }
+
+        if (passwordEdit.getText().length() == 0) {
+            hasError = true;
+            passwordEdit.setError("Field must not be empty.");
+        }
+
+        if (!hasError) {
+            doLogin(new Credentials.Builder(
+                    emailEdit.getText().toString(),
+                    passwordEdit.getText().toString())
+                    .build());
+        }
+    }
+
+
+    private void doLogin(Credentials credentials) {
+        //build the web service URL
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_login))
+                .build();
+
+        //build the JSONObject
+        JSONObject msg = credentials.asJSONObject();
+
+        mCredentials = credentials;
+
+        Log.d("JSON Credentials", msg.toString());
+
+        //instantiate and execute the AsyncTask.
+        //Feel free to add a handler for onPreExecution so that a progress bar
+        //is displayed or maybe disable buttons.
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPreExecute(this::handleLoginOnPre)
+                .onPostExecute(this::handleLoginOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void saveCredentials(final Credentials credentials) {
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        //Store the credentials in SharedPrefs
+        prefs.edit().putString(getString(R.string.keys_prefs_email), credentials.getEmail()).apply();
+        prefs.edit().putString(getString(R.string.keys_prefs_password), credentials.getPassword()).apply();
+    }
+
+
+    public void updateContent(Credentials credentials) {
+        EditText textView_email = getActivity().findViewById(R.id.edittext_fragment_login_email);
+        textView_email.setText(credentials.getEmail());
+
+        EditText textView_password = getActivity().findViewById(R.id.edittext_fragment_login_password);
+        textView_password.setText(credentials.getPassword());
+    }
+
 
     /**
      * Handle errors that may occur during the AsyncTask.
@@ -178,17 +302,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             boolean success =
                     resultsJSON.getBoolean(
                             getString(R.string.keys_json_login_success));
-
             if (success) {
                 //Login was successful. Switch to the loadSuccessFragment.
-                mListener.onLoginSuccess(mCredentials,
-                        resultsJSON.getString(
-                                getString(R.string.keys_json_login_jwt)));
+                new RegisterForPushNotificationsAsync().execute();
+
+                mJwt = resultsJSON.getString(
+                        getString(R.string.keys_json_login_jwt));
                 return;
             } else {
                 //Login was unsuccessful. Don’t switch fragments and
                 // inform the user
-//                edit_login_email to login_email when in Step 48!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 ((TextView) getView().findViewById(R.id.edittext_fragment_login_email))
                         .setError("Login Unsuccessful");
             }
@@ -201,55 +324,42 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     + e.getMessage());
 
             mListener.onWaitFragmentInteractionHide();
-//            edit_login_email to login_email when in Step 48!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ((TextView) getView().findViewById(R.id.edittext_fragment_login_email))
                     .setError("Login Unsuccessful");
         }
     }
 
-    private void attemptLogin(final View theButton) {
-        EditText emailEdit = getActivity().findViewById(R.id.edittext_fragment_login_email);
 
-        EditText passwordEdit = getActivity().findViewById(R.id.edittext_fragment_login_password);
+    private void handlePushyTokenOnPost(String result) {
+        try {
 
-        boolean hasError = false;
-        if (emailEdit.getText().length() == 0) {
-            hasError = true;
-            emailEdit.setError("Field must not be empty.");
-        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
-            hasError = true;
-            emailEdit.setError("Field must contain a valid email address.");
-        }
-        if (passwordEdit.getText().length() == 0) {
-            hasError = true;
-            passwordEdit.setError("Field must not be empty.");
-        }
+            Log.d("JSON result",result);
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
 
-        if (!hasError) {
-            Credentials credentials = new Credentials.Builder(
-                    emailEdit.getText().toString(),
-                    passwordEdit.getText().toString())
-                    .build();
 
-            //build the web service URL
-            Uri uri = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_login))
-                    .build();
+            if (success) {
+                saveCredentials(mCredentials);
+                mListener.onLoginSuccess(mCredentials, mJwt);
+                return;
+            } else {
+                //Saving the token wrong. Don’t switch fragments and inform the user
+                ((EditText) getView().findViewById(R.id.edittext_fragment_login_email))
+                        .setError("Login Unsuccessful");
+            }
+            mListener.onWaitFragmentInteractionHide();
+        } catch (JSONException e) {
+            //It appears that the web service didn’t return a JSON formatted String
+            //or it didn’t have what we expected in it.
+            Log.e("JSON_PARSE_ERROR",  result
+                    + System.lineSeparator()
+                    + e.getMessage());
 
-            //build the JSONObject
-            JSONObject msg = credentials.asJSONObject();
-
-            mCredentials = credentials;
-
-            //instantiate and execute the AsyncTask.
-            new SendPostAsyncTask.Builder(uri.toString(), msg)
-                    .onPreExecute(this::handleLoginOnPre)
-                    .onPostExecute(this::handleLoginOnPost)
-                    .onCancelled(this::handleErrorsInTask)
-                    .build().execute();
+            mListener.onWaitFragmentInteractionHide();
+            ((EditText) getView().findViewById(R.id.edittext_fragment_login_email))
+                    .setError("Login Unsuccessful");
         }
     }
+
 
 }

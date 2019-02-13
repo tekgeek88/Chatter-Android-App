@@ -1,23 +1,31 @@
 <resources>
-    <string name="app_name">Chatter</string>
+    <string name="text_app_name">Chatter</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <!--<string name="hello_blank_fragment">Hello blank fragment</string>-->
 
-    <!--In Login Fragment-->
-    <string name="string_fragment_login_email">Email</string>
-    <string name="string_fragment_login_password">Password</string>
-    <string name="string_fragment_login_register">REGISTER</string>
-    <string name="string_fragment_login_signin">SIGN IN</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
+
+    <!--Text Field constants-->
+    <string name="text_username">User Name</string>
+    <string name="text_firstname">First Name</string>
+    <string name="text_lastname">Last Name</string>
+    <string name="text_password">Password</string>
+    <string name="text_email">Email</string>
+    <string name="text_register">REGISTER</string>
+    <string name="text_sign_in">SIGN IN</string>
+    <string name="text_password_retype">Retype Password</string>
+    <string name="text_global_chat">Global Chat</string>
+
+    <!--  Nav Drawer Constants  -->
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="nav_header_title">Chatter</string>
+    <string name="nav_header_subtitle">TCSS 450 Project</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
 
     <!--In Register Fragment-->
-    <string name="string_fragment_register_nickname">Nickname</string>
-    <string name="string_fragment_register_firstname">First Name</string>
-    <string name="string_fragment_register_lastname">Last Name</string>
-    <string name="string_fragment_register_email">Email</string>
-    <string name="string_fragment_register_password">Password</string>
-    <string name="string_fragment_register_retype_password">Retype Password</string>
-    <string name="string_fragment_register_register">REGISTER</string>
     <string name="string_fragment_register_registration">Registration</string>
     <string name="string_fragment_from_register_to_login_email">
         Email from register fragment to verification fragment
@@ -40,10 +48,13 @@
     <string name="string_fragment_verification_btn_go_back">
         BACK TO LOGIN
     </string>
+    <string name="key_email">email_intent</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_forgot_password">Forgot Password?</string>
+    <string name="text_not_signed_up_yet">Not signed up yet?</string>
 
-    <!--<string name="password_back_to_login_fragment">Password back to login fragment</string>-->
+
 </resources>
 
