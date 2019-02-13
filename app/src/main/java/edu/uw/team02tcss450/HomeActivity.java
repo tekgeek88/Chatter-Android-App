@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,8 +26,14 @@ import me.pushy.sdk.Pushy;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         HomeFragment.OnHomeFragmentInteractionListener,
-        WaitFragment.OnFragmentInteractionListener {
+        WaitFragment.OnFragmentInteractionListener,
+        WeatherFragment.OnWeatherFragmentInteractionListener {
 
+
+    @Override
+    public void onWeatherFragmentInteraction(Uri uri) {
+
+    }
 
     // Deleting the Pushy device token must be done asynchronously. Good thing
     // we have something that allows us to do that.
@@ -162,17 +169,17 @@ public class HomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_home_fragment) {
+            loadHomeFragment();
+        } else if (id == R.id.nav_weather_fragment) {
+            loadFragment(new WeatherFragment());
+        } else if (id == R.id.nav_chat_fragment) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_profile_fragment) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_setting_fragment) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_logout_fragment) {
 
         }
 
@@ -189,9 +196,10 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void loadFragment(Fragment frag) {
+
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, frag)
+                .replace(R.id.fragment_container, frag)
                 .addToBackStack(null);
         // Commit the transaction
         transaction.commit();
@@ -210,6 +218,7 @@ public class HomeActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, homeFragment);
+
 
         transaction.commit();
     }
@@ -258,4 +267,5 @@ public class HomeActivity extends AppCompatActivity
         //End this Activity and remove it from the Activity back stack.
         //finish();
     }
+
 }
