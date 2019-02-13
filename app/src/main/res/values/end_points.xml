@@ -4,25 +4,13 @@
 <!--Lab 3 Step 42-->
 <resources tools:ignore="ExtraTranslation" xmlns:tools="http://schemas.android.com/tools">
 
-    <!--Lab 4 Second part Step 56 -->
-    <!--<string name="ep_base_url">cfb3-lab4-backend.herokuapp.com</string>-->
     <string name="ep_base_url">team02-tcss450-backend.herokuapp.com</string>
-
     <string name="ep_login">login</string>
-
-    <!--Lab 3 Step 56-->
-    <string name="ep_phish">phish</string>
-    <string name="ep_blog">blog</string>
     <string name="ep_get">get</string>
-
-    <!--Lab 3 Step 61b-->
     <string name="ep_register">register</string>
-
-    <!--Lab 3 Step 64-->
-    <!--<string name="ep_phish">phish</string>-->
-    <string name="ep_setlists">setlists</string>
-    <string name="ep_recent">recent</string>
-
-
+    <string name="ep_pushy">pushy</string>
+    <string name="ep_token">token</string>
+    <string name="ep_messaging_base">messaging</string>
+    <string name="ep_messaging_send">send</string>
 
 </resources>

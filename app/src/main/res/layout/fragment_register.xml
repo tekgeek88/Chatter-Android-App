@@ -7,21 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".RegisterFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <!--<TextView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:text="@string/hello_blank_fragment" />-->
-
     <TextView
         android:id="@+id/textview_fragment_register_registration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/string_fragment_register_registration"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:text="@string/text_register"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
@@ -30,12 +23,59 @@
         app:layout_constraintVertical_bias="0.077" />
 
     <EditText
+        android:id="@+id/edittext_fragment_register_firstname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="@string/text_firstname"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_fragment_register_registration" />
+
+    <EditText
+        android:id="@+id/edittext_fragment_register_lastname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="@string/text_lastname"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_firstname" />
+
+    <EditText
+        android:id="@+id/edittext_fragment_register_nickname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="@string/text_username"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_lastname" />
+
+    <EditText
         android:id="@+id/edittext_fragment_register_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="@string/string_fragment_register_email"
+        android:hint="@string/text_email"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -46,9 +86,11 @@
         android:id="@+id/edittext_fragment_register_password"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="@string/string_fragment_register_password"
+        android:hint="@string/text_password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,9 +100,11 @@
         android:id="@+id/edittext_fragment_register_retype_password"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="@string/string_fragment_register_retype_password"
+        android:hint="@string/text_password_retype"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,50 +118,12 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/string_fragment_register_register"
+        android:text="@string/text_register"
+        style="@style/button_chatter_solid"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.971"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_retype_password"
         app:layout_constraintVertical_bias="0.0" />
-
-    <EditText
-        android:id="@+id/edittext_fragment_register_firstname"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:ems="10"
-        android:hint="@string/string_fragment_register_firstname"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textview_fragment_register_registration" />
-
-    <EditText
-        android:id="@+id/edittext_fragment_register_lastname"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="@string/string_fragment_register_lastname"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_firstname" />
-
-    <EditText
-        android:id="@+id/edittext_fragment_register_nickname"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="@string/string_fragment_register_nickname"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_lastname" />
 </android.support.constraint.ConstraintLayout>
