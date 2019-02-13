@@ -1,22 +1,25 @@
 <resources>
+    <!--##########  App/Activity/Fragment  ##########-->
     <string name="text_app_name">Chatter</string>
 
 
-    <string name="action_settings">Settings</string>
-    <string name="action_logout">Logout</string>
-
-    <!--Text Field constants-->
+    <!--##########  Text Field Constants  ##########-->
     <string name="text_username">User Name</string>
     <string name="text_firstname">First Name</string>
     <string name="text_lastname">Last Name</string>
     <string name="text_password">Password</string>
     <string name="text_email">Email</string>
-    <string name="text_register">REGISTER</string>
+    <string name="text_registration">Registration</string>
     <string name="text_sign_in">SIGN IN</string>
     <string name="text_password_retype">Retype Password</string>
     <string name="text_global_chat">Global Chat</string>
+    <string name="text_forgot_password">Forgot Password?</string>
+    <string name="text_not_signed_up_yet">Not signed up yet?</string>
+    <string name="text_return_to_login">RETURN TO LOGIN</string>
+    <string name="text_hello_weather">Hello Weather</string>
 
-    <!--  Nav Drawer Constants  -->
+
+    <!--##########  Nav Drawer Constants  ##########-->
     <string name="title_activity_home">HomeActivity</string>
     <string name="nav_header_title">Chatter</string>
     <string name="nav_header_subtitle">TCSS 450 Project</string>
@@ -24,36 +27,30 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <!--##########  Actionable Constants  ##########-->
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
 
-    <!--In Register Fragment-->
-    <string name="string_fragment_register_registration">Registration</string>
+
+    <!--  In Register Fragment  -->
     <string name="string_fragment_from_register_to_login_email">
         Email from register fragment to verification fragment
     </string>
 
-    <!--In Verification Fragment-->
+    <!--  In Verification Fragment  -->
     <string name="string_fragment_verification_registration_successful">
         Registration Successful!
     </string>
     <string name="string_fragment_verification_first_phrase">
         A verification link has been sent to your email:
     </string>
-    <string name="string_fragment_verification_email">Email</string>
     <string name="string_fragment_verification_second_phrase">
         Please go to you email account to verify your email.
     </string>
     <string name="string_fragment_verification_third_phrase">
         Once you done, please click the button below to go back to the login page.
     </string>
-    <string name="string_fragment_verification_btn_go_back">
-        BACK TO LOGIN
-    </string>
-    <string name="key_email">email_intent</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="text_forgot_password">Forgot Password?</string>
-    <string name="text_not_signed_up_yet">Not signed up yet?</string>
 
 
 </resources>
