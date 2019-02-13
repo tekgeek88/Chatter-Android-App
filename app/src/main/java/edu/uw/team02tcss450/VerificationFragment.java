@@ -23,16 +23,13 @@ public class VerificationFragment extends Fragment implements View.OnClickListen
         // Required empty public constructor
     }
 
-    private Button go_back_login_btn;
-    private View v;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        v = inflater.inflate(R.layout.fragment_verification, container, false);
-        go_back_login_btn = (Button) v.findViewById(R.id.btn_fragment_verification_btn_bo_back);
+        View v = inflater.inflate(R.layout.fragment_verification, container, false);
+        Button go_back_login_btn = (Button) v.findViewById(R.id.btn_fragment_verification_btn_bo_back);
         go_back_login_btn.setOnClickListener(this);
         return v;
     }
