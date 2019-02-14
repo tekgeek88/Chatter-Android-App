@@ -25,8 +25,7 @@
 
     <EditText
         android:id="@+id/edittext_fragment_login_email"
-
-        style="@style/textview_chatter_input_style"
+        style="@style/edittext_chatter_plaintext"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -46,7 +45,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
+        style="@style/edittext_chatter_plaintext"
         android:hint="@string/text_password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
