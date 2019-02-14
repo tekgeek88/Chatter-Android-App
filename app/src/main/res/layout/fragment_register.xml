@@ -24,6 +24,7 @@
 
     <EditText
         android:id="@+id/edittext_fragment_register_firstname"
+        style="@style/edittext_chatter_plaintext"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -39,12 +40,12 @@
 
     <EditText
         android:id="@+id/edittext_fragment_register_lastname"
+        style="@style/edittext_chatter_plaintext"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
         android:hint="@string/text_lastname"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,12 +55,12 @@
 
     <EditText
         android:id="@+id/edittext_fragment_register_nickname"
+        style="@style/edittext_chatter_plaintext"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
         android:hint="@string/text_username"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,7 +75,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
+        style="@style/edittext_chatter_plaintext"
         android:hint="@string/text_email"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +90,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
+        style="@style/edittext_chatter_plaintext"
         android:hint="@string/text_password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
@@ -103,7 +104,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
+        style="@style/edittext_chatter_plaintext"
         android:hint="@string/text_password_retype"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
