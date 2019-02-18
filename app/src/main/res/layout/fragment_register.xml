@@ -54,7 +54,7 @@
         app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_firstname" />
 
     <EditText
-        android:id="@+id/edittext_fragment_register_nickname"
+        android:id="@+id/edittext_fragment_register_username"
         style="@style/edittext_chatter_plaintext"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_nickname" />
+        app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_register_username" />
 
     <EditText
         android:id="@+id/edittext_fragment_register_password"

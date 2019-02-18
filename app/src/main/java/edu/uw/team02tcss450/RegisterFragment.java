@@ -13,8 +13,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.uw.team02tcss450.model.Credentials;
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
@@ -27,12 +31,9 @@ import edu.uw.team02tcss450.utils.SendPostAsyncTask;
  * @author Zebin Zhou
  * @version 13 January 2019
  */
-public class RegisterFragment extends Fragment implements View.OnClickListener {
-
-
+public class RegisterFragment extends Fragment {
 
     private OnRegisterFragmentInteractionListener mListener;
-
     private Credentials mCredentials;
 
 
@@ -41,31 +42,15 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    private View v;
-    private EditText email_text;
-    private EditText password_text;
-    private EditText re_password_text;
-    private Button register_btn;
-
-    private EditText first_name_text;
-    private EditText last_name_text;
-    private EditText nickname_text;
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        v = inflater.inflate(R.layout.fragment_register, container, false);
-        email_text = (EditText) v.findViewById(R.id.edittext_fragment_register_email);
-        password_text = (EditText) v.findViewById(R.id.edittext_fragment_register_password);
-        re_password_text = (EditText) v.findViewById(R.id.edittext_fragment_register_retype_password);
-        first_name_text = (EditText) v.findViewById(R.id.edittext_fragment_register_firstname);
-        last_name_text = (EditText) v.findViewById(R.id.edittext_fragment_register_lastname);
-        nickname_text = (EditText) v.findViewById(R.id.edittext_fragment_register_nickname);
+        View v = inflater.inflate(R.layout.fragment_register, container, false);
 
-        register_btn = (Button) v.findViewById(R.id.btn_fragment_register_register);
-        register_btn.setOnClickListener(this);
+        Button register_btn = (Button) v.findViewById(R.id.btn_fragment_register_register);
+        register_btn.setOnClickListener(this::attemptRegister);
+
         return v;
     }
 
@@ -100,23 +85,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             WaitFragment.OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onRegisterSuccess(Credentials account_email);
-    }
-
-    @Override
-    public void onClick(View view) {
-//        String email_string = email_text.getText().toString();
-//        String password_string = password_text.getText().toString();
-//        String re_password_string = re_password_text.getText().toString();
-
-        if(mListener != null) {
-            switch (view.getId()) {
-                case R.id.btn_fragment_register_register:
-                    attemptRegister(register_btn);
-                    break;
-                default:
-                    Log.wtf("", "Didn't expect to see me...");
-            }
-        }
     }
 
     /*
@@ -183,10 +151,21 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 mListener.onRegisterSuccess(mCredentials);
                 return;
             } else {
-                // Login was unsuccessful. Don’t switch fragments and
-                // inform the user
-                ((TextView) getView().findViewById(R.id.edittext_fragment_register_email))
-                        .setError("Register Unsuccessful");
+                // inform the user of the errors
+                Map<String, TextView> fields = new HashMap<String, TextView>();
+                fields.put("first", (TextView) getView().findViewById(R.id.edittext_fragment_register_firstname));
+                fields.put("last", (TextView) getView().findViewById(R.id.edittext_fragment_register_lastname));
+                fields.put("email", (TextView) getView().findViewById(R.id.edittext_fragment_register_email));
+                fields.put("username", (TextView) getView().findViewById(R.id.edittext_fragment_register_username));
+                fields.put("password", (TextView) getView().findViewById(R.id.edittext_fragment_register_password));
+
+                JSONArray errorsJSON = resultsJSON.getJSONArray("data");
+                for (int i = 0;  i < errorsJSON.length(); i++) {
+                    JSONObject error = errorsJSON.getJSONObject(i);
+                    String param = error.getString("param");
+                    String msg = error.getString("msg");
+                    fields.get(param).setError(msg);
+                }
             }
             mListener.onWaitFragmentInteractionHide();
         } catch (JSONException e) {
@@ -195,10 +174,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             Log.e("JSON_PARSE_ERROR",  result
                     + System.lineSeparator()
                     + e.getMessage());
-
             mListener.onWaitFragmentInteractionHide();
-            ((TextView) getView().findViewById(R.id.edittext_fragment_register_email))
-                    .setError("Register Unsuccessful");
         }
     }
 
@@ -206,50 +182,49 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
 
         EditText emailEdit = getActivity().findViewById(R.id.edittext_fragment_register_email);
         EditText passwordEdit = getActivity().findViewById(R.id.edittext_fragment_register_password);
-        EditText nicknameEdit = getActivity().findViewById(R.id.edittext_fragment_register_nickname);
+        EditText nicknameEdit = getActivity().findViewById(R.id.edittext_fragment_register_username);
 
         EditText firstNameEdit = getActivity().findViewById(R.id.edittext_fragment_register_firstname);
         EditText lastNameEdit = getActivity().findViewById(R.id.edittext_fragment_register_lastname);
-        EditText rePasswordEdit = getActivity().findViewById
-                (R.id.edittext_fragment_register_retype_password);
+        EditText rePasswordEdit = getActivity().findViewById(R.id.edittext_fragment_register_retype_password);
 
         boolean hasError = false;
-        if (emailEdit.getText().length() == 0) {
-            hasError = true;
-            emailEdit.setError("Field must not be empty.");
-        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
-            hasError = true;
-            emailEdit.setError("Field must contain a valid email address.");
-        }
-        if (passwordEdit.getText().length() == 0) {
-            hasError = true;
-            passwordEdit.setError("Field must not be empty.");
-        } else if (passwordEdit.getText().length() < 6) {
-            hasError = true;
-            passwordEdit.setError("Password must have at least 6 characters.");
-        } else if (!passwordEdit.getText().toString().equals(rePasswordEdit.getText().toString())) {
-            hasError = true;
-            passwordEdit.setError("Password and retype password not match.");
-        }
-        if(rePasswordEdit.getText().length() == 0) {
-            hasError = true;
-            rePasswordEdit.setError("Field must not be empty.");
-        } else if (!rePasswordEdit.getText().toString().equals(passwordEdit.getText().toString())) {
-            hasError = true;
-            rePasswordEdit.setError("Password and retype password not match.");
-        }
-        if(nicknameEdit.getText().length() == 0) {
-            hasError = true;
-            nicknameEdit.setError("Field must not be empty.");
-        }
-        if(firstNameEdit.getText().length() == 0) {
-            hasError = true;
-            firstNameEdit.setError("Field must not be empty.");
-        }
-        if(lastNameEdit.getText().length() == 0) {
-            hasError = true;
-            lastNameEdit.setError("Field must not be empty.");
-        }
+//        if (emailEdit.getText().length() == 0) {
+//            hasError = true;
+//            emailEdit.setError("Field must not be empty.");
+//        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
+//            hasError = true;
+//            emailEdit.setError("Field must contain a valid email address.");
+//        }
+//        if (passwordEdit.getText().length() == 0) {
+//            hasError = true;
+//            passwordEdit.setError("Field must not be empty.");
+//        } else if (passwordEdit.getText().length() < 6) {
+//            hasError = true;
+//            passwordEdit.setError("Password must have at least 6 characters.");
+//        } else if (!passwordEdit.getText().toString().equals(rePasswordEdit.getText().toString())) {
+//            hasError = true;
+//            passwordEdit.setError("Password and retype password not match.");
+//        }
+//        if(rePasswordEdit.getText().length() == 0) {
+//            hasError = true;
+//            rePasswordEdit.setError("Field must not be empty.");
+//        } else if (!rePasswordEdit.getText().toString().equals(passwordEdit.getText().toString())) {
+//            hasError = true;
+//            rePasswordEdit.setError("Password and retype password not match.");
+//        }
+//        if(nicknameEdit.getText().length() == 0) {
+//            hasError = true;
+//            nicknameEdit.setError("Field must not be empty.");
+//        }
+//        if(firstNameEdit.getText().length() == 0) {
+//            hasError = true;
+//            firstNameEdit.setError("Field must not be empty.");
+//        }
+//        if(lastNameEdit.getText().length() == 0) {
+//            hasError = true;
+//            lastNameEdit.setError("Field must not be empty.");
+//        }
 
         if (!hasError) {
             Credentials.Builder builder = new Credentials.Builder(emailEdit.getText().toString(),
