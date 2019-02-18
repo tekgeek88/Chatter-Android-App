@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -312,8 +313,8 @@ public class LoginFragment extends Fragment {
             } else {
                 //Login was unsuccessful. Don’t switch fragments and
                 // inform the user
-                ((TextView) getView().findViewById(R.id.edittext_fragment_login_email))
-                        .setError("Login Unsuccessful");
+                String msg = resultsJSON.getString("msg");
+                ((TextView) getActivity().findViewById(R.id.edittext_fragment_login_email)).setError(msg);
             }
             mListener.onWaitFragmentInteractionHide();
         } catch (JSONException e) {
@@ -322,10 +323,7 @@ public class LoginFragment extends Fragment {
             Log.e("JSON_PARSE_ERROR",  result
                     + System.lineSeparator()
                     + e.getMessage());
-
             mListener.onWaitFragmentInteractionHide();
-            ((TextView) getView().findViewById(R.id.edittext_fragment_login_email))
-                    .setError("Login Unsuccessful");
         }
     }
 
