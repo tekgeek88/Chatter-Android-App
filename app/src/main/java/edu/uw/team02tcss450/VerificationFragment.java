@@ -19,6 +19,7 @@ public class VerificationFragment extends Fragment implements View.OnClickListen
 
     private OnVerificationFragmentInteractionListener mListener;
 
+
     public VerificationFragment() {
         // Required empty public constructor
     }
@@ -38,7 +39,9 @@ public class VerificationFragment extends Fragment implements View.OnClickListen
             WaitFragment.OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onGoBackLoginClicked();
+
     }
+
 
     @Override
     public void onStart() {
@@ -46,12 +49,18 @@ public class VerificationFragment extends Fragment implements View.OnClickListen
         if (getArguments() != null) {
             String email = getArguments().getString(getString(R.string.
                     string_fragment_from_register_to_login_email));
-            updateContentEmail(email);
+            String header = getArguments().getString("fragment_header");
+            String body = getArguments().getString("fragment_body");
+            updateContentEmail(email, header, body);
         }
     }
 
-    public void updateContentEmail(String email) {
-        TextView tv = getActivity().findViewById(R.id.edittext_fragment_verification_email);
+    public void updateContentEmail(String email, String header, String body) {
+        TextView hd = getActivity().findViewById(R.id.textview_fragment_verification_registration_successful);
+        hd.setText(header);
+        TextView bd = getActivity().findViewById(R.id.textview_fragment_verification_first_phrase);
+        bd.setText(body);
+        TextView tv = getActivity().findViewById(R.id.textview_fragment_verification_email);
         tv.setText(email);
     }
 
@@ -62,17 +71,26 @@ public class VerificationFragment extends Fragment implements View.OnClickListen
             mListener = (OnVerificationFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnHomeFragmentInteractionListener");
+                    + " must implement OnVerificationFragmentInteractionListener");
         }
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+
+    @Override
     public void onClick(View view) {
-        if(mListener != null) {
+
+        if (mListener != null) {
             switch (view.getId()) {
                 case R.id.btn_fragment_verification_btn_bo_back:
+
                     mListener.onGoBackLoginClicked();
-                    break;
+
                 default:
                     Log.wtf("", "Didn't expect to see me...");
             }

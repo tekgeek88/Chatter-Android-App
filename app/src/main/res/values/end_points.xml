@@ -8,6 +8,8 @@
     <string name="ep_login">login</string>
     <string name="ep_get">get</string>
     <string name="ep_register">register</string>
+    <string name="ep_resetPassword">resetPassword</string>
+    <string name="ep_changePassword">changePassword</string>
     <string name="ep_pushy">pushy</string>
     <string name="ep_token">token</string>
     <string name="ep_messaging_base">messaging</string>
