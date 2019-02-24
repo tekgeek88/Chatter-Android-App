@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 
 import android.app.ActionBar;
 import android.content.Context;
+
 import edu.uw.team02tcss450.model.Credentials;
 
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +33,7 @@ import me.pushy.sdk.Pushy;
  * Activities that contain this fragment must implement the
  * {@link LoginFragment.OnLoginFragmentInteractionListener} interface
  * to handle interaction events.
+ *
  * @author Zebin Zhou
  * @version 13 January 2019
  */
@@ -52,6 +55,8 @@ public class LoginFragment extends Fragment {
         void onLoginSuccess(Credentials user_name_password, String jwt);
 
         void onRegisterClicked();
+
+        void OnForgotPasswordClicked();
     }
 
 
@@ -66,8 +71,7 @@ public class LoginFragment extends Fragment {
 
                 //subscribe to a topic (this is a Blocking call)
                 Pushy.subscribe("all", getActivity().getApplicationContext());
-            }
-            catch (Exception exc) {
+            } catch (Exception exc) {
 
                 cancel(true);
                 // Return exc to onCancelled
@@ -121,6 +125,7 @@ public class LoginFragment extends Fragment {
     private OnLoginFragmentInteractionListener mListener;
     private Credentials mCredentials;
     private String mJwt;
+    private boolean mRememberMe = false;
 
 
     public LoginFragment() {
@@ -141,6 +146,18 @@ public class LoginFragment extends Fragment {
 
         b = (Button) v.findViewById(R.id.btn_fragment_login_signin);
         b.setOnClickListener(this::attemptLogin);
+
+        b = (Button) v.findViewById(R.id.btn_fragment_login_forgot_password);
+        b.setOnClickListener(view -> mListener.OnForgotPasswordClicked());
+
+        CheckBox box = (CheckBox) v.findViewById(R.id.checkBox_fragment_login_rememberMe);
+        box.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRememberMe = true;
+            }
+        });
+
 
         // Disable the ActionBar
 //        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
@@ -168,6 +185,7 @@ public class LoginFragment extends Fragment {
         mListener = null;
 
     }
+
 
     @Override
     public void onStart() {
@@ -203,7 +221,6 @@ public class LoginFragment extends Fragment {
         }
     }
 
-
     private void attemptLogin(final View theButton) {
 
         EditText emailEdit = getActivity().findViewById(R.id.edittext_fragment_login_email);
@@ -213,7 +230,7 @@ public class LoginFragment extends Fragment {
         if (emailEdit.getText().length() == 0) {
             hasError = true;
             emailEdit.setError("Field must not be empty.");
-        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
+        } else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
             hasError = true;
             emailEdit.setError("Field must contain a valid email address.");
         }
@@ -279,10 +296,11 @@ public class LoginFragment extends Fragment {
 
     /**
      * Handle errors that may occur during the AsyncTask.
+     *
      * @param result the error message provide from the AsyncTask
      */
     private void handleErrorsInTask(String result) {
-        Log.e("ASYNC_TASK_ERROR",  result);
+        Log.e("ASYNC_TASK_ERROR", result);
     }
 
     /**
@@ -295,6 +313,7 @@ public class LoginFragment extends Fragment {
     /**
      * Handle onPostExecute of the AsynceTask. The result from our webservice is
      * a JSON formatted String. Parse it for success or failure.
+     *
      * @param result the JSON formatted String response from the web service
      */
     private void handleLoginOnPost(String result) {
@@ -320,7 +339,7 @@ public class LoginFragment extends Fragment {
         } catch (JSONException e) {
             //It appears that the web service did not return a JSON formatted
             //String or it did not have what we expected in it.
-            Log.e("JSON_PARSE_ERROR",  result
+            Log.e("JSON_PARSE_ERROR", result
                     + System.lineSeparator()
                     + e.getMessage());
             mListener.onWaitFragmentInteractionHide();
@@ -331,15 +350,19 @@ public class LoginFragment extends Fragment {
     private void handlePushyTokenOnPost(String result) {
         try {
 
-            Log.d("JSON result",result);
+            Log.d("JSON result", result);
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
 
 
-            if (success) {
+            if (success && mRememberMe) {
                 saveCredentials(mCredentials);
                 mListener.onLoginSuccess(mCredentials, mJwt);
                 return;
+            } else if (success) {
+                mListener.onLoginSuccess(mCredentials, mJwt);
+                return;
+
             } else {
                 //Saving the token wrong. Don’t switch fragments and inform the user
                 ((EditText) getView().findViewById(R.id.edittext_fragment_login_email))
@@ -349,7 +372,7 @@ public class LoginFragment extends Fragment {
         } catch (JSONException e) {
             //It appears that the web service didn’t return a JSON formatted String
             //or it didn’t have what we expected in it.
-            Log.e("JSON_PARSE_ERROR",  result
+            Log.e("JSON_PARSE_ERROR", result
                     + System.lineSeparator()
                     + e.getMessage());
 

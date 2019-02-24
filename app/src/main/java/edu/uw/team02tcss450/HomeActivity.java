@@ -1,6 +1,8 @@
 package edu.uw.team02tcss450;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -10,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -27,7 +30,12 @@ public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         HomeFragment.OnHomeFragmentInteractionListener,
         WaitFragment.OnFragmentInteractionListener,
+        ChangePasswordFragment.OnChangePasswordFragmentInteractionListener,
+        VerificationFragment.OnVerificationFragmentInteractionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener {
+
+    private String mJwToken;
+    private String mEmail;
 
 
     @Override
@@ -35,51 +43,6 @@ public class HomeActivity extends AppCompatActivity
 
     }
 
-    // Deleting the Pushy device token must be done asynchronously. Good thing
-    // we have something that allows us to do that.
-    class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            onWaitFragmentInteractionShow();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            //since we are already doing stuff in the background, go ahead
-            //and remove the credentials from shared prefs here.
-            SharedPreferences prefs =
-                    getSharedPreferences(
-                            getString(R.string.keys_shared_prefs),
-                            Context.MODE_PRIVATE);
-
-            prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
-            prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
-
-            //unregister the device from the Pushy servers
-            Pushy.unregister(HomeActivity.this);
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            //close the app
-            finishAndRemoveTask();
-
-            //or close this activity and bring back the Login
-//            Intent i = new Intent(this, MainActivity.class);
-//            startActivity(i);
-            //Ends this Activity and removes it from the Activity back stack.
-//            finish();
-        }
-    }
-
-    private String mJwToken;
-    private String mEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +69,7 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
                 Credentials credentials = (Credentials) getIntent()
                         .getSerializableExtra(getString(R.string.keys_intent_credentials));
@@ -114,21 +77,12 @@ public class HomeActivity extends AppCompatActivity
                 final Bundle args = new Bundle();
                 args.putString(getString(R.string.key_email), emailAddress);
 
-//                Fragment fragment;
-//                if (getIntent().getBooleanExtra(getString(R.string.keys_intent_notification_msg), false)) {
-//                    fragment = new ChatFragment();
-//                } else {
-//                    fragment = new SuccessFragment();
-//                    fragment.setArguments(args);
-
-//                }
             }
         }
 
 
-
-
     }
+
 
     @Override
     public void onBackPressed() {
@@ -158,6 +112,9 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.action_logout) {
             logout();
             return true;
+        } else if (id == R.id.action_change_password) {
+            changePassword();
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -180,6 +137,8 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_setting_fragment) {
 
         } else if (id == R.id.nav_logout_fragment) {
+            logout();
+
 
         }
 
@@ -199,14 +158,14 @@ public class HomeActivity extends AppCompatActivity
 
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, frag)
+                .replace(R.id.fragmentContainer, frag)
                 .addToBackStack(null);
         // Commit the transaction
         transaction.commit();
     }
 
     private void loadHomeFragment() {
-        Credentials credentials = (Credentials)getIntent()
+        Credentials credentials = (Credentials) getIntent()
                 .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
 
         mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
@@ -215,12 +174,7 @@ public class HomeActivity extends AppCompatActivity
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.keys_intent_credentials), credentials);
         homeFragment.setArguments(args);
-        FragmentTransaction transaction = getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, homeFragment);
-
-
-        transaction.commit();
+        loadFragment(homeFragment);
     }
 
 
@@ -259,13 +213,93 @@ public class HomeActivity extends AppCompatActivity
         new DeleteTokenAsyncTask().execute();
 
         //close the app
-        finishAndRemoveTask();
+        //finishAndRemoveTask();
 
         //or close this activity and bring back the Login
-        //Intent i = new Intent(this, MainActivity.class);
-        //startActivity(i);
-        //End this Activity and remove it from the Activity back stack.
-        //finish();
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        // End this Activity and remove it from the Activity back stack.
+        finish();
+    }
+
+    private void changePassword() {
+
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        ChangePasswordFragment changePassFragment = new ChangePasswordFragment();
+        Bundle args = new Bundle();
+        args.putString(getString(R.string.keys_intent_credentials), credentials.getEmail());
+        changePassFragment.setArguments(args);
+        loadFragment(changePassFragment);
+
+
+    }
+
+    @Override
+    public void onChangePasswordSuccess(Credentials cr) {
+        VerificationFragment verificationFragment = new VerificationFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(getString(R.string.string_fragment_from_register_to_login_email),
+                cr.getEmail());
+        args.putString("fragment_header", getString(R.string.string_fragment_change_password_verification_change_successful));
+        args.putString("fragment_body", getString(R.string.string_fragment_change_password_verification_first_phrase));
+
+
+        verificationFragment.setArguments(args);
+        loadFragment(verificationFragment);
+
+    }
+
+
+    @Override
+    public void onGoBackLoginClicked() {
+
+        logout();
+    }
+
+
+    // Deleting the Pushy device token must be done asynchronously. Good thing
+    // we have something that allows us to do that.
+    class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            onWaitFragmentInteractionShow();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //since we are already doing stuff in the background, go ahead
+            //and remove the credentials from shared prefs here.
+            SharedPreferences prefs =
+                    getSharedPreferences(
+                            getString(R.string.keys_shared_prefs),
+                            Context.MODE_PRIVATE);
+
+            prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
+            prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
+
+            //unregister the device from the Pushy servers
+            Pushy.unregister(HomeActivity.this);
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //close the app
+            finishAndRemoveTask();
+
+            //or close this activity and bring back the Login
+//            Intent i = new Intent(this, MainActivity.class);
+//            startActivity(i);
+            //Ends this Activity and removes it from the Activity back stack.
+//            finish();
+        }
     }
 
 }

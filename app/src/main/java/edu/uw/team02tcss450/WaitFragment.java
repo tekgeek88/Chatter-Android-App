@@ -56,6 +56,7 @@ public class WaitFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         void onWaitFragmentInteractionShow();
+
         void onWaitFragmentInteractionHide();
     }
 }

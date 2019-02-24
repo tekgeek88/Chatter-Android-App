@@ -28,6 +28,7 @@ import edu.uw.team02tcss450.utils.SendPostAsyncTask;
  * Activities that contain this fragment must implement the
  * {@link RegisterFragment.OnRegisterFragmentInteractionListener} interface
  * to handle interaction events.
+ *
  * @author Zebin Zhou
  * @version 13 January 2019
  */
@@ -94,8 +95,8 @@ public class RegisterFragment extends Fragment {
      * @return true if email contains @, false if email doesn't contain @.
      */
     public boolean email_validation(String email_string) {
-        for(int i = 0; i < email_string.length(); i++) {
-            if(email_string.charAt(i) == '@') {
+        for (int i = 0; i < email_string.length(); i++) {
+            if (email_string.charAt(i) == '@') {
                 return true;
             }
         }
@@ -103,7 +104,7 @@ public class RegisterFragment extends Fragment {
     }
 
     public boolean password_length_validation(String password_string) {
-        if(password_string.length() > 5) {
+        if (password_string.length() > 5) {
             return true;
         } else {
             return false;
@@ -111,7 +112,7 @@ public class RegisterFragment extends Fragment {
     }
 
     public boolean password_match_validation(String password_string, String re_password_string) {
-        if(password_string.equals(re_password_string)) {
+        if (password_string.equals(re_password_string)) {
             return true;
         } else {
             return false;
@@ -120,11 +121,12 @@ public class RegisterFragment extends Fragment {
 
     /**
      * Handle errors that may occur during the AsyncTask.
+     *
      * @param result the error message provide from the AsyncTask
      */
     private void handleErrorsInTask(String result) {
 
-        Log.e("ASYNC_TASK_ERROR",  result);
+        Log.e("ASYNC_TASK_ERROR", result);
     }
 
     /**
@@ -138,6 +140,7 @@ public class RegisterFragment extends Fragment {
     /**
      * Handle onPostExecute of the AsynceTask. The result from our webservice is
      * a JSON formatted String. Parse it for success or failure.
+     *
      * @param result the JSON formatted String response from the web service
      */
     private void handleRegisterOnPost(String result) {
@@ -160,7 +163,7 @@ public class RegisterFragment extends Fragment {
                 fields.put("password", (TextView) getView().findViewById(R.id.edittext_fragment_register_password));
 
                 JSONArray errorsJSON = resultsJSON.getJSONArray("data");
-                for (int i = 0;  i < errorsJSON.length(); i++) {
+                for (int i = 0; i < errorsJSON.length(); i++) {
                     JSONObject error = errorsJSON.getJSONObject(i);
                     String param = error.getString("param");
                     String msg = error.getString("msg");
@@ -171,7 +174,7 @@ public class RegisterFragment extends Fragment {
         } catch (JSONException e) {
             //It appears that the web service did not return a JSON formatted
             //String or it did not have what we expected in it.
-            Log.e("JSON_PARSE_ERROR",  result
+            Log.e("JSON_PARSE_ERROR", result
                     + System.lineSeparator()
                     + e.getMessage());
             mListener.onWaitFragmentInteractionHide();

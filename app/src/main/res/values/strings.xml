@@ -30,6 +30,7 @@
     <!--##########  Actionable Constants  ##########-->
     <string name="action_settings">Settings</string>
     <string name="action_logout">Logout</string>
+    <string name="string_action_change_password">Change Password</string>
 
 
     <!--  In Register Fragment  -->
@@ -51,6 +52,32 @@
         Once you done, please click the button below to go back to the login page.
     </string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--  In ResetPassword Fragment  -->
+    <string name="text_reset_password">Reset Password</string>
+    <string name="text_reset_now">Reset Now</string>
+
+    <!--  In ResetPasswordVerification Fragment  -->
+    <string name="string_fragment_reset_password_verification_reset_successful">
+        Reset Successful!
+    </string>
+    <string name="string_fragment_reset_password_verification_first_phrase">
+        A temporary password has been sent to your email:
+    </string>
+
+    <!--  In ChangePassword Fragment  -->
+    <string name="string_fragment_change_password">Change Password</string>
+    <string name="string_fragment_submit_password">Submit Password</string>
+
+
+    <string name="string_fragment_change_password_verification_change_successful">
+        Password Changed!
+    </string>
+    <string name="string_fragment_change_password_verification_first_phrase">
+        Password has been changed associated with the account below
+     </string>
 
 
 </resources>
