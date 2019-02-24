@@ -12,5 +12,7 @@
     <string name="ep_token">token</string>
     <string name="ep_messaging_base">messaging</string>
     <string name="ep_messaging_send">send</string>
+    <string name="ep_weather">weather</string>
+    <string name="ep_forecast">forecast</string>
 
 </resources>

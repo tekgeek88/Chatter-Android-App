@@ -51,6 +51,8 @@
         Once you done, please click the button below to go back to the login page.
     </string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

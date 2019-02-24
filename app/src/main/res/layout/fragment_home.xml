@@ -9,10 +9,10 @@
     tools:context=".HomeFragment">
 
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="246dp"
-        android:src="@drawable/home_screen" />
+    <FrameLayout
+        android:id="@+id/layout_fragment_home_conditions_container"
+        android:layout_width="match_parent"
+        android:layout_height="263dp">
 
+    </FrameLayout>
 </LinearLayout>

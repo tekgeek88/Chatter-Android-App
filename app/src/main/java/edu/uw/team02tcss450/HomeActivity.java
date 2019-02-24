@@ -218,9 +218,11 @@ public class HomeActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, homeFragment);
-
-
         transaction.commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.layout_fragment_home_conditions_container, new ConditionsFragment())
+                .commit();
     }
 
 
