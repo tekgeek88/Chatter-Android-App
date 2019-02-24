@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_condition"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConditionsFragment">
+
+    <ImageView
+        android:id="@+id/imageview_condition_fragment_bottom"
+        android:layout_width="458dp"
+        android:layout_height="265dp"
+        android:src="@color/colorAccent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageview_condition_fragment_top" />
+
+    <ImageView
+        android:id="@+id/imageview_condition_fragment_top"
+        android:layout_width="438dp"
+        android:layout_height="202dp"
+        android:src="@color/secondaryDarkColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_speed"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="90dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_set" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_wind"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="104dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/textview_condition_fragment_speed"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_rise" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_rise"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="106dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/textview_condition_fragment_set"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_low" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_set"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="90dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_high" />
+
+    <ImageView
+        android:id="@+id/image_conditions_fragment_condition"
+        android:layout_width="134dp"
+        android:layout_height="93dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/background_gradient"
+        android:src="@drawable/ic_weather"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_current_temp"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="134dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_conditions_fragment_condition" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_description"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="203dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="center"
+        android:textSize="27sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_low"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="102dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/textview_condition_fragment_high"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_description"
+        android:background="@drawable/background_gradient" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_high"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="90dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_description" />
+
+    <TextView
+        android:id="@+id/textview_condition_fragment_location"
+        style="@style/edittext_chatter_basestyle"
+        android:layout_width="375dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/background_gradient"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_condition_fragment_current_temp" />
+
+</android.support.constraint.ConstraintLayout>

@@ -52,9 +52,6 @@
         Once you done, please click the button below to go back to the login page.
     </string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <!--  In ResetPassword Fragment  -->
     <string name="text_reset_password">Reset Password</string>
     <string name="text_reset_now">Reset Now</string>
