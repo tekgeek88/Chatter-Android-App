@@ -240,6 +240,11 @@ public class LoginFragment extends Fragment {
             passwordEdit.setError("Field must not be empty.");
         }
 
+        if (passwordEdit.getText().length() < 6) {
+            hasError = true;
+            passwordEdit.setError("Field must not be empty.");
+        }
+
         if (!hasError) {
             doLogin(new Credentials.Builder(
                     emailEdit.getText().toString(),
