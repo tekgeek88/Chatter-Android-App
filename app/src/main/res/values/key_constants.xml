@@ -27,4 +27,9 @@
     <string name="keys_json_login_jwt">token</string>
     <string name="keys_json_register_jwt">token</string>
 
+    <!--###########   Weather Keys   #############-->
+    <string name="keys_weather_location">location</string>
+    <string name="keys_weather_units">u</string>
+
+
 </resources>
