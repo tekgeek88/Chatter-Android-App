@@ -29,12 +29,11 @@ import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 public class ConditionsFragment extends Fragment {
 
     enum Weather {
-        Speed,Wind,Set,Rise,Temp,Description,High,Low,Location
+        Speed, Wind, Set, Rise, Temp, Description, High, Low, Location
     }
 
 
     private  Map<Weather, TextView> mViews = new HashMap<Weather, TextView>();
-
 
 
     public ConditionsFragment() {

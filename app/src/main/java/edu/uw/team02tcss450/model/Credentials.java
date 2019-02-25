@@ -22,6 +22,7 @@ public class Credentials implements Serializable {
 
     private final String mUsername;
     private final String mPassword;
+    private final String mNewPassword;
     private final String mFirstName;
     private final String mLastName;
     private final String mEmail;
@@ -39,6 +40,7 @@ public class Credentials implements Serializable {
         private String mFirstName = "";
         private String mLastName = "";
         private String mUsername = "";
+        private String mNewPassword = "";
 
 
         /**
@@ -54,6 +56,7 @@ public class Credentials implements Serializable {
             mEmail = email;
             mPassword = password;
         }
+
 
 
         /**
@@ -86,6 +89,11 @@ public class Credentials implements Serializable {
             return this;
         }
 
+        public Builder addNewPassword(final String val) {
+            mNewPassword = val;
+            return this;
+        }
+
         public Credentials build() {
             return new Credentials(this);
         }
@@ -99,6 +107,7 @@ public class Credentials implements Serializable {
     private Credentials(final Builder builder) {
         mUsername = builder.mUsername;
         mPassword = builder.mPassword;
+        mNewPassword = builder.mNewPassword;
         mFirstName = builder.mFirstName;
         mLastName = builder.mLastName;
         mEmail = builder.mEmail;
@@ -119,6 +128,9 @@ public class Credentials implements Serializable {
     public String getPassword() {
         return mPassword;
     }
+
+
+    public String getNewPassword(){ return mNewPassword; }
 
     /**
      * Get the first name or the empty string if no first name was provided.
@@ -159,6 +171,7 @@ public class Credentials implements Serializable {
         try {
             msg.put("username", getUsername());
             msg.put("password", mPassword);
+            msg.put("newPassword", mNewPassword);
             msg.put("first", getFirstName());
             msg.put("last", getLastName());
             msg.put("email", getEmail());
@@ -167,5 +180,7 @@ public class Credentials implements Serializable {
         }
         return msg;
     }
+
+
 
 }
