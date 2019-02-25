@@ -8,6 +8,18 @@
 
 
     <TextView
+        android:id="@+id/textView4"
+        android:layout_width="124dp"
+        android:layout_height="67dp"
+        android:layout_marginTop="52dp"
+        android:text="CHAT"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+=======
+
+    <TextView
         android:id="@+id/text_chat_message_display"
         style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="0dp"
@@ -46,4 +58,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+>>>>>>> 3762db0e2e82a46bd68eac7b38e0584d09a7b3df
 </android.support.constraint.ConstraintLayout>
