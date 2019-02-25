@@ -60,12 +60,6 @@ public class RequestsTabFragment extends Fragment {
     }
 
 
-    public class TabAdapter extends FragmentStatePagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        
-
-    }
-
 
 
     /**
