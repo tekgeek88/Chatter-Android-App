@@ -144,7 +144,11 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.nav_home_fragment) {
             loadHomeFragment();
         } else if (id == R.id.nav_weather_fragment) {
-            loadFragment(new WeatherFragment());
+            WeatherFragment tempFrag =new WeatherFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            tempFrag.setArguments(args);
+            loadFragment(tempFrag);
         } else if(id == R.id.nav_connection_fragment){
 
            loadConnectionFragment();
@@ -246,7 +250,7 @@ public class HomeActivity extends AppCompatActivity
 
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-        frag.setArguments(args);
+        //frag.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, frag)
