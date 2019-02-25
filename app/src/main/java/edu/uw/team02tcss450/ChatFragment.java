@@ -2,6 +2,7 @@ package edu.uw.team02tcss450;
 
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +69,8 @@ public class ChatFragment extends Fragment {
         if (mPushMessageReciever != null){
             getActivity().unregisterReceiver(mPushMessageReciever);
         }
+        FloatingActionButton fab = (FloatingActionButton)getActivity().findViewById(R.id.fab);
+        fab.show();
     }
 
 
@@ -83,7 +86,8 @@ public class ChatFragment extends Fragment {
         mMessageOutputTextView = rootLayout.findViewById(R.id.text_chat_message_display);
         mMessageInputEditText = rootLayout.findViewById(R.id.edit_chat_message_input);
         rootLayout.findViewById(R.id.button_chat_send).setOnClickListener(this::handleSendClick);
-
+        FloatingActionButton fab = (FloatingActionButton)rootLayout.findViewById(R.id.fab);
+        fab.hide();
         return rootLayout;
     }
 
