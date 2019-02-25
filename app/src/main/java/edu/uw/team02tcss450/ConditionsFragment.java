@@ -81,14 +81,13 @@ public class ConditionsFragment extends Fragment {
         // location=98335&u=f
         String location = "98404";
         String unit = "f";
-        String temp = "?"+getString(R.string.keys_weather_location)+"="+location
-                +"&"+getString(R.string.keys_weather_units)+"="+unit;
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_weather))
                 .appendPath(getString(R.string.ep_forecast))
-                .appendEncodedPath(temp)
+                .appendQueryParameter(getString(R.string.keys_weather_location), location)
+                .appendQueryParameter(getString(R.string.keys_weather_units), unit)
                 .build();
         //Log.d("Conditions pre", uri.toString());
         //build the JSONObject
