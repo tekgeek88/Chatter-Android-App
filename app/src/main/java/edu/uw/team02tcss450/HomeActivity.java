@@ -1,6 +1,5 @@
 package edu.uw.team02tcss450;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,11 +7,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -32,7 +28,7 @@ public class HomeActivity extends AppCompatActivity
         WaitFragment.OnFragmentInteractionListener,
         ChangePasswordFragment.OnChangePasswordFragmentInteractionListener,
         VerificationFragment.OnVerificationFragmentInteractionListener,
-        WeatherFragment.OnWeatherFragmentInteractionListener {
+        WeatherFragment.OnWeatherFragmentInteractionListener, RequestsTabFragment.OnRequestTabbedFragmentInteractionListener {
 
     private String mJwToken;
     private String mEmail;
@@ -50,13 +46,13 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        Pushy.listen(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                loadChatFragment();
+                fab.hide();
             }
         });
 
@@ -82,6 +78,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     }
+
 
 
     @Override
@@ -138,8 +135,8 @@ public class HomeActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_logout_fragment) {
             logout();
-
-
+        }  else if (id == R.id.nav_tabbed_request_fragment) {
+            loadFragment(new RequestsTabFragment());
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -164,11 +161,23 @@ public class HomeActivity extends AppCompatActivity
         transaction.commit();
     }
 
+
+    public void loadChatFragment() {
+        ChatFragment chatFragment = new ChatFragment();
+        Bundle args = new Bundle();
+
+        args.putSerializable(getString(R.string.key_email), mEmail);
+        args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+        chatFragment.setArguments(args);
+        loadFragment(chatFragment);
+    }
+
     private void loadHomeFragment() {
         Credentials credentials = (Credentials) getIntent()
                 .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
 
         mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
+        mEmail = credentials.getEmail();
 
         HomeFragment homeFragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -265,6 +274,11 @@ public class HomeActivity extends AppCompatActivity
     public void onGoBackLoginClicked() {
 
         logout();
+    }
+
+    @Override
+    public void onRequestTabbedFragmentInteraction(Uri uri) {
+
     }
 
 

@@ -45,7 +45,7 @@ public class PushReceiver extends BroadcastReceiver {
 
         if (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE) {
             //app is in the foreground so send the message to the active Activities
-            Log.d("PhishApp", "Message received in foreground: " + messageText);
+            Log.d("ChatterApp", "Message received in foreground: " + messageText);
 
             //create an Intent to broadcast a message to other parts of the app.
             Intent i = new Intent(RECEIVED_NEW_MESSAGE);
@@ -57,7 +57,7 @@ public class PushReceiver extends BroadcastReceiver {
 
         } else {
             //app is in the background so create and post a notification
-            Log.d("PhishApp", "Message received in background: " + messageText);
+            Log.d("ChatterApp", "Message received in background: " + messageText);
 
             Intent i = new Intent(context, MainActivity.class);
             i.putExtras(intent.getExtras());
