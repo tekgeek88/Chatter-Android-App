@@ -150,7 +150,7 @@ public class HomeActivity extends AppCompatActivity
            loadConnectionFragment();
 
         }else if (id == R.id.nav_chat_fragment) {
-
+            loadChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
 
         //}
