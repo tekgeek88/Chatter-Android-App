@@ -17,8 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.uw.team02tcss450.ConnectionListFragment.OnListFragmentInteractionListener;
-import edu.uw.team02tcss450.dummy.DummyContent;
-import edu.uw.team02tcss450.dummy.DummyContent.DummyItem;
 import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 
@@ -27,11 +25,6 @@ import java.util.List;
 
 import static android.provider.Settings.System.getString;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<MyConnectionListRecyclerViewAdapter.ViewHolder> {
 
     private final List<Connections> mValues;
