@@ -91,7 +91,7 @@ public class LoginFragment extends Fragment {
         @Override
         protected void onPostExecute(String deviceToken) {
             // Log it for debugging purposes
-            Log.d("PhishApp", "Pushy device token: " + deviceToken);
+            Log.d("ChatterApp", "Pushy device token: " + deviceToken);
 
             //build the web service URL
             Uri uri = new Uri.Builder()
@@ -116,7 +116,6 @@ public class LoginFragment extends Fragment {
                     .onCancelled(LoginFragment.this::handleErrorsInTask)
                     .addHeaderField("authorization", mJwt)
                     .build().execute();
-
         }
     }
 
@@ -329,10 +328,10 @@ public class LoginFragment extends Fragment {
                             getString(R.string.keys_json_login_success));
             if (success) {
                 //Login was successful. Switch to the loadSuccessFragment.
+                mJwt = resultsJSON.getString(getString(R.string.keys_json_login_jwt));
+
                 new RegisterForPushNotificationsAsync().execute();
 
-                mJwt = resultsJSON.getString(
-                        getString(R.string.keys_json_login_jwt));
                 return;
             } else {
                 //Login was unsuccessful. Don’t switch fragments and
@@ -386,6 +385,8 @@ public class LoginFragment extends Fragment {
                     .setError("Login Unsuccessful");
         }
     }
+
+
 
 
 }
