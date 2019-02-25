@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +59,7 @@ public class ConnectionListFragment extends Fragment {
             super.onCreate(savedInstanceState);
 
             if (getArguments() != null) {
-
+                Log.e("List", getArguments().toString());
 
                 mConnections = new ArrayList<Connections>(
                         Arrays.asList((Connections[]) getArguments().getSerializable(ARG_CONNECTION_LIST)));
