@@ -81,8 +81,6 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-
-
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
                 Credentials credentials = (Credentials) getIntent()
