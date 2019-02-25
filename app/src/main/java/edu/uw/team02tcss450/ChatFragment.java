@@ -86,8 +86,6 @@ public class ChatFragment extends Fragment {
         mMessageOutputTextView = rootLayout.findViewById(R.id.text_chat_message_display);
         mMessageInputEditText = rootLayout.findViewById(R.id.edit_chat_message_input);
         rootLayout.findViewById(R.id.button_chat_send).setOnClickListener(this::handleSendClick);
-        FloatingActionButton fab = (FloatingActionButton)rootLayout.findViewById(R.id.fab);
-        fab.hide();
         return rootLayout;
     }
 

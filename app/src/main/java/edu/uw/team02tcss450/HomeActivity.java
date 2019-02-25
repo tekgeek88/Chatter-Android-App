@@ -63,11 +63,11 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         Pushy.listen(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.hide();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 loadChatFragment();
-                fab.hide();
             }
         });
 
