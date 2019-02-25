@@ -23,7 +23,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.uw.team02tcss450.dummy.DummyContent;
+import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
+import edu.uw.team02tcss450.utils.GetAsyncTask;
 import me.pushy.sdk.Pushy;
 
 public class HomeActivity extends AppCompatActivity
@@ -32,10 +42,13 @@ public class HomeActivity extends AppCompatActivity
         WaitFragment.OnFragmentInteractionListener,
         ChangePasswordFragment.OnChangePasswordFragmentInteractionListener,
         VerificationFragment.OnVerificationFragmentInteractionListener,
+        ConnectionListFragment.OnListFragmentInteractionListener,
+        ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener {
 
     private String mJwToken;
     private String mEmail;
+
 
 
     @Override
@@ -69,10 +82,13 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+
+
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
                 Credentials credentials = (Credentials) getIntent()
-                        .getSerializableExtra(getString(R.string.keys_intent_credentials));
+                        .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
                 String emailAddress = mEmail = credentials.getEmail();
                 final Bundle args = new Bundle();
                 args.putString(getString(R.string.key_email), emailAddress);
@@ -130,7 +146,11 @@ public class HomeActivity extends AppCompatActivity
             loadHomeFragment();
         } else if (id == R.id.nav_weather_fragment) {
             loadFragment(new WeatherFragment());
-        } else if (id == R.id.nav_chat_fragment) {
+        } else if(id == R.id.nav_connection_fragment){
+
+           loadConnectionFragment();
+
+        }else if (id == R.id.nav_chat_fragment) {
 
         } else if (id == R.id.nav_profile_fragment) {
 
@@ -147,10 +167,77 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
+    private void loadConnectionFragment(){
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("username",credentials.getUsername())
+                .build();
+
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleConnectionListGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+    }
+
+    private void handleConnectionListGetOnPostExecute(final String result) {
+        //parse JSON
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<Connections> connectionList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                                jsonConnection.getString("firstname"),
+                                jsonConnection.getString("lastname"),
+                                jsonConnection.getString("username"),
+                                jsonConnection.getInt("verified"))
+                                .build());
+                    }
+                   // Log.d("cded","ghjkl");
+                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    connectionAsArray = connectionList.toArray(connectionAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(ConnectionListFragment.ARG_CONNECTION_LIST, connectionAsArray);
+                    Fragment frag = new ConnectionListFragment();
+                    frag.setArguments(args);
+                    onWaitFragmentInteractionHide();
+
+                    loadFragment(frag);
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
 
     @Override
     protected void onStart() {
         super.onStart();
+
         loadHomeFragment();
     }
 
@@ -265,6 +352,122 @@ public class HomeActivity extends AppCompatActivity
     public void onGoBackLoginClicked() {
 
         logout();
+    }
+
+
+
+    @Override
+    public void onListFragmentInteraction(Connections mItem) {
+
+
+        ConnectionDetailFragment connectionDetail = new ConnectionDetailFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("firstname", mItem.getFirstName());
+        args.putSerializable("lastname", mItem.getLastName());
+        args.putSerializable("username", mItem.getUserName());
+        args.putSerializable("action", mItem.getVerified());
+
+        connectionDetail.setArguments(args);
+        loadFragment(connectionDetail);
+
+
+
+    }
+
+    @Override
+    public void OnIndividualConnectionAddInteraction(String username) {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from",credentials.getUsername())
+                .appendQueryParameter("sent_to", username)
+                .build();
+
+        Log.d("a1",username);
+        Log.d("a1",credentials.getUsername());
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleConnectionAddListGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+
+
+
+    }
+
+    private void handleConnectionAddListGetOnPostExecute(final String result) {
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                    loadConnectionFragment();
+
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+
+    }
+
+    @Override
+    public void OnIndividualConnectionRemoveInteraction(String username) {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+              //  .appendPath("delete")
+                .appendQueryParameter("sent_from",credentials.getUsername())
+                .appendQueryParameter("sent_to", username)
+                .build();
+
+        new DelAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleConnectionRemoveListGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+
+
+    }
+
+    private void handleConnectionRemoveListGetOnPostExecute(final String result) {
+
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                loadConnectionFragment();
+
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+
+    }
+
+    @Override
+    public void OnIndividualConnectionChatInteraction(String url) {
+        loadFragment(new ChatFragment());
     }
 
 
