@@ -244,6 +244,9 @@ public class HomeActivity extends AppCompatActivity
 
     private void loadFragment(Fragment frag) {
 
+        Bundle args = new Bundle();
+        args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+        frag.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, frag)
