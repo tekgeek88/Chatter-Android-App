@@ -48,17 +48,21 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -131,15 +135,13 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_weather_fragment) {
             loadFragment(new WeatherFragment());
         } else if (id == R.id.nav_chat_fragment) {
-
+            getInfoToChatFragment();
         } else if (id == R.id.nav_profile_fragment) {
 
         } else if (id == R.id.nav_setting_fragment) {
 
         } else if (id == R.id.nav_logout_fragment) {
             logout();
-
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -242,7 +244,6 @@ public class HomeActivity extends AppCompatActivity
         changePassFragment.setArguments(args);
         loadFragment(changePassFragment);
 
-
     }
 
     @Override
@@ -257,6 +258,19 @@ public class HomeActivity extends AppCompatActivity
 
         verificationFragment.setArguments(args);
         loadFragment(verificationFragment);
+
+    }
+
+    public void getInfoToChatFragment() {
+
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        ChatFragment chatFragment = new ChatFragment();
+        Bundle args = new Bundle();
+        args.putString(getString(R.string.keys_intent_credentials), credentials.getEmail());
+        args.putString(getString(R.string.keys_intent_jwt), mJwToken);
+        chatFragment.setArguments(args);
+        loadFragment(chatFragment);
 
     }
 

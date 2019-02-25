@@ -76,6 +76,11 @@
         Password has been changed associated with the account below
      </string>
 
+    <!--In Chat Fragment-->
+    <string name="string_fragment_chat_write_a_message_hint">Write a message</string>
+
+
+
 
 </resources>
 

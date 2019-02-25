@@ -1,6 +1,7 @@
 package edu.uw.team02tcss450;
 
 import edu.uw.team02tcss450.model.Credentials;
+import me.pushy.sdk.Pushy;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        Pushy.listen(this);
 
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {

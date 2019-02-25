@@ -36,8 +36,9 @@
         <!-- Pushy Declarations -->
         <!-- Pushy Notification Receiver -->
         <!-- Incoming push notifications will invoke the following BroadcastReceiver -->
+        <!--change android:name=".utils.PushReceiver" to "edu.uw.team02tcss450.utils.PushReceiver"-->
         <receiver
-            android:name=".utils.PushReceiver"
+            android:name="edu.uw.team02tcss450.utils.PushReceiver"
             android:exported="false">
             <intent-filter>
 
