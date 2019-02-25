@@ -177,13 +177,17 @@ public class HomeActivity extends AppCompatActivity
         loadFragment(homeFragment);
 
         // Alex
+        ConditionsFragment conFrag = new ConditionsFragment();
+        Bundle conArgs = new Bundle();
+        conArgs.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+        conFrag.setArguments(conArgs);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, homeFragment);
         transaction.commit();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.layout_fragment_home_conditions_container, new ConditionsFragment())
+                .replace(R.id.layout_fragment_home_conditions_container, conFrag)
                 .commit();
     }
 

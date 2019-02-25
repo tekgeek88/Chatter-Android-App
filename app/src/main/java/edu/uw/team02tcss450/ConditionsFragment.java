@@ -32,6 +32,7 @@ public class ConditionsFragment extends Fragment {
         Speed, Wind, Set, Rise, Temp, Description, High, Low, Location
     }
 
+    private String mJwt = "";
 
     private  Map<Weather, TextView> mViews = new HashMap<Weather, TextView>();
 
@@ -64,9 +65,15 @@ public class ConditionsFragment extends Fragment {
         super.onResume();
     }
 
+
     @Override
     public void onStart () {
         super.onStart();
+
+        if (getArguments() != null) {
+            mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
+        }
+
         //build the web service URL
         //https://team02-tcss450-backend.herokuapp.com/
         //weather/
@@ -91,6 +98,7 @@ public class ConditionsFragment extends Fragment {
         //Feel free to add a handler for onPreExecution so that a progress bar
         //is displayed or maybe disable buttons.
         new GetAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
                 .onPreExecute(this::handleWeatherOnPre)
                 .onPostExecute(this::handleWeatherOnPost)
                 .onCancelled(this::handleWeatherInError)
@@ -185,6 +193,7 @@ public class ConditionsFragment extends Fragment {
 
 
         } catch (JSONException e) {
+            Log.e("Conditions", e.toString());
             e.printStackTrace();
         }
 
