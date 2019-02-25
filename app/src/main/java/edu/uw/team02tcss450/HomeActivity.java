@@ -151,15 +151,17 @@ public class HomeActivity extends AppCompatActivity
 
         }else if (id == R.id.nav_chat_fragment) {
 
-        } else if (id == R.id.nav_profile_fragment) {
+        } //else if (id == R.id.nav_profile_fragment) {
 
-        } else if (id == R.id.nav_setting_fragment) {
+        //}
+    // else if (id == R.id.nav_setting_fragment) {
 
-        } else if (id == R.id.nav_logout_fragment) {
+         else if (id == R.id.nav_logout_fragment) {
             logout();
-        }  else if (id == R.id.nav_tabbed_request_fragment) {
-            loadFragment(new RequestsTabFragment());
         }
+//        }  else if (id == R.id.nav_tabbed_request_fragment) {
+//            loadFragment(new RequestsTabFragment());
+//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
