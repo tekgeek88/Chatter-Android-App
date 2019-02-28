@@ -15,6 +15,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:ems="10"
+        android:hint="@string/text_fragment_weather_zip"
         android:inputType="textPostalAddress"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -914,7 +915,7 @@
     </ScrollView>
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/imagebutton_fragment_weather_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

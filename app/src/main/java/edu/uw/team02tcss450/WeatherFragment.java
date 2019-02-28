@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -31,6 +33,12 @@ public class WeatherFragment extends Fragment {
 
     private TextView[][] mViews = new TextView[4][10];
 
+    private EditText mInputText;
+
+    private String mLocation = "98404";
+
+    private String mUnit = "f";
+
     private OnWeatherFragmentInteractionListener mListener;
 
     public WeatherFragment() {
@@ -49,9 +57,29 @@ public class WeatherFragment extends Fragment {
             mViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
             mViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
         }
+        ImageButton searchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
+        searchButton.setOnClickListener(this::onSearch);
+        mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
         return view;
     }
 
+    private void reloadWeather () {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_forecast))
+                .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
+                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleWeatherOnPre)
+                .onPostExecute(this::handleWeatherOnPost)
+                .onCancelled(this::handleWeatherInError)
+                .build().execute();
+    }
 
     @Override
     public void onStart () {
@@ -59,39 +87,19 @@ public class WeatherFragment extends Fragment {
 
         if (getArguments() != null) {
             mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
+            //Get the location
+            //Get the unit
         }
 
-        //build the web service URL
-        //https://team02-tcss450-backend.herokuapp.com/
-        //weather/
-        //forecast?
-        // location=98335&u=f
-        String location = "98404";
-        String unit = "f";
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_forecast))
-                .appendQueryParameter(getString(R.string.keys_weather_location), location)
-                .appendQueryParameter(getString(R.string.keys_weather_units), unit)
-                .build();
-        //Log.d("Conditions pre", uri.toString());
-        //build the JSONObject
-
-
-        //instantiate and execute the AsyncTask.
-        //Feel free to add a handler for onPreExecution so that a progress bar
-        //is displayed or maybe disable buttons.
-        new GetAsyncTask.Builder(uri.toString())
-                .addHeaderField("authorization", mJwt)
-                .onPreExecute(this::handleWeatherOnPre)
-                .onPostExecute(this::handleWeatherOnPost)
-                .onCancelled(this::handleWeatherInError)
-                .build().execute();
+        reloadWeather();
 
     }
 
+    private void onSearch(View v){
+        mLocation = mInputText.getText().toString();
+        mInputText.setText("");
+        reloadWeather();
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -126,7 +134,15 @@ public class WeatherFragment extends Fragment {
     private void handleWeatherOnPost (String result) {
         //Log.d("Conditions post", result);
         try {
+            //Log.d("Weather", result);
             JSONObject fullResult = new JSONObject(result);
+            if (fullResult.has("success") && fullResult.getString("success").equals("false")) {
+                mInputText.setError(getString(R.string.text_fragment_weather_invalid_zip));
+                return;
+            } else {
+                mInputText.setError(null);
+
+            }
             JSONObject location = fullResult.getJSONObject("location");//location
             JSONObject currentObs = fullResult.getJSONObject("current_observation");//current_observation
             JSONArray forecast = fullResult.getJSONArray("forecasts");//forecasts
