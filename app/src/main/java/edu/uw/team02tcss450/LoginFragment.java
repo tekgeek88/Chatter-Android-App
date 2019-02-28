@@ -4,6 +4,7 @@ package edu.uw.team02tcss450;
 import android.app.ActionBar;
 import android.content.Context;
 
+import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
 
 import android.content.SharedPreferences;
@@ -24,6 +25,9 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
@@ -332,6 +336,20 @@ public class LoginFragment extends Fragment {
 
                 new RegisterForPushNotificationsAsync().execute();
 
+
+                mJwt = resultsJSON.getString(
+                        getString(R.string.keys_json_login_jwt));
+                if (resultsJSON.has("data")) {
+                    JSONObject resultsJSONJSONObject = resultsJSON.getJSONObject("data");
+                    //JSONObject data = resultsJSON.getJSONObject("data");
+                  // JSONArray jsonConnection = data.getJSONArray("data");
+                   Credentials.Builder builder =  new Credentials.Builder(mCredentials.getEmail(),
+                                mCredentials.getPassword());
+                   builder.addUsername(resultsJSONJSONObject.getString("username")).build();
+
+
+                   mCredentials = builder.build();
+                }
                 return;
             } else {
                 //Login was unsuccessful. Don’t switch fragments and

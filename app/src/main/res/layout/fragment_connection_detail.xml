@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConnectionDetailFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:id="@+id/textview_connection_detail_fName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_connection_detail_lName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_connection_detail_fName" />
+
+    <TextView
+        android:id="@+id/textview_connection_detail_userName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="TextView"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textview_connection_detail_lName" />
+
+    <Button
+        android:id="@+id/button_connection_detail_action"
+        android:layout_width="138dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="20dp"
+        android:text="Action"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/textview_connection_detail_userName"
+        app:layout_constraintTop_toBottomOf="@+id/textview_connection_detail_userName" />
+
+    <Button
+        android:id="@+id/button_connection_detail_chat"
+        android:layout_width="140dp"
+        android:layout_height="68dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="92dp"
+        android:text="Chat"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/button_connection_detail_action"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>

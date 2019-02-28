@@ -4,7 +4,6 @@
 
 
     <!--##########  Text Field Constants  ##########-->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="text_username">User Name</string>
     <string name="text_firstname">First Name</string>
     <string name="text_lastname">Last Name</string>
@@ -79,6 +78,10 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--  In Connections Fragment  -->
+    <string name="text_connection">Connections</string>
+
 
 
 </resources>
