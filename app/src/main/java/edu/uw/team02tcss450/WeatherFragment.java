@@ -27,7 +27,9 @@ import edu.uw.team02tcss450.utils.GetAsyncTask;
  * {@link OnWeatherFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class WeatherFragment extends Fragment {
+public class WeatherFragment extends Fragment implements WaitFragment.OnFragmentInteractionListener{
+
+    private WaitFragment.OnFragmentInteractionListener mWaitListener;
 
     private String mJwt;
 
@@ -116,6 +118,8 @@ public class WeatherFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnWeatherFragmentInteractionListener");
+        }if (context instanceof WaitFragment.OnFragmentInteractionListener) {
+            mWaitListener = (WaitFragment.OnFragmentInteractionListener) context;
         }
     }
 
@@ -128,7 +132,7 @@ public class WeatherFragment extends Fragment {
 
 
     private void handleWeatherOnPre () {
-
+        mWaitListener.onWaitFragmentInteractionShow();
     }
 
     private void handleWeatherOnPost (String result) {
@@ -138,6 +142,7 @@ public class WeatherFragment extends Fragment {
             JSONObject fullResult = new JSONObject(result);
             if (fullResult.has("success") && fullResult.getString("success").equals("false")) {
                 mInputText.setError(getString(R.string.text_fragment_weather_invalid_zip));
+                mWaitListener.onWaitFragmentInteractionHide();
                 return;
             } else {
                 mInputText.setError(null);
@@ -148,12 +153,6 @@ public class WeatherFragment extends Fragment {
             JSONArray forecast = fullResult.getJSONArray("forecasts");//forecasts
 
 
-
-            //Log.d("Conditions forecast", forecast.);
-//            temp = "Low " + forecast.getJSONObject(0).getString("low") + "\u00b0";
-//            mViews.get(ConditionsFragment.Weather.Low).setText(temp);
-//            temp = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
-//            mViews.get(ConditionsFragment.Weather.High).setText(temp);
             String temp[] = new String[4];
             for (int i = 0; i < 10; i++){
                 temp[0] = forecast.getJSONObject(i).getString("day");
@@ -165,7 +164,9 @@ public class WeatherFragment extends Fragment {
                 mViews[2][i].setText(temp[2]);
                 mViews[3][i].setText(temp[3]);
             }
-            //Log.d("Weather", Arrays.toString(temp));
+
+            mWaitListener.onWaitFragmentInteractionHide();
+
 
             /**
              * day = 0
@@ -173,55 +174,6 @@ public class WeatherFragment extends Fragment {
              * low = 2
              * text = 3
              */
-
-
-/**
- * "location": {
- *         "woeid": 12799101,
- *         "city": "Gig Harbor",
- *         "region": " WA",
- *         "country": "United States",
- *         "lat": 47.299831,
- *         "long": -122.617188,
- *         "timezone_id": "America/Los_Angeles"
- *     },
- *     "current_observation": {
- *         "wind": {
- *             "chill": 39,
- *             "direction": 200,
- *             "speed": 5.59
- *         },
- *         "atmosphere": {
- *             "humidity": 69,
- *             "visibility": 10,
- *             "pressure": 29.94,
- *             "rising": 0
- *         },
- *         "astronomy": {
- *             "sunrise": "7:02 am",
- *             "sunset": "5:47 pm"
- *         },
- *         "condition": {
- *             "text": "Showers",
- *             "code": 11,
- *             "temperature": 43
- *         },
- *         "pubDate": 1550966400
- *     },"forecasts": [
- *         {
- *             "day": "Sat",
- *             "date": 1550908800,
- *             "low": 35,
- *             "high": 44,
- *             "text": "Showers",
- *             "code": 11
- *         },
- */
-
-
-
-
-
 
         } catch (JSONException e) {
             Log.e("Weather", e.toString());
@@ -232,6 +184,16 @@ public class WeatherFragment extends Fragment {
 
     private void handleWeatherInError (String result) {
         Log.d("Weather", result);
+    }
+
+    @Override
+    public void onWaitFragmentInteractionShow() {
+
+    }
+
+    @Override
+    public void onWaitFragmentInteractionHide() {
+
     }
 
     /**
