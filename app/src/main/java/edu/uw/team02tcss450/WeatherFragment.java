@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -25,11 +27,19 @@ import edu.uw.team02tcss450.utils.GetAsyncTask;
  * {@link OnWeatherFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class WeatherFragment extends Fragment {
+public class WeatherFragment extends Fragment implements WaitFragment.OnFragmentInteractionListener{
+
+    private WaitFragment.OnFragmentInteractionListener mWaitListener;
 
     private String mJwt;
 
     private TextView[][] mViews = new TextView[4][10];
+
+    private EditText mInputText;
+
+    private String mLocation = "98404";
+
+    private String mUnit = "f";
 
     private OnWeatherFragmentInteractionListener mListener;
 
@@ -49,9 +59,29 @@ public class WeatherFragment extends Fragment {
             mViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
             mViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
         }
+        ImageButton searchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
+        searchButton.setOnClickListener(this::onSearch);
+        mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
         return view;
     }
 
+    private void reloadWeather () {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_forecast))
+                .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
+                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleWeatherOnPre)
+                .onPostExecute(this::handleWeatherOnPost)
+                .onCancelled(this::handleWeatherInError)
+                .build().execute();
+    }
 
     @Override
     public void onStart () {
@@ -59,39 +89,19 @@ public class WeatherFragment extends Fragment {
 
         if (getArguments() != null) {
             mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
+            //Get the location
+            //Get the unit
         }
 
-        //build the web service URL
-        //https://team02-tcss450-backend.herokuapp.com/
-        //weather/
-        //forecast?
-        // location=98335&u=f
-        String location = "98404";
-        String unit = "f";
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_forecast))
-                .appendQueryParameter(getString(R.string.keys_weather_location), location)
-                .appendQueryParameter(getString(R.string.keys_weather_units), unit)
-                .build();
-        //Log.d("Conditions pre", uri.toString());
-        //build the JSONObject
-
-
-        //instantiate and execute the AsyncTask.
-        //Feel free to add a handler for onPreExecution so that a progress bar
-        //is displayed or maybe disable buttons.
-        new GetAsyncTask.Builder(uri.toString())
-                .addHeaderField("authorization", mJwt)
-                .onPreExecute(this::handleWeatherOnPre)
-                .onPostExecute(this::handleWeatherOnPost)
-                .onCancelled(this::handleWeatherInError)
-                .build().execute();
+        reloadWeather();
 
     }
 
+    private void onSearch(View v){
+        mLocation = mInputText.getText().toString();
+        mInputText.setText("");
+        reloadWeather();
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -108,6 +118,8 @@ public class WeatherFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnWeatherFragmentInteractionListener");
+        }if (context instanceof WaitFragment.OnFragmentInteractionListener) {
+            mWaitListener = (WaitFragment.OnFragmentInteractionListener) context;
         }
     }
 
@@ -120,24 +132,27 @@ public class WeatherFragment extends Fragment {
 
 
     private void handleWeatherOnPre () {
-
+        mWaitListener.onWaitFragmentInteractionShow();
     }
 
     private void handleWeatherOnPost (String result) {
         //Log.d("Conditions post", result);
         try {
+            //Log.d("Weather", result);
             JSONObject fullResult = new JSONObject(result);
+            if (fullResult.has("success") && fullResult.getString("success").equals("false")) {
+                mInputText.setError(getString(R.string.text_fragment_weather_invalid_zip));
+                mWaitListener.onWaitFragmentInteractionHide();
+                return;
+            } else {
+                mInputText.setError(null);
+
+            }
             JSONObject location = fullResult.getJSONObject("location");//location
             JSONObject currentObs = fullResult.getJSONObject("current_observation");//current_observation
             JSONArray forecast = fullResult.getJSONArray("forecasts");//forecasts
 
 
-
-            //Log.d("Conditions forecast", forecast.);
-//            temp = "Low " + forecast.getJSONObject(0).getString("low") + "\u00b0";
-//            mViews.get(ConditionsFragment.Weather.Low).setText(temp);
-//            temp = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
-//            mViews.get(ConditionsFragment.Weather.High).setText(temp);
             String temp[] = new String[4];
             for (int i = 0; i < 10; i++){
                 temp[0] = forecast.getJSONObject(i).getString("day");
@@ -149,7 +164,9 @@ public class WeatherFragment extends Fragment {
                 mViews[2][i].setText(temp[2]);
                 mViews[3][i].setText(temp[3]);
             }
-            //Log.d("Weather", Arrays.toString(temp));
+
+            mWaitListener.onWaitFragmentInteractionHide();
+
 
             /**
              * day = 0
@@ -157,55 +174,6 @@ public class WeatherFragment extends Fragment {
              * low = 2
              * text = 3
              */
-
-
-/**
- * "location": {
- *         "woeid": 12799101,
- *         "city": "Gig Harbor",
- *         "region": " WA",
- *         "country": "United States",
- *         "lat": 47.299831,
- *         "long": -122.617188,
- *         "timezone_id": "America/Los_Angeles"
- *     },
- *     "current_observation": {
- *         "wind": {
- *             "chill": 39,
- *             "direction": 200,
- *             "speed": 5.59
- *         },
- *         "atmosphere": {
- *             "humidity": 69,
- *             "visibility": 10,
- *             "pressure": 29.94,
- *             "rising": 0
- *         },
- *         "astronomy": {
- *             "sunrise": "7:02 am",
- *             "sunset": "5:47 pm"
- *         },
- *         "condition": {
- *             "text": "Showers",
- *             "code": 11,
- *             "temperature": 43
- *         },
- *         "pubDate": 1550966400
- *     },"forecasts": [
- *         {
- *             "day": "Sat",
- *             "date": 1550908800,
- *             "low": 35,
- *             "high": 44,
- *             "text": "Showers",
- *             "code": 11
- *         },
- */
-
-
-
-
-
 
         } catch (JSONException e) {
             Log.e("Weather", e.toString());
@@ -216,6 +184,16 @@ public class WeatherFragment extends Fragment {
 
     private void handleWeatherInError (String result) {
         Log.d("Weather", result);
+    }
+
+    @Override
+    public void onWaitFragmentInteractionShow() {
+
+    }
+
+    @Override
+    public void onWaitFragmentInteractionHide() {
+
     }
 
     /**
