@@ -2,12 +2,14 @@
 <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
+    android:id="@+id/fragment_requests_container"
     android:name="edu.uw.team02tcss450.RequestListFragmentFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginVertical="@dimen/activity_vertical_margin"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
+    android:background="@color/colorPrimary"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".RequestListFragmentFragment"
-    tools:listitem="@layout/fragment_requestlistfragment" />
+    tools:context=".RequestSentListFragment"
+    tools:listitem="@layout/fragment_requestlist_item" />

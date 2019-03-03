@@ -19,6 +19,7 @@
     <!--#############  Intents  #############-->
     <string name="keys_intent_credentials">intent key for creds</string>
     <string name="keys_intent_jwt">intent key for jwt</string>
+    <string name="keys_intent_connections">intent key for connections</string>
     <string name="keys_intent_notification_msg">was app started from message notification?</string>
     <string name="key_email">email_intent</string>
 

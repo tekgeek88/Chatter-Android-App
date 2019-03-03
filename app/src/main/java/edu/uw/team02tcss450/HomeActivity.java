@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,9 +30,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
+import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 import me.pushy.sdk.Pushy;
 
@@ -41,19 +44,13 @@ public class HomeActivity extends AppCompatActivity
         VerificationFragment.OnVerificationFragmentInteractionListener,
         ConnectionListFragment.OnListFragmentInteractionListener,
         ConnectionDetailFragment.OnIndividualConnectionListener,
-        WeatherFragment.OnWeatherFragmentInteractionListener, RequestsTabFragment.OnRequestTabbedFragmentInteractionListener {
+        WeatherFragment.OnWeatherFragmentInteractionListener,
+        RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener {
 
 
     private String mJwToken;
     private String mEmail;
-
-
-
-    @Override
-    public void onWeatherFragmentInteraction(Uri uri) {
-
-    }
-
+    private String mUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,16 +82,13 @@ public class HomeActivity extends AppCompatActivity
             if (findViewById(R.id.main_container) != null) {
                 Credentials credentials = (Credentials) getIntent()
                         .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-                String emailAddress = mEmail = credentials.getEmail();
+                mEmail = credentials.getEmail();
+                mUsername = credentials.getEmail();
                 final Bundle args = new Bundle();
-                args.putString(getString(R.string.key_email), emailAddress);
-
+                args.putString(getString(R.string.key_email), mEmail);
             }
         }
-
-
     }
-
 
 
     @Override
@@ -142,15 +136,13 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.nav_home_fragment) {
             loadHomeFragment();
         } else if (id == R.id.nav_weather_fragment) {
-            WeatherFragment tempFrag =new WeatherFragment();
+            WeatherFragment tempFrag = new WeatherFragment();
             Bundle args = new Bundle();
             args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
         } else if(id == R.id.nav_connection_fragment){
-
            loadConnectionFragment();
-
         }else if (id == R.id.nav_chat_fragment) {
             loadChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
@@ -160,10 +152,12 @@ public class HomeActivity extends AppCompatActivity
 
          else if (id == R.id.nav_logout_fragment) {
             logout();
+        } else if (id == R.id.nav_requests_sent_list_fragment) {
+            loadRequestsSentFragment();
         }
-//        }  else if (id == R.id.nav_tabbed_request_fragment) {
-//            loadFragment(new RequestsTabFragment());
-//        }
+        else if (id == R.id.nav_requests_received_list_fragment) {
+            loadRequestsReceivedFragment();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -186,6 +180,46 @@ public class HomeActivity extends AppCompatActivity
                 .onPostExecute(this::handleConnectionListGetOnPostExecute)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
+
+    }
+
+    private void loadRequestsSentFragment(){
+
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", credentials.getUsername())
+                .build();
+
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRequestSentOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+    }
+
+    private void loadRequestsReceivedFragment(){
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_to",credentials.getUsername())
+                .build();
+
+        GetAsyncTask task = new GetAsyncTask.Builder(uri.toString())
+                                .onPreExecute(this::onWaitFragmentInteractionShow)
+                                .onPostExecute(this::handleRequestReceivedOnPostExecute)
+                                .addHeaderField("authorization", mJwToken)
+                                .build();
+                                task.execute();
+
 
     }
 
@@ -237,13 +271,162 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
+    public void handleRequestOnPostWithToast(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Success: " + response,
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + response,
+                            Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + response,
+                        Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+
+    public void handleRequestReceivedOnPostExecute(final String result) {
+        //parse JSON
+        String error;
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            error = resultsJSON.getString("message");
+            if (success) {
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<Connections> connectionList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                                jsonConnection.getString("firstname"),
+                                jsonConnection.getString("lastname"),
+                                jsonConnection.getString("username"),
+                                jsonConnection.getInt("verified"))
+                                .build());
+                    }
+                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    connectionAsArray = connectionList.toArray(connectionAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    Fragment frag = new RequestReceivedListFragment();
+                    frag.setArguments(args);
+                    onWaitFragmentInteractionHide();
+                    loadFragment(frag, RequestReceivedListFragment.TAG);
+                } else {
+                    Log.e("ERROR!", error);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + error,
+                            Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.e("ERROR!", error);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + error,
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+
+    public Fragment handleRequestSentOnPostExecute(final String result) {
+        //parse JSON
+        String error;
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            error = resultsJSON.getString("message");
+            if (success) {
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<Connections> connectionList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                                jsonConnection.getString("firstname"),
+                                jsonConnection.getString("lastname"),
+                                jsonConnection.getString("username"),
+                                jsonConnection.getInt("verified"))
+                                .build());
+                    }
+                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    connectionAsArray = connectionList.toArray(connectionAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    Fragment frag = new RequestSentListFragment();
+                    frag.setArguments(args);
+                    onWaitFragmentInteractionHide();
+                    loadFragment(frag, RequestSentListFragment.TAG);
+                } else {
+                    Log.e("ERROR!", error);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + error,
+                            Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.e("ERROR!", error);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + error,
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+
+        }
+        return null;
+    }
+
+
     @Override
     protected void onStart() {
         super.onStart();
         loadHomeFragment();
     }
 
-    private void loadFragment(Fragment frag) {
+    public void loadFragment(Fragment frag) {
 
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
@@ -251,12 +434,24 @@ public class HomeActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, frag)
-                .addToBackStack(null);
+                .addToBackStack(frag.getTag());
         // Commit the transaction
         transaction.commit();
     }
 
-
+    public void loadFragment(Fragment frag, String tag) {
+        removeFragment(tag);
+        Bundle args = new Bundle();
+        args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+        //frag.setArguments(args);
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, frag, tag)
+                .addToBackStack(null);
+        // Commit the transaction
+        transaction.commit();
+    }
+    
     public void loadChatFragment() {
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -291,7 +486,8 @@ public class HomeActivity extends AppCompatActivity
         transaction.commit();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.layout_fragment_home_conditions_container, conFrag)
+                .replace(R.id.layout_fragment_home_conditions_container, conFrag, ConditionsFragment.TAG)
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -375,12 +571,6 @@ public class HomeActivity extends AppCompatActivity
         logout();
     }
 
-    @Override
-    public void onRequestTabbedFragmentInteraction(Uri uri) {
-
-    }
-
-
 
     @Override
     public void onListFragmentInteraction(Connections mItem) {
@@ -419,10 +609,6 @@ public class HomeActivity extends AppCompatActivity
                 .onPostExecute(this::handleConnectionAddListGetOnPostExecute)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
-
-
-
-
     }
 
     private void handleConnectionAddListGetOnPostExecute(final String result) {
@@ -497,6 +683,62 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onRequestReceivedListFragmentInteraction(Connections item) {
+        Log.wtf("WTF", "The listview was clicked!");
+    }
+
+    @Override
+    public void onRequestReceivedListButtonInteraction(View v, Connections connection) {
+
+        int id = v.getId();
+
+        if (id == R.id.textview_requests_accept) {
+            Log.wtf("WTF", "ACCEPT was pressed!");
+            AsyncTaskFactory.confirmConnection(this, mJwToken, connection.getUserName());
+        } else if (id == R.id.textview_requests_cancel) {
+            Log.wtf("WTF", "CANCEL was pressed!");
+            AsyncTaskFactory.removeConnectionRequestSentFrom(this, mJwToken, connection.getUserName());
+        }
+        removeFragment(RequestReceivedListFragment.TAG);
+        // Update the fragment
+
+    }
+
+    @Nullable
+    private void removeFragment(String tag) {
+
+        Fragment frag = getSupportFragmentManager().findFragmentByTag(tag);
+
+        if (frag != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(frag)
+                    .commit();
+        }
+
+    }
+
+    @Override
+    public void onRequestSentListFragmentInteraction(Connections item) {
+
+    }
+
+    @Override
+    public void onRequestSentListButtonInteraction(View v, Connections connection) {
+        int id = v.getId();
+
+        if (id == R.id.textview_requests_accept) {
+            Log.wtf("WTF", "PENDING was pressed!");
+        } else if (id == R.id.textview_requests_cancel) {
+            Log.wtf("WTF", "CANCEL was pressed!");
+            AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
+        }
+        removeFragment(RequestSentListFragment.TAG);
+        // Update the fragment
+    }
+
+
     // Deleting the Pushy device token must be done asynchronously. Good thing
     // we have something that allows us to do that.
     class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -539,6 +781,11 @@ public class HomeActivity extends AppCompatActivity
             //Ends this Activity and removes it from the Activity back stack.
 //            finish();
         }
+    }
+
+    @Override
+    public void onWeatherFragmentInteraction(Uri uri) {
+
     }
 
 }
