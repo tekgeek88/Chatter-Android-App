@@ -1,7 +1,7 @@
 <resources>
 
     <!-- base set of styles that apply to all versions -->
-    <style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -9,13 +9,14 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="buttonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
     </style>
 
 
 
     <!--#############     Navigation bar styles     #############-->
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Dark" />
 
 
 
@@ -37,6 +38,29 @@
         <item name="android:textColor">@color/primaryTextColor</item>
         <item name="android:colorBackground">@color/colorAccent</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+
+    <!--#####  TextView for first and last name's in a list view  #####-->
+    <style name="textview_chatter_listitem_name" parent="AppTheme">
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!--#####  TextView for username in a list view  #####-->
+    <style name="textview_chatter_listitem_username" parent="AppTheme">
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!--#####  TextView for username in a list view  #####-->
+    <style name="textview_chatter_accept_cancel" parent="AppTheme">
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:background">@color/colorAccent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">32dp</item>
     </style>
 
 

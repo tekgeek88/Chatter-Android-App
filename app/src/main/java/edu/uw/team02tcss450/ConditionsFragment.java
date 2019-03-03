@@ -28,6 +28,8 @@ import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 
 public class ConditionsFragment extends Fragment {
 
+    public static final String TAG = "CONDITIONS_FRAGMENT";
+
     enum Weather {
         Speed, Wind, Set, Rise, Temp, Description, High, Low, Location
     }

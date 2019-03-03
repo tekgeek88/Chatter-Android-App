@@ -192,42 +192,42 @@ public class RegisterFragment extends Fragment {
         EditText rePasswordEdit = getActivity().findViewById(R.id.edittext_fragment_register_retype_password);
 
         boolean hasError = false;
-//        if (emailEdit.getText().length() == 0) {
-//            hasError = true;
-//            emailEdit.setError("Field must not be empty.");
-//        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
-//            hasError = true;
-//            emailEdit.setError("Field must contain a valid email address.");
-//        }
-//        if (passwordEdit.getText().length() == 0) {
-//            hasError = true;
-//            passwordEdit.setError("Field must not be empty.");
-//        } else if (passwordEdit.getText().length() < 6) {
-//            hasError = true;
-//            passwordEdit.setError("Password must have at least 6 characters.");
-//        } else if (!passwordEdit.getText().toString().equals(rePasswordEdit.getText().toString())) {
-//            hasError = true;
-//            passwordEdit.setError("Password and retype password not match.");
-//        }
-//        if(rePasswordEdit.getText().length() == 0) {
-//            hasError = true;
-//            rePasswordEdit.setError("Field must not be empty.");
-//        } else if (!rePasswordEdit.getText().toString().equals(passwordEdit.getText().toString())) {
-//            hasError = true;
-//            rePasswordEdit.setError("Password and retype password not match.");
-//        }
-//        if(nicknameEdit.getText().length() == 0) {
-//            hasError = true;
-//            nicknameEdit.setError("Field must not be empty.");
-//        }
-//        if(firstNameEdit.getText().length() == 0) {
-//            hasError = true;
-//            firstNameEdit.setError("Field must not be empty.");
-//        }
-//        if(lastNameEdit.getText().length() == 0) {
-//            hasError = true;
-//            lastNameEdit.setError("Field must not be empty.");
-//        }
+        if (emailEdit.getText().length() == 0) {
+            hasError = true;
+            emailEdit.setError("Field must not be empty.");
+        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
+            hasError = true;
+            emailEdit.setError("Field must contain a valid email address.");
+        }
+        if (passwordEdit.getText().length() == 0) {
+            hasError = true;
+            passwordEdit.setError("Field must not be empty.");
+        } else if (passwordEdit.getText().length() < 6) {
+            hasError = true;
+            passwordEdit.setError("Password must have at least 6 characters.");
+        } else if (!passwordEdit.getText().toString().equals(rePasswordEdit.getText().toString())) {
+            hasError = true;
+            passwordEdit.setError("Password and retype password not match.");
+        }
+        if(rePasswordEdit.getText().length() == 0) {
+            hasError = true;
+            rePasswordEdit.setError("Field must not be empty.");
+        } else if (!rePasswordEdit.getText().toString().equals(passwordEdit.getText().toString())) {
+            hasError = true;
+            rePasswordEdit.setError("Password and retype password not match.");
+        }
+        if(nicknameEdit.getText().length() == 0) {
+            hasError = true;
+            nicknameEdit.setError("Field must not be empty.");
+        }
+        if(firstNameEdit.getText().length() == 0) {
+            hasError = true;
+            firstNameEdit.setError("Field must not be empty.");
+        }
+        if(lastNameEdit.getText().length() == 0) {
+            hasError = true;
+            lastNameEdit.setError("Field must not be empty.");
+        }
 
         if (!hasError) {
             Credentials.Builder builder = new Credentials.Builder(emailEdit.getText().toString(),
