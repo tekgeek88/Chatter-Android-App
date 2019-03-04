@@ -10,10 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
-import edu.uw.team02tcss450.dummy.DummyContent;
-import edu.uw.team02tcss450.dummy.DummyContent.DummyItem;
 import edu.uw.team02tcss450.model.Connections;
 
 import java.util.ArrayList;
@@ -101,7 +98,7 @@ public class ConnectionListFragment extends Fragment {
                 mListener = (OnListFragmentInteractionListener) context;
             } else {
                 throw new RuntimeException(context.toString()
-                        + " must implement OnListFragmentInteractionListener");
+                        + " must implement OnRequestListFragmentInteractionListener");
             }
         }
 

@@ -41,6 +41,8 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
 
     }
 
+    public static final String TAG = "CONDITIONS_FRAGMENT";
+
     enum Weather {
         Speed, Wind, Set, Rise, Temp, Description, High, Low, Location
     }

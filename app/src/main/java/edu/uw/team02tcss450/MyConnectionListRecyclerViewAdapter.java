@@ -100,9 +100,6 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
             mFirstName = (TextView) view.findViewById(R.id.textview_fragment_connection_firstName);
             mLastName = (TextView) view.findViewById(R.id.textview_fragment_connection_lastName);
             mUserName = (TextView) view.findViewById(R.id.textview_fragment_connection_userName);
-
-
-
         }
 
 

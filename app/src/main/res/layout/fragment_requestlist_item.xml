@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:orientation="horizontal"
+    android:paddingBottom="4dp">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        app:cardBackgroundColor="@color/secondaryDarkColor"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="8dp">
+
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="92dp"
+            tools:layout_editor_absoluteY="0dp">
+
+            <ImageView
+                android:id="@+id/imageview_request_fragment_profile_photo"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_person_white_24dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/textview_requests_namefirst"
+                style="@style/textview_chatter_listitem_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/imageview_request_fragment_profile_photo"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:layout_toEndOf="@+id/imageview_request_fragment_profile_photo"
+                android:text="FirstName"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:layout_editor_absoluteX="99dp"
+                tools:layout_editor_absoluteY="16dp" />
+
+            <TextView
+                android:id="@+id/textview_requests_namelast"
+                style="@style/textview_chatter_listitem_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textview_requests_namefirst"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                android:layout_toEndOf="@+id/textview_requests_namefirst"
+                android:text="LastName"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:layout_editor_absoluteX="371dp"
+                tools:layout_editor_absoluteY="16dp" />
+
+            <TextView
+                android:id="@+id/textview_requests_nickname"
+                style="@style/textview_chatter_listitem_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textview_requests_namefirst"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                android:layout_toEndOf="@+id/label_username"
+                android:text="NickName"
+                android:textAppearance="?attr/textAppearanceListItem"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="109dp" />
+
+            <TextView
+                android:id="@+id/label_username"
+                style="@style/textview_chatter_listitem_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textview_requests_namefirst"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="0dp"
+                android:layout_toEndOf="@+id/imageview_request_fragment_profile_photo"
+                android:text="Username: " />
+
+            <TextView
+                android:id="@+id/textview_requests_accept"
+                style="@style/textview_chatter_accept_cancel"
+                android:layout_alignTop="@+id/imageview_request_fragment_profile_photo"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="@dimen/text_margin"
+                android:layout_toStartOf="@+id/textview_requests_cancel"
+                android:text="ACCEPT"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/textview_requests_cancel"
+                style="@style/textview_chatter_accept_cancel"
+                android:layout_alignTop="@+id/imageview_request_fragment_profile_photo"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="CANCEL"
+                android:textAlignment="center" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

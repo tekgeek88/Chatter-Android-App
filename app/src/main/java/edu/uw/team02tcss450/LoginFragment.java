@@ -345,9 +345,8 @@ public class LoginFragment extends Fragment {
                   // JSONArray jsonConnection = data.getJSONArray("data");
                    Credentials.Builder builder =  new Credentials.Builder(mCredentials.getEmail(),
                                 mCredentials.getPassword());
-                   builder.addUsername(resultsJSONJSONObject.getString("username")).build();
-
-
+                   builder.addUsername(resultsJSONJSONObject.getString("username"))
+                           .build();
                    mCredentials = builder.build();
                 }
                 return;

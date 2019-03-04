@@ -20,9 +20,17 @@
         android:title="Connections"
         android:icon="@drawable/ic_group_add_black_24dp"/>
 
-    <!--<item android:id="@+id/nav_tabbed_request_fragment"-->
-        <!--android:title="Requests"-->
-        <!--android:icon="@drawable/ic_group_add_black_24dp"/>-->
+    <item android:id="@+id/nav_tabbed_request_fragment"
+        android:title="Requests"
+        android:icon="@drawable/ic_group_add_black_24dp"/>
+
+    <item android:id="@+id/nav_requests_sent_list_fragment"
+        android:title="Request Sent List Fragment"
+        android:icon="@drawable/ic_group_add_black_24dp"/>
+
+    <item android:id="@+id/nav_requests_received_list_fragment"
+        android:title="Request Received List Fragment"
+        android:icon="@drawable/ic_group_add_black_24dp"/>
 
 
     <!--<item android:id="@+id/nav_profile_fragment"-->

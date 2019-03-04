@@ -24,7 +24,7 @@ public class Connections implements Serializable {
         /**
          * Constructs a new Builder.
          *
-         * @param name the name of the user
+         * @param id the id of the user
          */
         public Builder(int id, String firstName, String lastName, String userName, int verified) {
             this.mMemberId = id;
@@ -35,12 +35,12 @@ public class Connections implements Serializable {
 
         }
 
-        /**
-         * Add an optional url for the full blog post.
-         *
-         * @param val an optional url for the full blog post
-         * @return the Builder of this BlogPost
-         */
+//        /**
+//         * Add an optional url for the full blog post.
+//         *
+//         * @param val an optional url for the full blog post
+//         * @return the Builder of this BlogPost
+//         */
 //        public SetList.Builder addUrl(final String val) {
 //            mUrl = val;
 //            return this;
@@ -94,6 +94,8 @@ public class Connections implements Serializable {
     public String getUserName() {
         return mUserName;
     }
+
+    public int getIsVerified() {return mVerified; }
 
     public int getMemberId() {
         return mMemberId;
