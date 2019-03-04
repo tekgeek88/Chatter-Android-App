@@ -1,6 +1,7 @@
 package edu.uw.team02tcss450;
 
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,7 +27,19 @@ import edu.uw.team02tcss450.utils.SendPostAsyncTask;
  */
 
 
-public class ConditionsFragment extends Fragment {
+public class ConditionsFragment extends Fragment implements WaitFragment.OnFragmentInteractionListener{
+
+    private WaitFragment.OnFragmentInteractionListener mWaitListener;
+
+    @Override
+    public void onWaitFragmentInteractionShow() {
+
+    }
+
+    @Override
+    public void onWaitFragmentInteractionHide() {
+
+    }
 
     public static final String TAG = "CONDITIONS_FRAGMENT";
 
@@ -109,7 +122,15 @@ public class ConditionsFragment extends Fragment {
 
 
     private void handleWeatherOnPre () {
+        mWaitListener.onWaitFragmentInteractionShow();
+    }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof WaitFragment.OnFragmentInteractionListener) {
+            mWaitListener = (WaitFragment.OnFragmentInteractionListener) context;
+        }
     }
 
     private void handleWeatherOnPost (String result) {
@@ -144,54 +165,7 @@ public class ConditionsFragment extends Fragment {
             temp = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
             mViews.get(Weather.High).setText(temp);
 
-
-/**
- * "location": {
- *         "woeid": 12799101,
- *         "city": "Gig Harbor",
- *         "region": " WA",
- *         "country": "United States",
- *         "lat": 47.299831,
- *         "long": -122.617188,
- *         "timezone_id": "America/Los_Angeles"
- *     },
- *     "current_observation": {
- *         "wind": {
- *             "chill": 39,
- *             "direction": 200,
- *             "speed": 5.59
- *         },
- *         "atmosphere": {
- *             "humidity": 69,
- *             "visibility": 10,
- *             "pressure": 29.94,
- *             "rising": 0
- *         },
- *         "astronomy": {
- *             "sunrise": "7:02 am",
- *             "sunset": "5:47 pm"
- *         },
- *         "condition": {
- *             "text": "Showers",
- *             "code": 11,
- *             "temperature": 43
- *         },
- *         "pubDate": 1550966400
- *     },"forecasts": [
- *         {
- *             "day": "Sat",
- *             "date": 1550908800,
- *             "low": 35,
- *             "high": 44,
- *             "text": "Showers",
- *             "code": 11
- *         },
- */
-
-
-
-
-
+            mWaitListener.onWaitFragmentInteractionHide();
 
         } catch (JSONException e) {
             Log.e("Conditions", e.toString());
