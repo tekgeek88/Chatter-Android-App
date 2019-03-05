@@ -7,6 +7,8 @@ import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,6 +50,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        ImageButton button = findViewById(R.id.imagebutton_activity_map_return);
+        button.setOnClickListener(this::goBack);
     }
 
 
@@ -57,6 +62,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     }
 
     private void goBack () {
+        goBack(null);
+    }
+
+    private void goBack (View v) {
         if (mMarker == null){
             mLocation = mLastLocation;
         }
@@ -113,10 +122,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng location = mLocation;
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 8));
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 10));
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
         mMap.setOnMarkerClickListener(this);
