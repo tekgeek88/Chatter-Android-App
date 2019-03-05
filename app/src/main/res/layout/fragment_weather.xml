@@ -10,14 +10,16 @@
 
     <EditText
         android:id="@+id/edittext_fragment_weather_search"
-        android:layout_width="288dp"
+        android:layout_width="242dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="@string/text_fragment_weather_zip"
         android:inputType="textPostalAddress"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imagebutton_fragment_weather_search"
+        app:layout_constraintStart_toEndOf="@+id/imagebutton_fragment_weather_map"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
@@ -902,15 +904,16 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textview_fragment_weather_date_9" />
             </android.support.constraint.ConstraintLayout>
-                <TextView
-                    android:id="@+id/textview_fragment_weather_bottom_description"
-                    android:layout_width="210dp"
-                    android:layout_height="46dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:layout_editor_absoluteY="0dp" />
+
+            <TextView
+                android:id="@+id/textview_fragment_weather_bottom_description"
+                android:layout_width="210dp"
+                android:layout_height="46dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout_editor_absoluteY="0dp" />
         </LinearLayout>
     </ScrollView>
 
@@ -918,16 +921,22 @@
         android:id="@+id/imagebutton_fragment_weather_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/background_gradient"
         android:src="@android:drawable/ic_menu_search"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/edittext_fragment_weather_search"
         app:layout_constraintTop_toTopOf="parent" />
 
-
+    <ImageButton
+        android:id="@+id/imagebutton_fragment_weather_map"
+        android:layout_width="40dp"
+        android:layout_height="31dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:src="@android:drawable/ic_dialog_map"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

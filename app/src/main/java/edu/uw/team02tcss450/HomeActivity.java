@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,10 +24,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.SupportMapFragment;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +55,8 @@ public class HomeActivity extends AppCompatActivity
     private String mJwToken;
     private String mEmail;
     private String mUsername;
+    private Location mLocation;
+    private Credentials mCredentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,17 +83,17 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
-                Credentials credentials = (Credentials) getIntent()
+                mCredentials = (Credentials) getIntent()
                         .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-                mEmail = credentials.getEmail();
-                mUsername = credentials.getEmail();
+                mEmail = mCredentials.getEmail();
+                mUsername = mCredentials.getEmail();
                 final Bundle args = new Bundle();
                 args.putString(getString(R.string.key_email), mEmail);
             }
         }
+        mCredentials = (Credentials) getIntent().getExtras().getSerializable(getString(R.string.keys_intent_credentials));
     }
 
 
@@ -139,6 +145,7 @@ public class HomeActivity extends AppCompatActivity
             WeatherFragment tempFrag = new WeatherFragment();
             Bundle args = new Bundle();
             args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
         } else if(id == R.id.nav_connection_fragment){
@@ -427,10 +434,6 @@ public class HomeActivity extends AppCompatActivity
     }
 
     public void loadFragment(Fragment frag) {
-
-        Bundle args = new Bundle();
-        args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-        //frag.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, frag)
@@ -786,6 +789,18 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onWeatherFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onWeatherFragmentOpenMap(Location location) {
+        if (mLocation == null){
+            mLocation = new Location("0");
+        }
+        Intent i = new Intent(this, MapActivity.class);
+        i.putExtra(getString(R.string.keys_intent_jwt), mJwToken);
+        i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        i.putExtra(getString(R.string.keys_intent_credentials), mCredentials);
+        startActivity(i);
     }
 
 }

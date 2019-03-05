@@ -32,5 +32,9 @@
     <string name="keys_weather_location">location</string>
     <string name="keys_weather_units">u</string>
 
+    <!--###########   Map Keys   #############-->
+    <string name="keys_map_latlng">LatLng</string>
+    <string name="keys_map_map">map</string>
+
 
 </resources>

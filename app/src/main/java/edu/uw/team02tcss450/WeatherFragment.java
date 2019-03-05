@@ -1,6 +1,7 @@
 package edu.uw.team02tcss450;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private EditText mInputText;
 
+    private Location mLatLng;
+
     private String mLocation = "98404";
 
     private String mUnit = "f";
@@ -61,6 +64,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         }
         ImageButton searchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
         searchButton.setOnClickListener(this::onSearch);
+        ImageButton mapButton = view.findViewById(R.id.imagebutton_fragment_weather_map);
+        mapButton.setOnClickListener(this::openMap);
         mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
         return view;
     }
@@ -99,8 +104,12 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void onSearch(View v){
         mLocation = mInputText.getText().toString();
-        mInputText.setText("");
+        //mInputText.setText("");
         reloadWeather();
+    }
+
+    private void openMap(View v) {
+        mListener.onWeatherFragmentOpenMap(mLatLng);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -209,5 +218,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     public interface OnWeatherFragmentInteractionListener {
         // TODO: Update argument type and name
         void onWeatherFragmentInteraction(Uri uri);
+        void onWeatherFragmentOpenMap(Location location);
     }
 }
