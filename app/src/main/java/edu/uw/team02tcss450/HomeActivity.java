@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,7 +56,7 @@ public class HomeActivity extends AppCompatActivity
     private String mJwToken;
     private String mEmail;
     private String mUsername;
-    private Location mLocation;
+    private LatLng mLocation;
     private Credentials mCredentials;
 
     @Override
@@ -430,7 +431,19 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        loadHomeFragment();
+        if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
+            && getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)).equals(WeatherFragment.TAG)) {
+            WeatherFragment tempFrag = new WeatherFragment();
+            Bundle args = new Bundle();
+            mJwToken = getIntent().getExtras().getString(getString(R.string.keys_intent_jwt));
+            mLocation = getIntent().getExtras().getParcelable(getString(R.string.keys_map_latlng));
+            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
+            tempFrag.setArguments(args);
+            loadFragment(tempFrag);
+        } else {
+            loadHomeFragment();
+        }
     }
 
     public void loadFragment(Fragment frag) {
@@ -792,9 +805,9 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
-    public void onWeatherFragmentOpenMap(Location location) {
+    public void onWeatherFragmentOpenMap(LatLng location) {
         if (mLocation == null){
-            mLocation = new Location("0");
+            mLocation = new LatLng(47.2529,-122.4443);//Tacoma
         }
         Intent i = new Intent(this, MapActivity.class);
         i.putExtra(getString(R.string.keys_intent_jwt), mJwToken);

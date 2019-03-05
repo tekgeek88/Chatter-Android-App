@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +32,8 @@ import edu.uw.team02tcss450.utils.GetAsyncTask;
  */
 public class WeatherFragment extends Fragment implements WaitFragment.OnFragmentInteractionListener{
 
+    public static String TAG = "WEATHER_FRAG";
+
     private WaitFragment.OnFragmentInteractionListener mWaitListener;
 
     private String mJwt;
@@ -38,7 +42,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private EditText mInputText;
 
-    private Location mLatLng;
+    private LatLng mLatLng;
 
     private String mLocation = "98404";
 
@@ -71,15 +75,31 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void reloadWeather () {
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_forecast))
-                .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
-                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                .build();
+        reloadWeather(null);
+    }
 
+    private void reloadWeather (LatLng latLng) {
+        Uri uri;
+        if (latLng == null) {
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
+                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                    .build();
+        } else {
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                    .build();
+        }
         new GetAsyncTask.Builder(uri.toString())
                 .addHeaderField("authorization", mJwt)
                 .onPreExecute(this::handleWeatherOnPre)
@@ -94,11 +114,17 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
         if (getArguments() != null) {
             mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
+            mLatLng = getArguments().getParcelable(getString(R.string.keys_map_latlng));
             //Get the location
             //Get the unit
         }
 
-        reloadWeather();
+        Log.d("MAP", Boolean.toString(mLatLng == null));
+        if (mLatLng != null) {
+            Log.d("MAP", Double.toString(mLatLng.latitude));
+            Log.d("MAP", Double.toString(mLatLng.longitude));
+        }
+        reloadWeather(mLatLng);
 
     }
 
@@ -163,7 +189,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
 
             String temp[] = new String[4];
-            for (int i = 0; i < 10; i++){
+            for (int i = 0; i < forecast.length(); i++){
                 temp[0] = forecast.getJSONObject(i).getString("day");
                 temp[1] = "High " + forecast.getJSONObject(i).getString("high") + "\u00b0";
                 temp[2] = "Low " + forecast.getJSONObject(i).getString("low") + "\u00b0";
@@ -185,6 +211,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
              */
 
         } catch (JSONException e) {
+            mWaitListener.onWaitFragmentInteractionHide();
             Log.e("Weather", e.toString());
             e.printStackTrace();
         }
@@ -192,6 +219,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void handleWeatherInError (String result) {
+        mWaitListener.onWaitFragmentInteractionHide();
         Log.d("Weather", result);
     }
 
@@ -218,6 +246,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     public interface OnWeatherFragmentInteractionListener {
         // TODO: Update argument type and name
         void onWeatherFragmentInteraction(Uri uri);
-        void onWeatherFragmentOpenMap(Location location);
+        void onWeatherFragmentOpenMap(LatLng location);
     }
 }
