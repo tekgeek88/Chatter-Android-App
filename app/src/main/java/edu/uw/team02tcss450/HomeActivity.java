@@ -495,6 +495,7 @@ public class HomeActivity extends AppCompatActivity
         ConditionsFragment conFrag = new ConditionsFragment();
         Bundle conArgs = new Bundle();
         conArgs.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+        conArgs.putParcelable(getString(R.string.keys_map_latlng), mLocation);
         conFrag.setArguments(conArgs);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()

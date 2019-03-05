@@ -53,6 +53,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onBackPressed() {
+        goBack();
+    }
+
+    private void goBack () {
         if (mMarker == null){
             mLocation = mLastLocation;
         }
@@ -67,7 +71,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         finish();
     }
-
 
     @Override
     public void onMapClick(LatLng latLng) {
@@ -131,8 +134,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public boolean onMarkerClick(Marker marker) {
         AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
-        dlgAlert.setMessage("Remove marker to not update weather location");
-        dlgAlert.setTitle("Marker Removal");
+        dlgAlert.setMessage("Remove marker to not update weather location\nAdd to favorites to keep this location");
+        dlgAlert.setTitle("Marker Setup");
         dlgAlert.setPositiveButton("Remove", this::onRemoveMarker);
         dlgAlert.setNegativeButton("Cancel", null);
         dlgAlert.setNeutralButton("Add to favorites", this::addToLocationPref);
