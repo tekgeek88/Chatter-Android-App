@@ -67,6 +67,44 @@ public class AsyncTaskFactory {
 
     }
 
+
+    public static void loadRequestsSentFragment(HomeActivity homeActivity, String mJwToken){
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(homeActivity.getString(R.string.ep_base_url))
+                .appendPath(homeActivity.getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", getUsernameFromCreds(homeActivity))
+                .build();
+
+
+        new edu.uw.team02tcss450.utils.GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
+                .onPostExecute(homeActivity::handleRequestSentOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+    }
+
+    private void loadRequestsReceivedFragment(HomeActivity homeActivity, String mJwToken){
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(homeActivity.getString(R.string.ep_base_url))
+                .appendPath(homeActivity.getString(R.string.ep_connections))
+                .appendQueryParameter("sent_to", getUsernameFromCreds(homeActivity))
+                .build();
+
+        edu.uw.team02tcss450.utils.GetAsyncTask task = new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
+                .onPostExecute(homeActivity::handleRequestReceivedOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build();
+        task.execute();
+
+
+    }
+
+
     private static String getUsernameFromCreds(HomeActivity homeActivity) {
         Credentials credentials = (Credentials) homeActivity.getIntent()
                 .getExtras().getSerializable(homeActivity.getString(R.string.keys_intent_credentials));

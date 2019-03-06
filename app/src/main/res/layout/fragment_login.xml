@@ -82,12 +82,12 @@
 
     <CheckBox
         android:id="@+id/checkBox_fragment_login_rememberMe"
-        style="@android:style/Widget.Material.Light.CompoundButton.CheckBox"
+        style="@style/checkbox_chatter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="Remember Me"
+        android:text="REMEMBER ME"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edittext_fragment_login_password" />
 

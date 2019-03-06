@@ -62,6 +62,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         ImageButton searchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
         searchButton.setOnClickListener(this::onSearch);
         mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
+        getActivity().setTitle("Weather");
         return view;
     }
 
