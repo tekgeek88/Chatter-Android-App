@@ -4,7 +4,6 @@
     <color name="colorPrimaryDark">#001970</color>
     <color name="colorAccent">#42A5F5</color>
     <color name="colorPrimaryAlpha">#FAFAFA</color>
-
     <color name="primaryColor">#303f9f</color>
     <color name="primaryLightColor">#666AD1</color>
     <color name="primaryDarkColor">#001970</color>
@@ -13,6 +12,7 @@
     <color name="secondaryDarkColor">#0077C2</color>
     <color name="primaryTextColor">#FFFFFF</color>
     <color name="secondaryTextColor">#000000</color>
+    <color name="textHintColor">#9b9b9b</color>
     <color name="cardBackgroundColor">#E1E2E1</color>
 
 

@@ -19,7 +19,6 @@
     <string name="text_hello_weather">Hello Weather</string>
 
 
-
     <!--##########  Nav Drawer Constants  ##########-->
     <string name="title_activity_home">HomeActivity</string>
     <string name="nav_header_title">Chatter</string>
@@ -86,7 +85,6 @@
     <!--  In Weather Fragment  -->
     <string name="text_fragment_weather_zip">Enter a Zip code</string>
     <string name="text_fragment_weather_invalid_zip">Invalid Zip code</string>
-
 
 
 </resources>
