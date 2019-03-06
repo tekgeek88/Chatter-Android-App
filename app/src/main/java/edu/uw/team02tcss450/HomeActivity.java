@@ -24,7 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -50,7 +50,8 @@ public class HomeActivity extends AppCompatActivity
         ConnectionListFragment.OnListFragmentInteractionListener,
         ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener,
-        RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener {
+        RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
+        GoogleMap.OnMapClickListener {
 
 
     public String getmJwToken() {
@@ -61,8 +62,12 @@ public class HomeActivity extends AppCompatActivity
     private String mEmail;
     private String mUsername;
     private LatLng mLocation;
+
+    public Credentials getmCredentials() {
+        return mCredentials;
+    }
+
     private Credentials mCredentials;
-    Credentials mCredentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -723,6 +728,11 @@ public class HomeActivity extends AppCompatActivity
         }
         removeFragment(RequestSentListFragment.TAG);
         // Update the fragment
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+
     }
 
 

@@ -121,7 +121,7 @@ public class TabFragment extends Fragment {
                 .scheme("https")
                 .appendPath(homeActivity.getString(R.string.ep_base_url))
                 .appendPath(homeActivity.getString(R.string.ep_connections))
-                .appendQueryParameter("sent_from", homeActivity.mCredentials.getUsername())
+                .appendQueryParameter("sent_from", homeActivity.getmCredentials().getUsername())
                 .build();
 
         new edu.uw.team02tcss450.utils.GetAsyncTask.Builder(uri.toString())
@@ -202,7 +202,7 @@ public class TabFragment extends Fragment {
                 .scheme("https")
                 .appendPath(homeActivity.getString(R.string.ep_base_url))
                 .appendPath(homeActivity.getString(R.string.ep_connections))
-                .appendQueryParameter("sent_to", homeActivity.mCredentials.getUsername())
+                .appendQueryParameter("sent_to", homeActivity.getmCredentials().getUsername())
                 .build();
 
         new edu.uw.team02tcss450.utils.GetAsyncTask.Builder(uri.toString())
