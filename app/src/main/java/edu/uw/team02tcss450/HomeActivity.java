@@ -53,17 +53,23 @@ public class HomeActivity extends AppCompatActivity
         RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener {
 
 
+    public String getmJwToken() {
+        return mJwToken;
+    }
+
     private String mJwToken;
     private String mEmail;
     private String mUsername;
     private LatLng mLocation;
     private Credentials mCredentials;
+    Credentials mCredentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setTitle("Home");
         setSupportActionBar(toolbar);
         Pushy.listen(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -84,17 +90,19 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        Intent intent = getIntent();
+        Bundle args = intent.getExtras();
+        mJwToken = intent.getStringExtra(getString(R.string.keys_intent_jwt));
+        mCredentials = (Credentials) args.getSerializable(getString(R.string.keys_intent_credentials));
+
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
-                mCredentials = (Credentials) getIntent()
-                        .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
                 mEmail = mCredentials.getEmail();
-                mUsername = mCredentials.getEmail();
-                final Bundle args = new Bundle();
+                mUsername = mCredentials.getUsername();
+                args = new Bundle();
                 args.putString(getString(R.string.key_email), mEmail);
             }
         }
-        mCredentials = (Credentials) getIntent().getExtras().getSerializable(getString(R.string.keys_intent_credentials));
     }
 
 
@@ -150,26 +158,29 @@ public class HomeActivity extends AppCompatActivity
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
         } else if(id == R.id.nav_connection_fragment){
-           loadConnectionFragment();
+            loadConnectionFragment();
         }else if (id == R.id.nav_chat_fragment) {
             loadChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
 
-        //}
-    // else if (id == R.id.nav_setting_fragment) {
-
-         else if (id == R.id.nav_logout_fragment) {
-            logout();
-        } else if (id == R.id.nav_requests_sent_list_fragment) {
-            loadRequestsSentFragment();
+        else if (id == R.id.nav_requests_fragment) {
+            TabFragment tabFragment = new TabFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(getString(R.string.key_email), mEmail);
+            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            args.putSerializable(getString(R.string.key_username), mCredentials.getUsername());
+            tabFragment.setArguments(args);
+            loadFragment(tabFragment);
         }
-        else if (id == R.id.nav_requests_received_list_fragment) {
-            loadRequestsReceivedFragment();
+
+        else if (id == R.id.nav_logout_fragment) {
+            logout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+
     }
 
     private void loadConnectionFragment(){
@@ -191,45 +202,6 @@ public class HomeActivity extends AppCompatActivity
 
     }
 
-    private void loadRequestsSentFragment(){
-
-        Credentials credentials = (Credentials) getIntent()
-                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("sent_from", credentials.getUsername())
-                .build();
-
-
-        new GetAsyncTask.Builder(uri.toString())
-                .onPreExecute(this::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleRequestSentOnPostExecute)
-                .addHeaderField("authorization", mJwToken)
-                .build().execute();
-
-    }
-
-    private void loadRequestsReceivedFragment(){
-        Credentials credentials = (Credentials) getIntent()
-                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("sent_to",credentials.getUsername())
-                .build();
-
-        GetAsyncTask task = new GetAsyncTask.Builder(uri.toString())
-                                .onPreExecute(this::onWaitFragmentInteractionShow)
-                                .onPostExecute(this::handleRequestReceivedOnPostExecute)
-                                .addHeaderField("authorization", mJwToken)
-                                .build();
-                                task.execute();
-
-
-    }
 
     private void handleConnectionListGetOnPostExecute(final String result) {
         //parse JSON
@@ -250,7 +222,7 @@ public class HomeActivity extends AppCompatActivity
                                 jsonConnection.getInt("verified"))
                                 .build());
                     }
-                   // Log.d("cded","ghjkl");
+                    // Log.d("cded","ghjkl");
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
@@ -290,20 +262,20 @@ public class HomeActivity extends AppCompatActivity
                     response = resultsJSON.getString("message");
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Success: " + response,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_LONG).show();
                 } else {
                     Log.e("ERROR!", response);
                     //notify user
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Error: " + response,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_LONG).show();
                 }
             } else {
                 Log.e("ERROR!", response);
                 //notify user
                 onWaitFragmentInteractionHide();
                 Toast.makeText(this, "Error: " + response,
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -311,7 +283,7 @@ public class HomeActivity extends AppCompatActivity
             //notify user
             onWaitFragmentInteractionHide();
             Toast.makeText(this, "Error: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
 
         }
     }
@@ -350,14 +322,14 @@ public class HomeActivity extends AppCompatActivity
                     //notify user
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Error: " + error,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_LONG).show();
                 }
             } else {
                 Log.e("ERROR!", error);
                 //notify user
                 onWaitFragmentInteractionHide();
                 Toast.makeText(this, "Error: " + error,
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
 
             }
         } catch (JSONException e) {
@@ -366,7 +338,7 @@ public class HomeActivity extends AppCompatActivity
             //notify user
             onWaitFragmentInteractionHide();
             Toast.makeText(this, "Error: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
 
         }
     }
@@ -405,14 +377,14 @@ public class HomeActivity extends AppCompatActivity
                     //notify user
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Error: " + error,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_LONG).show();
                 }
             } else {
                 Log.e("ERROR!", error);
                 //notify user
                 onWaitFragmentInteractionHide();
                 Toast.makeText(this, "Error: " + error,
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
 
             }
         } catch (JSONException e) {
@@ -421,7 +393,7 @@ public class HomeActivity extends AppCompatActivity
             //notify user
             onWaitFragmentInteractionHide();
             Toast.makeText(this, "Error: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
 
         }
         return null;
@@ -467,7 +439,7 @@ public class HomeActivity extends AppCompatActivity
         // Commit the transaction
         transaction.commit();
     }
-    
+
     public void loadChatFragment() {
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -479,15 +451,13 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void loadHomeFragment() {
-        Credentials credentials = (Credentials) getIntent()
-                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
 
         mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
-        mEmail = credentials.getEmail();
+        mEmail = mCredentials.getEmail();
 
         HomeFragment homeFragment = new HomeFragment();
         Bundle args = new Bundle();
-        args.putSerializable(getString(R.string.keys_intent_credentials), credentials);
+        args.putSerializable(getString(R.string.keys_intent_credentials), mCredentials);
         homeFragment.setArguments(args);
         loadFragment(homeFragment);
 
@@ -633,7 +603,7 @@ public class HomeActivity extends AppCompatActivity
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
-                    loadConnectionFragment();
+                loadConnectionFragment();
 
             } else {
                 Log.e("ERROR!", "No response");
@@ -657,7 +627,7 @@ public class HomeActivity extends AppCompatActivity
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_connections))
-              //  .appendPath("delete")
+                //  .appendPath("delete")
                 .appendQueryParameter("sent_from",credentials.getUsername())
                 .appendQueryParameter("sent_to", username)
                 .build();
@@ -791,18 +761,11 @@ public class HomeActivity extends AppCompatActivity
             super.onPostExecute(aVoid);
             //close the app
             finishAndRemoveTask();
-
-            //or close this activity and bring back the Login
-//            Intent i = new Intent(this, MainActivity.class);
-//            startActivity(i);
-            //Ends this Activity and removes it from the Activity back stack.
-//            finish();
         }
     }
 
     @Override
     public void onWeatherFragmentInteraction(Uri uri) {
-
     }
 
     @Override

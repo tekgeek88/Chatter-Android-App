@@ -28,6 +28,8 @@
     <string name="keys_json_login_success">success</string>
     <string name="keys_json_login_jwt">token</string>
     <string name="keys_json_register_jwt">token</string>
+    <string name="key_username">username</string>
+
 
     <!--###########   Weather Keys   #############-->
     <string name="keys_weather_location">location</string>

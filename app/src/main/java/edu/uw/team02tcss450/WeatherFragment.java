@@ -71,6 +71,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         ImageButton mapButton = view.findViewById(R.id.imagebutton_fragment_weather_map);
         mapButton.setOnClickListener(this::openMap);
         mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
+        getActivity().setTitle("Weather");
         return view;
     }
 

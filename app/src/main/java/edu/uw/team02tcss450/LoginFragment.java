@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,6 +62,17 @@ public class LoginFragment extends Fragment {
         void onRegisterClicked();
 
         void OnForgotPasswordClicked();
+    }
+
+    // Declare member variables
+    private OnLoginFragmentInteractionListener mListener;
+    private Credentials mCredentials;
+    private String mJwt;
+    private boolean mRememberMe = false;
+
+
+    public LoginFragment() {
+        // Required empty public constructor
     }
 
 
@@ -121,18 +133,6 @@ public class LoginFragment extends Fragment {
                     .addHeaderField("authorization", mJwt)
                     .build().execute();
         }
-    }
-
-
-    // Declare member variables
-    private OnLoginFragmentInteractionListener mListener;
-    private Credentials mCredentials;
-    private String mJwt;
-    private boolean mRememberMe = false;
-
-
-    public LoginFragment() {
-        // Required empty public constructor
     }
 
 
@@ -308,6 +308,9 @@ public class LoginFragment extends Fragment {
      * @param result the error message provide from the AsyncTask
      */
     private void handleErrorsInTask(String result) {
+        String response = result.toString();
+        mListener.onWaitFragmentInteractionHide();
+        Toast.makeText(getActivity(), "Error: " + response, Toast.LENGTH_LONG).show();
         Log.e("ASYNC_TASK_ERROR", result);
     }
 
@@ -341,19 +344,17 @@ public class LoginFragment extends Fragment {
                         getString(R.string.keys_json_login_jwt));
                 if (resultsJSON.has("data")) {
                     JSONObject resultsJSONJSONObject = resultsJSON.getJSONObject("data");
-                    //JSONObject data = resultsJSON.getJSONObject("data");
-                  // JSONArray jsonConnection = data.getJSONArray("data");
-                   Credentials.Builder builder =  new Credentials.Builder(mCredentials.getEmail(),
-                                mCredentials.getPassword());
-                   builder.addUsername(resultsJSONJSONObject.getString("username"))
-                           .build();
-                   mCredentials = builder.build();
+                    String username = resultsJSONJSONObject.getString("username");
+                    Credentials.Builder builder =  new Credentials.Builder(mCredentials.getEmail(),
+                            mCredentials.getPassword());
+                    builder.addUsername(username);
+                    mCredentials = builder.build();
                 }
                 return;
             } else {
                 //Login was unsuccessful. Don’t switch fragments and
                 // inform the user
-                String msg = resultsJSON.getString("msg");
+                String msg = resultsJSON.getString("message");
                 ((TextView) getActivity().findViewById(R.id.edittext_fragment_login_email)).setError(msg);
             }
             mListener.onWaitFragmentInteractionHide();

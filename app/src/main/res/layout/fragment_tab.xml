@@ -1,0 +1,43 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/requests_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.NoActionBar">
+
+        <AutoCompleteTextView
+            android:id="@+id/search_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:drawableRight="@drawable/ic_search"
+            android:imeOptions="actionSearch"
+            android:inputType="none|text" />
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
+            style="@style/TextAppearance.MaterialComponents.Tab"
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:background="@color/colorPrimary"
+            android:theme="@android:style/Widget.Material.TabWidget"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/secondaryLightColor"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/secondaryLightColor"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Title"
+            app:tabTextColor="@color/textHintColor" />
+
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</android.support.design.widget.CoordinatorLayout>

@@ -10,6 +10,7 @@
         <item name="windowNoTitle">true</item>
         <item name="buttonStyle">@style/Widget.MaterialComponents.Button</item>
         <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textColorHint">@color/textHintColor</item>
     </style>
 
 
@@ -23,10 +24,12 @@
     <!--#############     EditText field base style     #############-->
     <style name="edittext_chatter_basestyle" parent="ThemeOverlay.MaterialComponents.TextInputEditText">
         <item name="android:textColor">@color/primaryTextColor</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
     </style>
     <!--#####  EditText PlainText input type  #####-->
     <style name="edittext_chatter_plaintext" parent="edittext_chatter_basestyle">
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:foregroundTint">@color/primaryDarkColor</item>
         <!--<item name="android:textSize">20sp</item>-->
     </style>
 
@@ -63,5 +66,16 @@
         <item name="android:layout_height">32dp</item>
     </style>
 
+
+
+
+    <style name="checkbox_chatter" parent="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox.Dense">
+
+        <item name="android:textSize">14dp</item>
+        <item name="android:textColor">@color/secondaryColor</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
+        <item name="android:buttonTint">@color/colorAccent</item>
+
+    </style>
 
 </resources>
