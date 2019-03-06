@@ -85,7 +85,7 @@
     <!--  In Weather Fragment  -->
     <string name="text_fragment_weather_zip">Enter a Zip code</string>
     <string name="text_fragment_weather_invalid_zip">Invalid Zip code</string>
-
+    <string name="title_activity_map">Map</string>
 
 </resources>
 

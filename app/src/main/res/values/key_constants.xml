@@ -22,6 +22,7 @@
     <string name="keys_intent_connections">intent key for connections</string>
     <string name="keys_intent_notification_msg">was app started from message notification?</string>
     <string name="key_email">email_intent</string>
+    <string name="keys_intent_fragment_tag">frag tag</string>
 
     <!--#############   JSON Tags   #############-->
     <string name="keys_json_login_success">success</string>
@@ -32,7 +33,13 @@
 
     <!--###########   Weather Keys   #############-->
     <string name="keys_weather_location">location</string>
+    <string name="keys_weather_latitude">lat</string>
+    <string name="keys_weather_longitude">lon</string>
     <string name="keys_weather_units">u</string>
+
+    <!--###########   Map Keys   #############-->
+    <string name="keys_map_latlng">LatLng</string>
+    <string name="keys_map_map">map</string>
 
 
 </resources>

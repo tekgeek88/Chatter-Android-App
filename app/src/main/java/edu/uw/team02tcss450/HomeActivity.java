@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,10 +24,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +60,8 @@ public class HomeActivity extends AppCompatActivity
     private String mJwToken;
     private String mEmail;
     private String mUsername;
+    private LatLng mLocation;
+    private Credentials mCredentials;
     Credentials mCredentials;
 
     @Override
@@ -90,9 +97,8 @@ public class HomeActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
-                Credentials credentials = (Credentials) getIntent().getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-                mEmail = credentials.getEmail();
-                mUsername = credentials.getUsername();
+                mEmail = mCredentials.getEmail();
+                mUsername = mCredentials.getUsername();
                 args = new Bundle();
                 args.putString(getString(R.string.key_email), mEmail);
             }
@@ -148,6 +154,7 @@ public class HomeActivity extends AppCompatActivity
             WeatherFragment tempFrag = new WeatherFragment();
             Bundle args = new Bundle();
             args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
         } else if(id == R.id.nav_connection_fragment){
@@ -396,18 +403,22 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-//        if (findViewById(R.id.main_container) != null) {
-//            credentials = (Credentials) getIntent().getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-//            mUsername = credentials.getUsername();
-//        }
-        loadHomeFragment();
+        if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
+            && getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)).equals(WeatherFragment.TAG)) {
+            WeatherFragment tempFrag = new WeatherFragment();
+            Bundle args = new Bundle();
+            mJwToken = getIntent().getExtras().getString(getString(R.string.keys_intent_jwt));
+            mLocation = getIntent().getExtras().getParcelable(getString(R.string.keys_map_latlng));
+            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
+            tempFrag.setArguments(args);
+            loadFragment(tempFrag);
+        } else {
+            loadHomeFragment();
+        }
     }
 
     public void loadFragment(Fragment frag) {
-
-        Bundle args = new Bundle();
-        args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-        //frag.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, frag)
@@ -454,6 +465,7 @@ public class HomeActivity extends AppCompatActivity
         ConditionsFragment conFrag = new ConditionsFragment();
         Bundle conArgs = new Bundle();
         conArgs.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+        conArgs.putParcelable(getString(R.string.keys_map_latlng), mLocation);
         conFrag.setArguments(conArgs);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
@@ -749,18 +761,23 @@ public class HomeActivity extends AppCompatActivity
             super.onPostExecute(aVoid);
             //close the app
             finishAndRemoveTask();
-
-            //or close this activity and bring back the Login
-//            Intent i = new Intent(this, MainActivity.class);
-//            startActivity(i);
-            //Ends this Activity and removes it from the Activity back stack.
-//            finish();
         }
     }
 
     @Override
     public void onWeatherFragmentInteraction(Uri uri) {
+    }
 
+    @Override
+    public void onWeatherFragmentOpenMap(LatLng location) {
+        if (mLocation == null){
+            mLocation = new LatLng(47.2529,-122.4443);//Tacoma
+        }
+        Intent i = new Intent(this, MapActivity.class);
+        i.putExtra(getString(R.string.keys_intent_jwt), mJwToken);
+        i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        i.putExtra(getString(R.string.keys_intent_credentials), mCredentials);
+        startActivity(i);
     }
 
 }

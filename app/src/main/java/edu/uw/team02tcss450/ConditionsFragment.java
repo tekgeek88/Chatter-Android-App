@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,8 +87,12 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
     public void onStart () {
         super.onStart();
 
+        LatLng latLng = null;
         if (getArguments() != null) {
             mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
+            if (getArguments().getParcelable(getString(R.string.keys_map_latlng)) != null){
+                latLng = getArguments().getParcelable(getString(R.string.keys_map_latlng));
+            }
         }
 
         //build the web service URL
@@ -96,14 +102,27 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
         // location=98335&u=f
         String location = "98404";
         String unit = "f";
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_forecast))
-                .appendQueryParameter(getString(R.string.keys_weather_location), location)
-                .appendQueryParameter(getString(R.string.keys_weather_units), unit)
-                .build();
+        Uri uri;
+        if (latLng == null) {
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_location), location)
+                    .appendQueryParameter(getString(R.string.keys_weather_units), unit)
+                    .build();
+        } else {
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_units), unit)
+                    .build();
+        }
         //Log.d("Conditions pre", uri.toString());
         //build the JSONObject
 
