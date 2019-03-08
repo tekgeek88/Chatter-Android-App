@@ -1,7 +1,6 @@
 package edu.uw.team02tcss450;
 
 import android.content.Context;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -19,7 +20,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 
@@ -38,7 +40,17 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private String mJwt;
 
-    private TextView[][] mViews = new TextView[4][10];
+    private TextView[][] m10DayViews = new TextView[4][10];
+
+    private TextView[] mTodayViews = new TextView[8];
+
+    private LinearLayout m10DayLayout;
+
+    private LinearLayout mTodayLayout;
+
+    private ImageView[] mIcons = new ImageView[10];
+
+    private TextView mLocationName;
 
     private EditText mInputText;
 
@@ -54,18 +66,46 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         // Required empty public constructor
     }
 
+    private Map<String, Integer> todayEnum = new HashMap<>(8);
+
+    private void initMap () {
+        todayEnum.put("condition", 0);
+        todayEnum.put("low", 1);
+        todayEnum.put("high", 2);
+        todayEnum.put("chill", 3);
+        todayEnum.put("speed", 4);
+        todayEnum.put("temp", 5);
+        todayEnum.put("description", 6);
+        todayEnum.put("sunrise", 7);
+        todayEnum.put("sunset", 8);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_weather, container, false);
+        initMap();
         for (int i = 0; i < 10; i++){
-            mViews[0][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_date_" + i, "id", getActivity().getPackageName()));
-            mViews[1][i] = view.findViewById(getResources().getIdentifier("textview_weather_high_" + i, "id", getActivity().getPackageName()));
-            mViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
-            mViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[0][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_date_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[1][i] = view.findViewById(getResources().getIdentifier("textview_weather_high_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
+            mIcons[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
         }
+        mTodayViews[todayEnum.get("condition")] = view.findViewById(R.id.imageview_fragment_weather_current_condition);
+        mTodayViews[todayEnum.get("low")] = view.findViewById(R.id.textview_fragment_weather_current_low);
+        mTodayViews[todayEnum.get("high")] = view.findViewById(R.id.textview_fragment_weather_current_high);
+        mTodayViews[todayEnum.get("chill")] = view.findViewById(R.id.textview_fragment_weather_current_chill);
+        mTodayViews[todayEnum.get("description")] = view.findViewById(R.id.textview_fragment_weather_current_description);
+        mTodayViews[todayEnum.get("sunrise")] = view.findViewById(R.id.textview_fragment_weather_current_sunrise);
+        mTodayViews[todayEnum.get("sunset")] = view.findViewById(R.id.textview_fragment_weather_current_sunset);
+        mTodayViews[todayEnum.get("speed")] = view.findViewById(R.id.textview_fragment_weather_current_wind_speed);
+        mTodayViews[todayEnum.get("temp")] = view.findViewById(R.id.textview_fragment_weather_current_temp);
+        m10DayLayout = view.findViewById(R.id.layout_fragment_weather_10_day);
+        mTodayLayout = view.findViewById(R.id.layout_fragment_weather_today);
+        mTodayLayout.setVisibility(View.GONE);
+        mLocationName = view.findViewById(R.id.textview_fragment_weather_location);
         ImageButton searchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
         searchButton.setOnClickListener(this::onSearch);
         ImageButton mapButton = view.findViewById(R.id.imagebutton_fragment_weather_map);
@@ -122,8 +162,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
         Log.d("MAP", Boolean.toString(mLatLng == null));
         if (mLatLng != null) {
-            Log.d("MAP", Double.toString(mLatLng.latitude));
-            Log.d("MAP", Double.toString(mLatLng.longitude));
+            //Log.d("MAP", Double.toString(mLatLng.latitude));
+            //Log.d("MAP", Double.toString(mLatLng.longitude));
         }
         reloadWeather(mLatLng);
 
@@ -188,18 +228,23 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             JSONObject currentObs = fullResult.getJSONObject("current_observation");//current_observation
             JSONArray forecast = fullResult.getJSONArray("forecasts");//forecasts
 
-
+            //10 Day
             String temp[] = new String[4];
             for (int i = 0; i < forecast.length(); i++){
                 temp[0] = forecast.getJSONObject(i).getString("day");
                 temp[1] = "High " + forecast.getJSONObject(i).getString("high") + "\u00b0";
                 temp[2] = "Low " + forecast.getJSONObject(i).getString("low") + "\u00b0";
                 temp[3] = forecast.getJSONObject(i).getString("text");
-                mViews[0][i].setText(temp[0]);
-                mViews[1][i].setText(temp[1]);
-                mViews[2][i].setText(temp[2]);
-                mViews[3][i].setText(temp[3]);
+                m10DayViews[0][i].setText(temp[0]);
+                m10DayViews[1][i].setText(temp[1]);
+                m10DayViews[2][i].setText(temp[2]);
+                m10DayViews[3][i].setText(temp[3]);
             }
+            mLocationName.setText(location.getString("city"));
+
+            //Today
+
+
 
             mWaitListener.onWaitFragmentInteractionHide();
 

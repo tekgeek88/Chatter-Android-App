@@ -217,6 +217,7 @@ public class HomeActivity extends AppCompatActivity
             WeatherFragment tempFrag = new WeatherFragment();
             Bundle args = new Bundle();
             args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            requestLocation();
             args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
