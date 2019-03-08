@@ -28,6 +28,12 @@ public class ChatListAdapter extends ArrayAdapter<EveryMessage> {
 
     }
 
+    public ChatListAdapter(Context context, ArrayList<EveryMessage> chatList) {
+        super(context, 0, 0, chatList);
+        mContext = context;
+        mChatList = chatList;
+    }
+
     public String getChatContent() {
         return mChatContent;
     }
