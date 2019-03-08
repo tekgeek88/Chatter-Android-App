@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -93,7 +94,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             m10DayViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
             mIcons[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
         }
-        mTodayViews[todayEnum.get("condition")] = view.findViewById(R.id.imageview_fragment_weather_current_condition);
+        //mTodayViews[todayEnum.get("condition")] = view.findViewById(R.id.imageview_fragment_weather_current_condition);
         mTodayViews[todayEnum.get("low")] = view.findViewById(R.id.textview_fragment_weather_current_low);
         mTodayViews[todayEnum.get("high")] = view.findViewById(R.id.textview_fragment_weather_current_high);
         mTodayViews[todayEnum.get("chill")] = view.findViewById(R.id.textview_fragment_weather_current_chill);
@@ -110,6 +111,10 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         searchButton.setOnClickListener(this::onSearch);
         ImageButton mapButton = view.findViewById(R.id.imagebutton_fragment_weather_map);
         mapButton.setOnClickListener(this::openMap);
+        Button dayButton = view.findViewById(R.id.button_weather_fragment_today);
+        dayButton.setOnClickListener(this::showToday);
+        dayButton = view.findViewById(R.id.button_weather_fragment_10_day);
+        dayButton.setOnClickListener(this::show10Day);
         mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
         getActivity().setTitle("Weather");
         return view;
@@ -206,6 +211,15 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
 
+    private void show10Day (View v) {
+        mTodayLayout.setVisibility(View.GONE);
+        m10DayLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showToday (View v) {
+        mTodayLayout.setVisibility(View.VISIBLE);
+        m10DayLayout.setVisibility(View.GONE);
+    }
 
     private void handleWeatherOnPre () {
         mWaitListener.onWaitFragmentInteractionShow();
@@ -243,7 +257,24 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             mLocationName.setText(location.getString("city"));
 
             //Today
-
+            String temp2 = currentObs.getJSONObject("condition").getString("text");
+            mTodayViews[todayEnum.get("description")].setText(temp2);
+            temp2 = "Sunrise " + currentObs.getJSONObject("astronomy").getString("sunrise")
+                    .substring(0,currentObs.getJSONObject("astronomy").getString("sunrise").length() - 2);
+            mTodayViews[todayEnum.get("sunrise")].setText(temp2);
+            temp2 = "Sunset " + currentObs.getJSONObject("astronomy").getString("sunset")
+                    .substring(0,currentObs.getJSONObject("astronomy").getString("sunset").length() - 2);
+            mTodayViews[todayEnum.get("sunset")].setText(temp2);
+            temp2 = "Feels like " + currentObs.getJSONObject("wind").getString("chill") + "\u00b0";
+            mTodayViews[todayEnum.get("chill")].setText(temp2);
+            temp2 = currentObs.getJSONObject("wind").getString("speed") + " mph";
+            mTodayViews[todayEnum.get("speed")].setText(temp2);
+            temp2 = currentObs.getJSONObject("condition").getString("temperature") + "\u00b0";
+            mTodayViews[todayEnum.get("temp")].setText(temp2);
+            temp2 = "Low " + forecast.getJSONObject(0).getString("low") + "\u00b0";
+            mTodayViews[todayEnum.get("low")].setText(temp2);
+            temp2 = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
+            mTodayViews[todayEnum.get("high")].setText(temp2);
 
 
             mWaitListener.onWaitFragmentInteractionHide();
