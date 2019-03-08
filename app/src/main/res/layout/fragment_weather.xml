@@ -64,7 +64,6 @@
                 style="@style/textview_chatter_listitem_name"
                 android:layout_width="match_parent"
                 android:layout_height="33dp"
-                android:paddingStart="8dp"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 tools:layout_editor_absoluteY="80dp" />
@@ -999,6 +998,8 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/background_gradient"
+                        android:textAlignment="center"
+                        android:textSize="30sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/imageview_fragment_weather_current_condition" />
 
@@ -1006,10 +1007,12 @@
                         android:id="@+id/textview_fragment_weather_current_description"
                         style="@style/edittext_chatter_basestyle"
                         android:layout_width="228dp"
-                        android:layout_height="70dp"
+                        android:layout_height="75dp"
                         android:layout_marginStart="24dp"
                         android:layout_marginTop="16dp"
                         android:background="@drawable/background_gradient"
+                        android:textAlignment="center"
+                        android:textSize="28sp"
                         app:layout_constraintStart_toEndOf="@+id/imageview_fragment_weather_current_condition"
                         app:layout_constraintTop_toTopOf="parent" />
 

@@ -70,7 +70,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private Map<String, Integer> todayEnum = new HashMap<>(8);
 
     private void initMap () {
-        todayEnum.put("condition", 0);
         todayEnum.put("low", 1);
         todayEnum.put("high", 2);
         todayEnum.put("chill", 3);
@@ -78,7 +77,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         todayEnum.put("temp", 5);
         todayEnum.put("description", 6);
         todayEnum.put("sunrise", 7);
-        todayEnum.put("sunset", 8);
+        todayEnum.put("sunset", 0);
     }
 
     @Override
@@ -94,7 +93,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             m10DayViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
             mIcons[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
         }
-        //mTodayViews[todayEnum.get("condition")] = view.findViewById(R.id.imageview_fragment_weather_current_condition);
         mTodayViews[todayEnum.get("low")] = view.findViewById(R.id.textview_fragment_weather_current_low);
         mTodayViews[todayEnum.get("high")] = view.findViewById(R.id.textview_fragment_weather_current_high);
         mTodayViews[todayEnum.get("chill")] = view.findViewById(R.id.textview_fragment_weather_current_chill);
