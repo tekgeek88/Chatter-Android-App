@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.support.v4.app.FragmentTransaction;
 
@@ -34,13 +35,13 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
     public MyConnectionListRecyclerViewAdapter(List<Connections> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
-       
+
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_connectionlist, parent, false);
+                .inflate(R.layout.fragment_requestlist_item, parent, false);
 
 
         return new ViewHolder(view);
@@ -51,13 +52,31 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        TextView status = (TextView) holder.mView.findViewById(R.id.textview_fragment_connection_status);
-        status.setText(mValues.get(position).getVerified());
 
+        mValues.get(position).getVerified();
         holder.mItem = mValues.get(position);
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
+        holder.mBtnCancel.setVisibility(View.GONE);
+        holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(((CheckBox) v).isChecked()) {
+                    mListener.onCheckBoxListInteraction(v, holder.mItem);
+                }else{
+
+                }
+            }
+        });
+
+//        holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mListener.onRequestRemoveListButtonInteraction(v, holder.mItem);
+//            }
+//        });
+        holder.mBtnAccept.setVisibility(View.GONE);
 
 
 
@@ -91,15 +110,21 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
         public final TextView mFirstName;
         public final TextView mLastName;
         public final TextView mUserName;
+        public final TextView mBtnAccept;
+        public final TextView mBtnCancel;
+        public final CheckBox mCheckBox;
         public Connections mItem;
-        public String mButtonAction;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mFirstName = (TextView) view.findViewById(R.id.textview_fragment_connection_firstName);
-            mLastName = (TextView) view.findViewById(R.id.textview_fragment_connection_lastName);
-            mUserName = (TextView) view.findViewById(R.id.textview_fragment_connection_userName);
+
+            mFirstName = (TextView) view.findViewById(R.id.textview_requests_namefirst);
+            mLastName = (TextView) view.findViewById(R.id.textview_requests_namelast);
+            mUserName = (TextView) view.findViewById(R.id.textview_requests_nickname);
+            mBtnAccept = (TextView) view.findViewById(R.id.textview_requests_accept);
+            mBtnCancel = (TextView) view.findViewById(R.id.textview_requests_cancel);
+            mCheckBox = (CheckBox) view.findViewById(R.id.checkBox_request_check);
         }
 
 

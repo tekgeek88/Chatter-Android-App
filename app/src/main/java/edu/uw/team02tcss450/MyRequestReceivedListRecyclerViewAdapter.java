@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
+        holder.mCheckBox.setVisibility(View.GONE);
         holder.mBtnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,6 +81,7 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
         public final TextView mUserName;
         public final TextView mBtnAccept;
         public final TextView mBtnCancel;
+        public final CheckBox mCheckBox;
         public Connections mItem;
 
         public ViewHolder(View view) {
@@ -89,6 +92,7 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
             mUserName = (TextView) view.findViewById(R.id.textview_requests_nickname);
             mBtnAccept = (TextView) view.findViewById(R.id.textview_requests_accept);
             mBtnCancel = (TextView) view.findViewById(R.id.textview_requests_cancel);
+            mCheckBox = (CheckBox) view.findViewById(R.id.checkBox_request_check);
         }
 
         @Override
