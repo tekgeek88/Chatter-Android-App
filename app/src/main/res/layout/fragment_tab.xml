@@ -7,15 +7,63 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/design_default_color_primary"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <AutoCompleteTextView
-            android:id="@+id/search_text_view"
+        <TextView
+            android:id="@+id/textview_fragment_tab_searchbar_label"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:drawableRight="@drawable/ic_search"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Search by:"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+
+        <Spinner
+            android:id="@+id/spinner_search_options"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginBottom="8dp"
+            android:dropDownWidth="wrap_content"
+            android:spinnerMode="dropdown"
+            android:background="@color/secondaryLightColor"
+            android:theme="@style/spinner_chatter_theme" />
+
+        <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/spinner_search_options_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:textColor="@color/textHintColor"
+            android:textColorLink="@color/primaryTextColor" />
+
+        <AutoCompleteTextView
+            android:id="@+id/edittext_tabfragment_searchbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="@dimen/text_margin"
+            android:paddingRight="@dimen/text_margin"
+            android:background="@color/primaryTextColor"
+
+            android:drawableRight="@drawable/ic_search_secondary_color"
             android:imeOptions="actionSearch"
-            android:inputType="none|text" />
+            android:inputType="none|text"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="@color/secondaryTextColor"
+            android:textSize="24dp" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"

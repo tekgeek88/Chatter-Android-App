@@ -70,12 +70,24 @@
 
 
     <style name="checkbox_chatter" parent="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox.Dense">
-
         <item name="android:textSize">14dp</item>
         <item name="android:textColor">@color/secondaryColor</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
         <item name="android:buttonTint">@color/colorAccent</item>
+    </style>
 
+
+
+
+    <style name="spinner_chatter_theme">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:background">#303030</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:fadingEdge">vertical</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:ellipsize">marquee</item>
     </style>
 
 </resources>

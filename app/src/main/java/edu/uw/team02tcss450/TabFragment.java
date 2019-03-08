@@ -1,6 +1,7 @@
 package edu.uw.team02tcss450;
 
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -10,9 +11,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -28,7 +37,7 @@ import edu.uw.team02tcss450.model.Connections;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TabFragment extends Fragment {
+public class TabFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
 
     private Fragment mRequestsSent;
@@ -51,7 +60,6 @@ public class TabFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_tab, container, false);
         getActivity().setTitle("Connection Manager");
 
-
         mViewPager = (ViewPager) v.findViewById(R.id.viewpager);
         mRequestsReceived = new WaitFragment();
         mRequestsSent = new WaitFragment();
@@ -64,10 +72,75 @@ public class TabFragment extends Fragment {
         }
 
 
+        EditText edittext_searchbox = v.findViewById(R.id.edittext_tabfragment_searchbox);
+        edittext_searchbox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (event != null
+                    && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
+                    || actionId == EditorInfo.IME_ACTION_DONE) {
+                        InputMethodManager inputManager = (InputMethodManager)
+                                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+                        if (v.getText().toString().isEmpty()) {
+                            Toast toast = Toast.makeText(getActivity(), "Please type in a valid search entry", Toast.LENGTH_LONG);
+                            toast.show();
+                        } else {
+                            // Fetch users and open a new fragment so we can add them
+    //                        doUpdate(v.getText().toString());
+                            Log.wtf("WTF", v.getText().toString());
+                        }
+                }
+                return false;
+            }
+        });
+
 
 //        loadRequestsSentFragment();
 
         return v;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Spinner search_spinner = getActivity().findViewById(R.id.spinner_search_options);
+//        ArrayAdapter<String> mArrayAdapter = ArrayAdapter<String>(,
+//                R.layout.my_spinner,
+//                getResources().getStringArray(R.array.search_options_array));
+
+
+        ArrayAdapter mArrayAdapter = ArrayAdapter.createFromResource(
+                getActivity().getApplicationContext(),
+                R.array.search_options_array, R.layout.my_spinner); // where array_name consists of the items to show in Spinner
+        mArrayAdapter.setDropDownViewResource(R.layout.my_spinner); // where custom-spinner is mycustom xml file.
+        search_spinner.setAdapter(mArrayAdapter);
+        search_spinner.setOnItemSelectedListener(this);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        TextView tv = (TextView)view;
+        String searchMethod = tv.getText().toString();
+        Log.wtf("WTF", "id: " + id + "view: " + tv.getText().toString());
+
+        if ("First Name".equals(searchMethod)) {
+
+        } else if ("Last Name".equals(searchMethod)) {
+
+        } else if ("Username".equals(searchMethod)) {
+
+        } else if ("Email".equals(searchMethod)) {
+
+        }
+
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
 
@@ -271,14 +344,16 @@ public class TabFragment extends Fragment {
 
 
     private void setupViewPager() {
-        Log.e("updating view pager...", mViewPager.toString());
-        final TabLayout tabLayout = getActivity().findViewById(R.id.tabs);
-        mViewPager = getActivity().findViewById(R.id.viewpager);
-        mViewPagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager());
         if (mViewPager != null) {
-            mViewPager.setAdapter(mViewPagerAdapter);
-            tabLayout.setupWithViewPager(mViewPager);
-            mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            Log.e("updating view pager...", mViewPager.toString());
+            final TabLayout tabLayout = getActivity().findViewById(R.id.tabs);
+            mViewPager = getActivity().findViewById(R.id.viewpager);
+            mViewPagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager());
+            if (mViewPager != null) {
+                mViewPager.setAdapter(mViewPagerAdapter);
+                tabLayout.setupWithViewPager(mViewPager);
+                mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            }
         }
     }
 
