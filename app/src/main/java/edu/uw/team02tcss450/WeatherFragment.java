@@ -49,6 +49,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private LinearLayout mTodayLayout;
 
+    private LinearLayout mFavLayout;
+
     private ImageView[] mIcons = new ImageView[10];
 
     private TextView mLocationName;
@@ -56,6 +58,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private EditText mInputText;
 
     private LatLng mLatLng;
+
+    private boolean inFav = false;
 
     private String mLocation = "98404";
 
@@ -104,6 +108,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         m10DayLayout = view.findViewById(R.id.layout_fragment_weather_10_day);
         mTodayLayout = view.findViewById(R.id.layout_fragment_weather_today);
         mTodayLayout.setVisibility(View.GONE);
+        m10DayLayout.setVisibility(View.VISIBLE);
         mLocationName = view.findViewById(R.id.textview_fragment_weather_location);
         ImageButton searchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
         searchButton.setOnClickListener(this::onSearch);
@@ -113,6 +118,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         dayButton.setOnClickListener(this::showToday);
         dayButton = view.findViewById(R.id.button_weather_fragment_10_day);
         dayButton.setOnClickListener(this::show10Day);
+        dayButton = view.findViewById(R.id.button_fragment_weather_favorites);
+        dayButton.setOnClickListener(this::showFavorites);
         mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
         getActivity().setTitle("Weather");
         return view;
@@ -212,11 +219,22 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private void show10Day (View v) {
         mTodayLayout.setVisibility(View.GONE);
         m10DayLayout.setVisibility(View.VISIBLE);
+        mFavLayout.setVisibility(View.GONE);
+        inFav = false;
     }
 
     private void showToday (View v) {
         mTodayLayout.setVisibility(View.VISIBLE);
         m10DayLayout.setVisibility(View.GONE);
+        mFavLayout.setVisibility(View.GONE);
+        inFav = false;
+    }
+
+    private void showFavorites (View v) {
+        mTodayLayout.setVisibility(View.GONE);
+        m10DayLayout.setVisibility(View.GONE);
+        mFavLayout.setVisibility(View.VISIBLE);
+        inFav = true;
     }
 
     private void handleWeatherOnPre () {

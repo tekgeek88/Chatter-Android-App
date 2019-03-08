@@ -35,29 +35,40 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
-                tools:layout_editor_absoluteY="80dp">
+                android:layout_height="36dp">
 
                 <Button
                     android:id="@+id/button_weather_fragment_10_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/text_fragment_weather_10_days"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/button_fragment_weather_favorites"
                     style="@style/textview_chatter_accept_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:text="@string/text_fragment_weather_10_days" />
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/text_fragment_weather_favorites"
+                    app:layout_constraintEnd_toStartOf="@+id/button_weather_fragment_today"
+                    app:layout_constraintStart_toEndOf="@+id/button_weather_fragment_10_day"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/button_weather_fragment_today"
-                    style="@style/textview_chatter_accept_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/text_fragment_weather_today" />
-            </RelativeLayout>
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/text_fragment_weather_today"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
 
             <TextView
                 android:id="@+id/textview_fragment_weather_location"
@@ -960,7 +971,8 @@
                 android:id="@+id/layout_fragment_weather_today"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/layout_fragment_weather_current"
@@ -1087,6 +1099,11 @@
                 </android.support.constraint.ConstraintLayout>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="184dp"
+                android:orientation="vertical"></LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>
@@ -1111,5 +1128,7 @@
         android:src="@android:drawable/ic_dialog_map"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
 
 </android.support.constraint.ConstraintLayout>
