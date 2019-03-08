@@ -38,8 +38,6 @@ public class ChatFragment extends Fragment {
 
     private static final String TAG = "CHAT_FRAG";
 
-    private static final String CHAT_ID = "1";
-
     private PushMessageReceiver mPushMessageReciever;
 
     private TextView mMessageOutputTextView;
@@ -53,6 +51,7 @@ public class ChatFragment extends Fragment {
     private String mEmail;
     private String mJwToken;
     private String mSendUrl;
+    private String mChatId = "";
 
 
 
@@ -97,8 +96,12 @@ public class ChatFragment extends Fragment {
 
         // Zebin add
         mMessageOutputListView = rootLayout.findViewById(R.id.listview_fragment_chat_list);
+
         mChatList = new ArrayList<EveryMessage>();
 
+        if (getArguments() != null) {
+            mChatList = (ArrayList<EveryMessage>) getArguments().getSerializable(getString(R.string.keys_intent_messages));
+        }
 
         rootLayout.findViewById(R.id.btn_fragment_chat_send).setOnClickListener(this::handleSendClick);
         getActivity().setTitle("Chat");
@@ -114,7 +117,18 @@ public class ChatFragment extends Fragment {
             //get the email and JWT from the Activity. Make sure the Keys match what you used
             mEmail = getArguments().getString(getString(R.string.key_email));
             mJwToken = getArguments().getString(getString(R.string.keys_intent_jwt));
+            Log.wtf("WTF", "Received the chat message list!");
         }
+
+
+        for (int i = 0; i < mChatList.size(); i++) {
+            String sender = mChatList.get(i).getSenderName();
+            String messageText = mChatList.get(i).getSenderMessageContent();
+            mChatListAdapter = new ChatListAdapter(getContext(), mChatList, messageText, sender);
+            mMessageOutputListView.setAdapter(mChatListAdapter);
+            mMessageOutputListView.setSelection(mMessageOutputListView.getCount() - 1);
+        }
+
 
         //We will use this url every time the user hits send. Let's only build it once, ya?
         mSendUrl = new Uri.Builder()
@@ -134,7 +148,7 @@ public class ChatFragment extends Fragment {
         try {
             messageJson.put("email", mEmail);
             messageJson.put("message", msg);
-            messageJson.put("chatId", CHAT_ID);
+            messageJson.put("chatId", mChatId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -163,8 +177,9 @@ public class ChatFragment extends Fragment {
         }
     }
 
-
-
+    public static String getTAG() {
+        return TAG;
+    }
 
     /**
      * A BroadcastReceiver that listens for messages sent from PushReceiver
@@ -189,9 +204,4 @@ public class ChatFragment extends Fragment {
             }
         }
     }
-
-
-
-
-
 }
