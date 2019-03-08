@@ -104,6 +104,7 @@
 
     <TextView
         android:id="@+id/textview_fragment_login_Signed_up_yet"
+        style="@style/textview_chatter_listitem_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
