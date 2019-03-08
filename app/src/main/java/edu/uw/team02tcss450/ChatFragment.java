@@ -2,7 +2,6 @@ package edu.uw.team02tcss450;
 
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,12 +14,17 @@ import android.content.IntentFilter;
 import android.net.Uri;
 
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
+import edu.uw.team02tcss450.model.EveryMessage;
 import edu.uw.team02tcss450.utils.PushReceiver;
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 
@@ -40,6 +44,11 @@ public class ChatFragment extends Fragment {
 
     private TextView mMessageOutputTextView;
     private EditText mMessageInputEditText;
+
+    //Zebin add
+    private ArrayList<EveryMessage> mChatList;
+    private ListView mMessageOutputListView;
+    private ArrayAdapter<EveryMessage> mChatListAdapter;
 
     private String mEmail;
     private String mJwToken;
@@ -69,8 +78,8 @@ public class ChatFragment extends Fragment {
         if (mPushMessageReciever != null){
             getActivity().unregisterReceiver(mPushMessageReciever);
         }
-        FloatingActionButton fab = (FloatingActionButton)getActivity().findViewById(R.id.fab);
-        fab.show();
+//        FloatingActionButton fab = (FloatingActionButton)getActivity().findViewById(R.id.fab);
+//        fab.show();
     }
 
 
@@ -83,9 +92,15 @@ public class ChatFragment extends Fragment {
 
         View rootLayout = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        mMessageOutputTextView = rootLayout.findViewById(R.id.text_chat_message_display);
-        mMessageInputEditText = rootLayout.findViewById(R.id.edit_chat_message_input);
-        rootLayout.findViewById(R.id.button_chat_send).setOnClickListener(this::handleSendClick);
+        mMessageOutputTextView = rootLayout.findViewById(R.id.textview_fragment_chat_my_chat_bubble_message_output);
+        mMessageInputEditText = rootLayout.findViewById(R.id.edittext_fragment_chat_message_input);
+
+        // Zebin add
+        mMessageOutputListView = rootLayout.findViewById(R.id.listview_fragment_chat_list);
+        mChatList = new ArrayList<EveryMessage>();
+
+
+        rootLayout.findViewById(R.id.btn_fragment_chat_send).setOnClickListener(this::handleSendClick);
         getActivity().setTitle("Chat");
         return rootLayout;
     }
@@ -163,9 +178,14 @@ public class ChatFragment extends Fragment {
                 String sender = intent.getStringExtra("SENDER");
                 String messageText = intent.getStringExtra("MESSAGE");
 
-                mMessageOutputTextView.append(sender + ":" + messageText);
-                mMessageOutputTextView.append(System.lineSeparator());
-                mMessageOutputTextView.append(System.lineSeparator());
+//                mMessageOutputTextView.append(sender + ":" + messageText);
+//                mMessageOutputTextView.append(System.lineSeparator());
+//                mMessageOutputTextView.append(System.lineSeparator());
+
+                mChatList.add(new EveryMessage(sender, messageText, mEmail));
+                mChatListAdapter = new ChatListAdapter(getContext(), mChatList, messageText, sender);
+                mMessageOutputListView.setAdapter(mChatListAdapter);
+                mMessageOutputListView.setSelection(mMessageOutputListView.getCount() - 1);
             }
         }
     }
