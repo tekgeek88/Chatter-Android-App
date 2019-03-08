@@ -37,8 +37,10 @@ import java.util.List;
 
 import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
+import edu.uw.team02tcss450.model.EveryMessage;
 import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
+import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
 public class HomeActivity extends AppCompatActivity
@@ -51,7 +53,7 @@ public class HomeActivity extends AppCompatActivity
         ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener,
         RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
-        GoogleMap.OnMapClickListener {
+        GoogleMap.OnMapClickListener, TabFragment.OnTabFragmentInteractionListener {
 
 
     public String getmJwToken() {
@@ -82,7 +84,7 @@ public class HomeActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadChatFragment();
+                loadChatFragment(1);
             }
         });
 
@@ -165,7 +167,8 @@ public class HomeActivity extends AppCompatActivity
         } else if(id == R.id.nav_connection_fragment){
             loadConnectionFragment();
         }else if (id == R.id.nav_chat_fragment) {
-            loadChatFragment();
+            // Always load the global chat from this side bar action
+            loadChatFragment(1);
         } //else if (id == R.id.nav_profile_fragment) {
 
         else if (id == R.id.nav_requests_fragment) {
@@ -349,7 +352,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    public Fragment handleRequestSentOnPostExecute(final String result) {
+    public void handleRequestSentOnPostExecute(final String result) {
         //parse JSON
         String error;
         try {
@@ -401,7 +404,69 @@ public class HomeActivity extends AppCompatActivity
                     Toast.LENGTH_LONG).show();
 
         }
-        return null;
+    }
+
+
+
+    public void handleChatMessagesGetOnPostExecute(final String result) {
+        //parse JSON
+        String error = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            error = resultsJSON.getString("message");
+            if (success) {
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    ArrayList<EveryMessage> messageList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonMessage = data.getJSONObject(i);
+                        EveryMessage tempMessage = new EveryMessage(
+                                jsonMessage.getString("username"),
+                                jsonMessage.getString("message"),
+                                jsonMessage.getString("email")
+                        );
+                                tempMessage.setChatId(jsonMessage.getInt("chatid"));
+                                tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
+                        messageList.add(tempMessage
+                        );
+                    }
+                    Bundle args = new Bundle();
+                    args.putSerializable(getString(R.string.keys_intent_messages), messageList);
+                    args.putSerializable(getString(R.string.key_email), mEmail);
+                    args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+                    args.putSerializable(getString(R.string.key_chat_id), 1);
+
+                    Fragment frag = new ChatFragment();
+                    frag.setArguments(args);
+
+                    onWaitFragmentInteractionHide();
+
+                    loadFragment(frag, ChatFragment.getTAG());
+                } else {
+                    Log.e("ERROR!", error);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + error,
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.e("ERROR!", error);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + error,
+                        Toast.LENGTH_LONG).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+
+        }
     }
 
 
@@ -445,14 +510,49 @@ public class HomeActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    public void loadChatFragment() {
-        ChatFragment chatFragment = new ChatFragment();
-        Bundle args = new Bundle();
 
-        args.putSerializable(getString(R.string.key_email), mEmail);
-        args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-        chatFragment.setArguments(args);
-        loadFragment(chatFragment);
+    public void loadChatFragment(int chatId) {
+
+        // Create the request
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_messaging_base))
+                .appendPath(getString(R.string.ep_getAll))
+                .build();
+
+
+        // Build the message to post
+        JSONObject msg = new JSONObject();
+
+        try {
+            msg.put("chat_id", chatId);
+        } catch ( JSONException e) {
+            Log.wtf("WTF", "SHIT HIT THE FAN!\n" + e.toString());
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleChatMessagesGetOnPostExecute)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+
+//        ChatFragment chatFragment = new ChatFragment();
+//        Bundle args = new Bundle();
+    }
+
+    /**
+     * Handle errors that may occur during the AsyncTask.
+     *
+     * @param result the error message provide from the AsyncTask
+     */
+    private void handleErrorsInTask(String result) {
+        String response = result.toString();
+        onWaitFragmentInteractionHide();
+        Toast.makeText(this, "Error: " + response, Toast.LENGTH_LONG).show();
+        Log.e("ASYNC_TASK_ERROR", result);
     }
 
     private void loadHomeFragment() {
@@ -671,7 +771,7 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void OnIndividualConnectionChatInteraction(String url) {
-        loadChatFragment();
+        loadChatFragment(1);
     }
 
 
@@ -732,6 +832,11 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onMapClick(LatLng latLng) {
+
+    }
+
+    @Override
+    public void onRequestTabInteraction(String interaction) {
 
     }
 

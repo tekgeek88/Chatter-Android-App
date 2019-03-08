@@ -32,12 +32,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.model.Credentials;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class TabFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+
+
+    public interface OnTabFragmentInteractionListener extends
+            WaitFragment.OnFragmentInteractionListener {
+        void onRequestTabInteraction(String interaction);
+    }
 
 
     private Fragment mRequestsSent;
@@ -356,5 +363,7 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
             }
         }
     }
+
+
 
 }
