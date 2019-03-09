@@ -464,9 +464,9 @@ public class HomeActivity extends AppCompatActivity
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonMessage = data.getJSONObject(i);
                         EveryMessage tempMessage = new EveryMessage(
-                                jsonMessage.getString("email"),
+                                jsonMessage.getString("username"),
                                 jsonMessage.getString("message"),
-                                mEmail
+                                jsonMessage.getString("email")
                         );
                                 tempMessage.setChatId(jsonMessage.getInt("chatid"));
                                 tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
@@ -475,9 +475,9 @@ public class HomeActivity extends AppCompatActivity
                     }
                     Bundle args = new Bundle();
                     args.putSerializable(getString(R.string.keys_intent_messages), messageList);
-                    args.putString(getString(R.string.key_email), mEmail);
-                    args.putString(getString(R.string.keys_intent_jwt), mJwToken);
-                    args.putInt(getString(R.string.key_chat_id), 1);
+                    args.putSerializable(getString(R.string.key_email), mEmail);
+                    args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+                    args.putSerializable(getString(R.string.key_chat_id), 1);
 
                     Fragment frag = new ChatFragment();
                     frag.setArguments(args);
