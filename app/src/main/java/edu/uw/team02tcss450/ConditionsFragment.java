@@ -33,6 +33,8 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
 
     private WaitFragment.OnFragmentInteractionListener mWaitListener;
 
+    private LatLng mLatlng;
+
     @Override
     public void onWaitFragmentInteractionShow() {
 
@@ -91,51 +93,11 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
         if (getArguments() != null) {
             mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
             if (getArguments().getParcelable(getString(R.string.keys_map_latlng)) != null){
-                latLng = getArguments().getParcelable(getString(R.string.keys_map_latlng));
+                mLatlng = getArguments().getParcelable(getString(R.string.keys_map_latlng));
             }
         }
 
-        //build the web service URL
-        //https://team02-tcss450-backend.herokuapp.com/
-        //weather/
-        //forecast?
-        // location=98335&u=f
-        String location = "98404";
-        String unit = "f";
-        Uri uri;
-        if (latLng == null) {
-            uri = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_forecast))
-                    .appendQueryParameter(getString(R.string.keys_weather_location), location)
-                    .appendQueryParameter(getString(R.string.keys_weather_units), unit)
-                    .build();
-        } else {
-            uri = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_forecast))
-                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
-                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
-                    .appendQueryParameter(getString(R.string.keys_weather_units), unit)
-                    .build();
-        }
-        //Log.d("Conditions pre", uri.toString());
-        //build the JSONObject
-
-
-        //instantiate and execute the AsyncTask.
-        //Feel free to add a handler for onPreExecution so that a progress bar
-        //is displayed or maybe disable buttons.
-        new GetAsyncTask.Builder(uri.toString())
-                .addHeaderField("authorization", mJwt)
-                .onPreExecute(this::handleWeatherOnPre)
-                .onPostExecute(this::handleWeatherOnPost)
-                .onCancelled(this::handleWeatherInError)
-                .build().execute();
+        reloadWeather(mLatlng);
 
     }
 
@@ -150,6 +112,43 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
         if (context instanceof WaitFragment.OnFragmentInteractionListener) {
             mWaitListener = (WaitFragment.OnFragmentInteractionListener) context;
         }
+    }
+
+    public void reloadWeather () {
+        reloadWeather(null);
+    }
+
+    public void reloadWeather (LatLng latLng) {
+        mLatlng = (latLng != null) ? latLng : mLatlng;
+        String location = "98404";
+        String unit = "f";
+        Uri uri;
+        if (mLatlng == null) {
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_location), location)
+                    .appendQueryParameter(getString(R.string.keys_weather_units), unit)
+                    .build();
+        } else {
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatlng.latitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatlng.longitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_units), unit)
+                    .build();
+        }
+        new GetAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleWeatherOnPre)
+                .onPostExecute(this::handleWeatherOnPost)
+                .onCancelled(this::handleWeatherInError)
+                .build().execute();
     }
 
     private void handleWeatherOnPost (String result) {

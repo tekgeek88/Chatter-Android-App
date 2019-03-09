@@ -90,6 +90,8 @@ public class HomeActivity extends AppCompatActivity
     private String mEmail;
     private String mUsername;
     private LatLng mLocation;
+    private ConditionsFragment mConFrag;
+    private boolean isReloaded = false;
 
     public Credentials getmCredentials() {
         return mCredentials;
@@ -530,6 +532,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        isReloaded = false;
         if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
             && getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)).equals(WeatherFragment.TAG)) {
             WeatherFragment tempFrag = new WeatherFragment();
@@ -624,18 +627,18 @@ public class HomeActivity extends AppCompatActivity
         loadFragment(homeFragment);
 
         // Alex
-        ConditionsFragment conFrag = new ConditionsFragment();
+        mConFrag = new ConditionsFragment();
         Bundle conArgs = new Bundle();
         conArgs.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
         conArgs.putParcelable(getString(R.string.keys_map_latlng), mLocation);
-        conFrag.setArguments(conArgs);
+        mConFrag.setArguments(conArgs);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, homeFragment);
         transaction.commit();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.layout_fragment_home_conditions_container, conFrag, ConditionsFragment.TAG)
+                .replace(R.id.layout_fragment_home_conditions_container, mConFrag, ConditionsFragment.TAG)
                 .addToBackStack(null)
                 .commit();
     }
@@ -988,6 +991,10 @@ public class HomeActivity extends AppCompatActivity
 
     private void setLocation(final Location location) {
         mLocation = new LatLng(location.getLatitude(),location.getLongitude());
+        if (mConFrag != null && !isReloaded) {
+            mConFrag.reloadWeather(mLocation);
+            isReloaded = true;
+        }
     }
 
     /**
