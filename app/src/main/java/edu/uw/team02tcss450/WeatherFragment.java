@@ -163,43 +163,45 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void reloadWeather (LatLng latLng) {
-        Uri uri10Day;
-        Uri uriHourly;
-        mLatLng = latLng;
-        uri10Day = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_forecast))
-                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
-                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
-                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                .build();
-        uriHourly = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_forecast))
-                .appendPath(getString(R.string.ep_hourly))
-                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
-                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
-                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                .build();
+        if (null != latLng) {
+            Uri uri10Day;
+            Uri uriHourly;
+            mLatLng = latLng;
+            uri10Day = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                    .build();
+            uriHourly = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendPath(getString(R.string.ep_hourly))
+                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                    .build();
 
-        new GetAsyncTask.Builder(uri10Day.toString())
-                .addHeaderField("authorization", mJwt)
-                .onPreExecute(this::handleWeatherOnPre)
-                .onPostExecute(this::handleWeatherOnPost)
-                .onCancelled(this::handleWeatherInError)
-                .build().execute();
-        new GetAsyncTask.Builder(uriHourly.toString())
-                .addHeaderField("authorization", mJwt)
-                .onPreExecute(this::handleHourlyOnPre)
-                .onPostExecute(this::handleHourlyOnPost)
-                .onCancelled(this::handleHourlyInError)
-                .build().execute();
+            new GetAsyncTask.Builder(uri10Day.toString())
+                    .addHeaderField("authorization", mJwt)
+                    .onPreExecute(this::handleWeatherOnPre)
+                    .onPostExecute(this::handleWeatherOnPost)
+                    .onCancelled(this::handleWeatherInError)
+                    .build().execute();
+            new GetAsyncTask.Builder(uriHourly.toString())
+                    .addHeaderField("authorization", mJwt)
+                    .onPreExecute(this::handleHourlyOnPre)
+                    .onPostExecute(this::handleHourlyOnPost)
+                    .onCancelled(this::handleHourlyInError)
+                    .build().execute();
 
-        loadFavorites();
+            loadFavorites();
+        }
     }
 
     private void reloadWeather (String zipcode) {
