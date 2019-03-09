@@ -199,7 +199,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .onCancelled(this::handleHourlyInError)
                 .build().execute();
 
-
+        loadFavorites();
     }
 
     private void reloadWeather (String zipcode) {
@@ -236,7 +236,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .onPostExecute(this::handleHourlyOnPost)
                 .onCancelled(this::handleHourlyInError)
                 .build().execute();
-
+        loadFavorites();
 
     }
 
@@ -353,13 +353,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .build().execute();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onWeatherFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -380,8 +373,20 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void onFavorite (View v) {
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(getContext());
+        dlgAlert.setMessage("Are you sure you want to add this location to yuor favorites?");
+        dlgAlert.setTitle("Add to favorites");
+        dlgAlert.setNegativeButton("Cancel", null);
+        dlgAlert.setPositiveButton("Yes", this::getNickname);
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
+
+
+    }
+
+    private void getNickname (DialogInterface a, int b) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Title");
+        builder.setTitle("Pick a Nick");
 // I'm using fragment here so I'm using getView() to provide ViewGroup
 // but you can provide here any other instance of ViewGroup from your Fragment / Activity
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.alert_name_input, (ViewGroup) getView(), false);
@@ -441,6 +446,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mInputText.setHint(R.string.text_fragment_weather_text_add_to);
         Log.d("the JWT", mJwt.toString());
     }
+
 
     private void handleWeatherOnPre () {
         mWaitListener.onWaitFragmentInteractionShow();
@@ -517,7 +523,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             Log.e("Weather", e.toString());
             e.printStackTrace();
         }
-
     }
 
     private void handleWeatherInError (String result) {
@@ -699,6 +704,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mWaitListener.onWaitFragmentInteractionHide();
         Log.d("Favorites", result);
     }
+
 
     @Override
     public void onWaitFragmentInteractionShow() {
