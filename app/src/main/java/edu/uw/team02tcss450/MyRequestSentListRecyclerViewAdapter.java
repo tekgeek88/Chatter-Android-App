@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import edu.uw.team02tcss450.RequestSentListFragment.OnRequestListFragmentInteractionListener;
@@ -41,6 +42,7 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
+        holder.mCheckBox.setVisibility(View.GONE);
         holder.mBtnAccept.setText("PENDING");
         holder.mBtnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +82,7 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
         public final TextView mUserName;
         public final TextView mBtnAccept;
         public final TextView mBtnCancel;
+        public final CheckBox mCheckBox;
 
         public ViewHolder(View view) {
             super(view);
@@ -89,6 +92,7 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
             mUserName = (TextView) view.findViewById(R.id.textview_requests_nickname);
             mBtnAccept = (TextView) view.findViewById(R.id.textview_requests_accept);
             mBtnCancel = (TextView) view.findViewById(R.id.textview_requests_cancel);
+            mCheckBox = (CheckBox) view.findViewById(R.id.checkBox_request_check);
         }
 
         @Override
