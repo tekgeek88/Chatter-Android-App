@@ -1,5 +1,6 @@
 package edu.uw.team02tcss450.model;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
@@ -79,6 +80,21 @@ public class Favorite {
         mLoad.setOnClickListener(this::loadFavorite);
         mDelete.setOnClickListener(this::removeFavorite);
         mName.setText(mNickname);
+    }
+
+
+    public void onAttach(WeatherFragment context) {
+        if (context instanceof Favorite.OnFavoriteInteractionListener) {
+            mListener = (Favorite.OnFavoriteInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFavoriteInteractionListener");
+        }
+    }
+
+
+    public void onDetach() {
+        mListener = null;
     }
 
     private void removeFavorite (View v) {

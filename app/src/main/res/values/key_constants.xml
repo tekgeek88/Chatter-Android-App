@@ -39,6 +39,12 @@
     <string name="keys_weather_nickname">nickname</string>
     <string name="keys_weather_username">username</string>
 
+    <!--###########   Favorite Keys   #############-->
+    <string name="keys_favorite_nickname">nickname</string>
+    <string name="keys_favorite_latitude">lat</string>
+    <string name="keys_favorite_longitude">long</string>
+    <string name="keys_favorite_zipcode">zip</string>
+
     <!--###########   Map Keys   #############-->
     <string name="keys_map_latlng">LatLng</string>
     <string name="keys_map_map">map</string>

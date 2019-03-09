@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private ImageView mCurrentImage;
 
-    private Favorite[] mFavorites;
+    private ArrayList<Favorite> mFavorites = new ArrayList<>(10);
 
     private String mUsername;
 
@@ -221,6 +222,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void loadFavorites () {
+        Log.d("FAVORITES", "Load favorites");
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -300,7 +302,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .appendPath(getString(R.string.ep_weather))
                 .appendPath(getString(R.string.ep_locations))
                 .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
-                .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
+                .appendQueryParameter(getString(R.string.keys_weather_location), zip)
                 .appendQueryParameter(getString(R.string.keys_weather_nickname), "testNameZip")
                 .build();
 
@@ -476,29 +478,46 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void handleFavoriteGetOnPost (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
+        Log.d("FAVORITES", "Post start");
         try {
             JSONObject fullResult = new JSONObject(result);
             if (fullResult != null && fullResult.getString("status").equals("success")) {
                 JSONArray data = fullResult.getJSONArray("data");
-
+                JSONObject piece;
 
 
                 LinearLayout main =(LinearLayout) mView.findViewById(R.id.layout_fragment_weather_favorites);
                 Favorite aFav;
+                ImageButton aLoad,aDelete;
+                TextView aName;
+                double a = 0,b = 0, zip = 0;
                 for(int i=0;i<data.length();i++){
+                    piece = data.getJSONObject(i);
                     View view = mInflater.inflate(R.layout.fragment_weather_favorite_single, null);
-                    view.findViewById()
+                    aLoad = view.findViewById(R.id.imagebutton_fragment_weather_favorite_load);
+                    aDelete = view.findViewById(R.id.imagebutton_fragment_weather_favorite_delete);
+                    aName = view.findViewById(R.id.textview_fragment_weather_favorite_name);
+                    Log.d("FAVORITES", piece.get(getString(R.string.keys_favorite_latitude)).toString());
+                    if (!piece.get(getString(R.string.keys_favorite_latitude)).toString().equals("null")) {
+                        a = piece.getDouble(getString(R.string.keys_favorite_latitude));
+                        b = piece.getDouble(getString(R.string.keys_favorite_longitude));
+                    }
+                    if (!piece.get(getString(R.string.keys_favorite_zipcode)).toString().equals("null")) {
+                        zip = piece.getDouble(getString(R.string.keys_favorite_zipcode));
+                    }
+                    aFav = new Favorite.Builder(piece.getString(getString(R.string.keys_favorite_nickname)),aName,aDelete,aLoad)
+                            .LatLng(a,b)
+                            .zipcode(zip)
+                            .build();
+                    aFav.onAttach(this);
                     main.addView(view);
+                    mFavorites.add(aFav);
+                    Log.d("FAVORITES", "Loaded a favorite");
                 }
-
-
-
-
-
-
-
+                Log.d("FAVORITES", "Done with load loop");
             }
         } catch (JSONException e) {
+            Log.d("FAVORITES", e.toString());
             e.printStackTrace();
         }
     }
