@@ -228,24 +228,20 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void onSearch(View v){
-        if (inFav){
-            onFavorite();
-        } else {
-            mLocation = mInputText.getText().toString();
-            //mInputText.setText("");
-            reloadWeather();
-        }
-    }
-
-    private void onFavorite () {
-        addToFavorites();
+        mLocation = mInputText.getText().toString();
+        //mInputText.setText("");
+        reloadWeather();
     }
 
     private void openMap(View v) {
         mListener.onWeatherFragmentOpenMap(mLatLng);
     }
 
-    private void addToFavorites () {
+    private void addToFavorites (LatLng latLng) {
+        //Database call to add zip or latlng to database
+    }
+
+    private void addToFavorites (String zip) {
         //Database call to add zip or latlng to database
     }
 
@@ -279,6 +275,9 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mListener = null;
     }
 
+    private void onFavorite (View v) {
+        addToFavorites(mInputText.getText().toString());
+    }
 
     private void show10Day (View v) {
         mTodayLayout.setVisibility(View.GONE);
@@ -286,6 +285,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mFavLayout.setVisibility(View.GONE);
         inFav = false;
         mSearchButton.setImageResource(R.drawable.ic_search);
+        mSearchButton.setOnClickListener(this::onSearch);
         //@android:drawable/ic_menu_search
     }
 
@@ -295,6 +295,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mFavLayout.setVisibility(View.GONE);
         inFav = false;
         mSearchButton.setImageResource(R.drawable.ic_search);
+        mSearchButton.setOnClickListener(this::onSearch);
+
     }
 
     private void showFavorites (View v) {
@@ -303,6 +305,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mFavLayout.setVisibility(View.VISIBLE);
         inFav = true;
         mSearchButton.setImageResource(R.drawable.ic_favorite_red);
+        mSearchButton.setOnClickListener(this::onFavorite);
         Log.d("the JWT", mJwt.toString());
     }
 
@@ -435,7 +438,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 mHourlyViews[0][i].setText(temp);
                 temp = Math.round(object.getDouble("temperature")) + "\u00b0";
                 mHourlyViews[1][i].setText(temp);
-                temp = (int)Math.floor(object.getDouble("humidity")*100) + "%";
+                temp = (int)Math.floor(object.getDouble("precipProbability")*100) + "%";
                 mHourlyViews[2][i].setText(temp);
                 mHourlyImages[i].setImageResource(R.drawable.ic_weather_white_cloud);
             }
@@ -443,7 +446,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             /**
              * 0 = time
              * 1 = high
-             * 2 = low or now humidity
+             * 2 = low or now humidity or precip or wind speed
+             *  :humidity: :precipProbability: :windSpeed:
              */
             /*
             {
@@ -468,11 +472,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                         "visibility": 8.98,
                         "ozone": 414.19
                     },]
-
-
-
                 }
-
             }
 
              */
