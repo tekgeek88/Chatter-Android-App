@@ -27,7 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
+import edu.uw.team02tcss450.utils.SendPostAsyncTask;
+import me.pushy.sdk.lib.jackson.annotation.JsonTypeInfo;
 
 
 /**
@@ -52,7 +55,13 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private ImageView[] mHourlyImages = new ImageView[24];
 
+    private LatLng[] mFavsLatLng;
+
+    private String[] mFavsZip;
+
     private ImageView mCurrentImage;
+
+    private String mUsername;
 
     private LinearLayout m10DayLayout;
 
@@ -214,7 +223,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         if (getArguments() != null) {
             mJwt = getArguments().getString(getString(R.string.keys_intent_jwt));
             mLatLng = getArguments().getParcelable(getString(R.string.keys_map_latlng));
-            //Get the location
             //Get the unit
         }
 
@@ -243,6 +251,24 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void addToFavorites (String zip) {
         //Database call to add zip or latlng to database
+        //username:::zipcode:::nickname
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_locations))
+                .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
+                .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
+                .appendQueryParameter(getString(R.string.keys_weather_nickname), "Nick")
+                .build();
+
+//        new SendPostAsyncTask().Builder(uri.toString())
+//                .addHeaderField("authorization", mJwt)
+//                .onPreExecute(this::handleHourlyOnPre)
+//                .onPostExecute(this::handleHourlyOnPost)
+//                .onCancelled(this::handleHourlyInError)
+//                .build().execute();
+
     }
 
     private void removeFromFavorites () {
@@ -392,15 +418,28 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         Log.d("Weather", result);
     }
 
-    private void handleFavoriteOnPre () {
+    private void handleFavoriteAddOnPre () {
         mWaitListener.onWaitFragmentInteractionShow();
     }
 
-    private void handleFavoriteOnPost (String result) {
+    private void handleFavoriteAddOnPost (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
     }
 
-    private void handleFavoriteInError (String result) {
+    private void handleFavoriteAddInError (String result) {
+        mWaitListener.onWaitFragmentInteractionHide();
+        Log.d("Favorites", result);
+    }
+
+    private void handleFavoriteRemoveOnPre () {
+        mWaitListener.onWaitFragmentInteractionShow();
+    }
+
+    private void handleFavoriteRemoveOnPost (String result) {
+        mWaitListener.onWaitFragmentInteractionHide();
+    }
+
+    private void handleFavoriteRemoveInError (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
         Log.d("Favorites", result);
     }
