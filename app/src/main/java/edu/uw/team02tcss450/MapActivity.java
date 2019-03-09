@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -128,8 +129,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
-
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 10));
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
@@ -138,6 +137,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void onRemoveMarker (DialogInterface a, int b) {
         mMarker.remove();
+        mMarker = null;
     }
 
     private void addToLocationFavorites () {
@@ -184,7 +184,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private void openNickname (DialogInterface a, int b) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title");
+        builder.setTitle("Name the Favorite");
 // I'm using fragment here so I'm using getView() to provide ViewGroup
 // but you can provide here any other instance of ViewGroup from your Fragment / Activity
         View viewInflated = getLayoutInflater().inflate(R.layout.alert_name_input, (ViewGroup) ((ViewGroup) this

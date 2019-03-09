@@ -956,12 +956,17 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onWeatherFragmentOpenMap(LatLng location) {
-        if (mLocation == null){
+        if (mLocation == null && location == null){
             mLocation = new LatLng(47.2529,-122.4443);//Tacoma
         }
+
         Intent i = new Intent(this, MapActivity.class);
         i.putExtra(getString(R.string.keys_intent_jwt), mJwToken);
-        i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        if (location == null){
+            i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        } else {
+            i.putExtra(getString(R.string.keys_map_latlng), location);
+        }
         i.putExtra(getString(R.string.keys_intent_credentials), mCredentials);
         startActivity(i);
     }

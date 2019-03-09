@@ -2650,7 +2650,7 @@
             <LinearLayout
                 android:id="@+id/layout_fragment_weather_favorites"
                 android:layout_width="match_parent"
-                android:layout_height="184dp"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:visibility="gone"></LinearLayout>
 

@@ -1,6 +1,8 @@
 package edu.uw.team02tcss450;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -81,7 +83,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private LatLng mLatLng;
 
-    private String mLocation = "98404";
+    private String mLocation = "";
 
     private String mUnit = "f";
 
@@ -162,13 +164,14 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private void reloadWeather (LatLng latLng) {
         Uri uri10Day;
         Uri uriHourly;
+        mLatLng = latLng;
         uri10Day = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_weather))
                 .appendPath(getString(R.string.ep_forecast))
-                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
-                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
+                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
+                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
                 .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
                 .build();
         uriHourly = new Uri.Builder()
@@ -177,8 +180,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .appendPath(getString(R.string.ep_weather))
                 .appendPath(getString(R.string.ep_forecast))
                 .appendPath(getString(R.string.ep_hourly))
-                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
-                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
+                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
+                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
                 .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
                 .build();
 
@@ -201,6 +204,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private void reloadWeather (String zipcode) {
         Uri uri10Day;
         Uri uriHourly;
+        mLocation = zipcode;
         uri10Day = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -286,7 +290,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mListener.onWeatherFragmentOpenMap(mLatLng);
     }
 
-    private void addToFavorites (LatLng latLng) {
+    private void addToFavorites (LatLng latLng, String nickname) {
         //Database call to add zip or latlng to database
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -296,7 +300,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
                 .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
                 .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
-                .appendQueryParameter(getString(R.string.keys_weather_nickname), "testNameLatlng")
+                .appendQueryParameter(getString(R.string.keys_weather_nickname), nickname)
                 .build();
 
         new PutAsyncTask.Builder(uri.toString())
@@ -307,7 +311,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .build().execute();
     }
 
-    private void addToFavorites (String zip) {
+    private void addToFavorites (String zip, String nickname) {
         //Database call to add zip or latlng to database
         //username:::zipcode:::nickname
         Uri uri = new Uri.Builder()
@@ -317,7 +321,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .appendPath(getString(R.string.ep_locations))
                 .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
                 .appendQueryParameter(getString(R.string.keys_weather_location), zip)
-                .appendQueryParameter(getString(R.string.keys_weather_nickname), "testNameZip")
+                .appendQueryParameter(getString(R.string.keys_weather_nickname), nickname)
                 .build();
 
         new PutAsyncTask.Builder(uri.toString())
@@ -329,8 +333,23 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     }
 
-    private void removeFromFavorites () {
-        //Database call to remove zip or latlng to database
+    private void removeFromFavorites (String nickname) {
+        //Database call to remove nickname from database
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_locations))
+                .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
+                .appendQueryParameter(getString(R.string.keys_weather_nickname), nickname)
+                .build();
+
+        new DelAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleFavoriteRemoveOnPre)
+                .onPostExecute(this::handleFavoriteRemoveOnPost)
+                .onCancelled(this::handleFavoriteRemoveInError)
+                .build().execute();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -360,7 +379,37 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void onFavorite (View v) {
-        addToFavorites(mInputText.getText().toString());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Name the Favorite");
+// I'm using fragment here so I'm using getView() to provide ViewGroup
+// but you can provide here any other instance of ViewGroup from your Fragment / Activity
+        View viewInflated = getLayoutInflater().inflate(R.layout.alert_name_input, (ViewGroup) getView(), false);
+// Set up the input
+        final EditText input = (EditText) viewInflated.findViewById(R.id.edittext_alert_input);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        builder.setView(viewInflated);
+
+// Set up the buttons
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                if (!mInputText.getText().toString().equals("")) {
+                    addToFavorites(mInputText.getText().toString(),input.getText().toString());
+                } else {
+                    addToFavorites(mLatLng, input.getText().toString());
+                }
+
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     private void show10Day (View v) {
@@ -492,12 +541,12 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void handleFavoriteGetOnPost (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
-        Log.d("FAVORITES", "Post start");
         try {
             JSONObject fullResult = new JSONObject(result);
             if (fullResult != null && fullResult.getString("status").equals("success")) {
                 JSONArray data = fullResult.getJSONArray("data");
                 JSONObject piece;
+                Log.d("FAVORITES2", result);
 
 
                 LinearLayout main =(LinearLayout) mView.findViewById(R.id.layout_fragment_weather_favorites);
@@ -512,7 +561,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     aLoad = view.findViewById(R.id.imagebutton_fragment_weather_favorite_load);
                     aDelete = view.findViewById(R.id.imagebutton_fragment_weather_favorite_delete);
                     aName = view.findViewById(R.id.textview_fragment_weather_favorite_name);
-                    Log.d("FAVORITES", piece.get(getString(R.string.keys_favorite_latitude)).toString());
                     if (!piece.get(getString(R.string.keys_favorite_latitude)).toString().equals("null")) {
                         a = piece.getDouble(getString(R.string.keys_favorite_latitude));
                         b = piece.getDouble(getString(R.string.keys_favorite_longitude));
@@ -527,12 +575,11 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     aFav.onAttach(this);
                     main.addView(view);
                     mFavorites.add(aFav);
-                    Log.d("FAVORITES", "Loaded a favorite");
+                    Log.d("FAVORITES", "Loaded a favorite:\t" + aFav.getZip());
                 }
-                Log.d("FAVORITES", "Done with load loop");
             }
         } catch (JSONException e) {
-            Log.d("FAVORITES", e.toString());
+            Log.d("FAVORITES2", e.toString());
             e.printStackTrace();
         }
     }
@@ -540,6 +587,20 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private void handleFavoriteGetInError (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
         Log.d("Favorites", result);
+    }
+
+    private void handleFavoriteRemoveInError(String result) {
+        mWaitListener.onWaitFragmentInteractionHide();
+        Log.d("Favorites", result);
+    }
+
+    private void handleFavoriteRemoveOnPost(String result) {
+        loadFavorites();
+        mWaitListener.onWaitFragmentInteractionHide();
+    }
+
+    private void handleFavoriteRemoveOnPre() {
+        mWaitListener.onWaitFragmentInteractionShow();
     }
 
     private void handleHourlyOnPre () {
@@ -655,6 +716,11 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     @Override
     public void onLoadFavorite(String zipcode) {
         reloadWeather(zipcode);
+    }
+
+    @Override
+    public void onDeleteFavorite(String nickname) {
+        removeFromFavorites(nickname);
     }
 
     /**

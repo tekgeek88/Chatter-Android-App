@@ -1,6 +1,8 @@
 package edu.uw.team02tcss450.model;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,8 +12,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import edu.uw.team02tcss450.HomeActivity;
+import edu.uw.team02tcss450.R;
 import edu.uw.team02tcss450.WaitFragment;
 import edu.uw.team02tcss450.WeatherFragment;
+import edu.uw.team02tcss450.utils.GetAsyncTask;
 
 public class Favorite {
     private TextView mName;
@@ -100,11 +105,15 @@ public class Favorite {
 
     private void removeFavorite (View v) {
         //DELETE async call to delete this favorite then reload
+        mListener.onDeleteFavorite(mNickname);
         reloadFavorites();
     }
 
     private void loadFavorite (View v) {
-        if (getZip() == 0) {
+        Log.d("FAVORITES", "In favorite load favorite");
+        Log.d("FAVORITES", getLatlng().toString());
+        Log.d("FAVORITES", Integer.toString((int)getZip()));
+        if ((int)getZip() == 0) {
             mListener.onLoadFavorite(getLatlng());
         } else {
             Log.d("FAVORITES", Integer.toString((int)getZip()));
@@ -128,5 +137,6 @@ public class Favorite {
         void onReloadFavorites();
         void onLoadFavorite(LatLng latLng);
         void onLoadFavorite(String zipcode);
+        void onDeleteFavorite (String nickname);
     }
 }
