@@ -966,6 +966,7 @@ public class HomeActivity extends AppCompatActivity
         startActivity(i);
     }
 
+
     //GPS
     private void requestLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)

@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,16 +22,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
+import java.util.zip.Inflater;
 
-import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
+import edu.uw.team02tcss450.model.Credentials;
+import edu.uw.team02tcss450.model.Favorite;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
-import edu.uw.team02tcss450.utils.SendPostAsyncTask;
-import me.pushy.sdk.lib.jackson.annotation.JsonTypeInfo;
 
 
 /**
@@ -39,11 +40,13 @@ import me.pushy.sdk.lib.jackson.annotation.JsonTypeInfo;
  * {@link OnWeatherFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class WeatherFragment extends Fragment implements WaitFragment.OnFragmentInteractionListener{
+public class WeatherFragment extends Fragment implements WaitFragment.OnFragmentInteractionListener, Favorite.OnFavoriteInteractionListener{
 
     public static String TAG = "WEATHER_FRAG";
 
     private WaitFragment.OnFragmentInteractionListener mWaitListener;
+
+    private Favorite.OnFavoriteInteractionListener mFavListener;
 
     private String mJwt;
 
@@ -55,11 +58,9 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private ImageView[] mHourlyImages = new ImageView[24];
 
-    private LatLng[] mFavsLatLng;
-
-    private String[] mFavsZip;
-
     private ImageView mCurrentImage;
+
+    private Favorite[] mFavorites;
 
     private String mUsername;
 
@@ -79,13 +80,15 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private LatLng mLatLng;
 
-    private boolean inFav = false;
-
     private String mLocation = "98404";
 
     private String mUnit = "f";
 
     private OnWeatherFragmentInteractionListener mListener;
+
+    private LayoutInflater mInflater;
+
+    private View mView;
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -108,50 +111,51 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_weather, container, false);
+        mInflater = inflater;
+        mView = inflater.inflate(R.layout.fragment_weather, container, false);
         initMap();
         for (int i = 0; i < m10DayViews[0].length; i++){
-            m10DayViews[0][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_date_" + i, "id", getActivity().getPackageName()));
-            m10DayViews[1][i] = view.findViewById(getResources().getIdentifier("textview_weather_high_" + i, "id", getActivity().getPackageName()));
-            m10DayViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
-            m10DayViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
-            m10DayImages[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[0][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_date_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[1][i] = mView.findViewById(getResources().getIdentifier("textview_weather_high_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[2][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
+            m10DayViews[3][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
+            m10DayImages[i] = mView.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
         }
         for (int i = 0; i < mHourlyViews[0].length; i++) {
-            mHourlyViews[0][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_time_" + i, "id", getActivity().getPackageName()));
-            mHourlyViews[1][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_high_" + i, "id", getActivity().getPackageName()));
-            mHourlyViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_low_" + i, "id", getActivity().getPackageName()));
-            mHourlyImages[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_hourly_icon_" + i, "id", getActivity().getPackageName()));
+            mHourlyViews[0][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_time_" + i, "id", getActivity().getPackageName()));
+            mHourlyViews[1][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_high_" + i, "id", getActivity().getPackageName()));
+            mHourlyViews[2][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_low_" + i, "id", getActivity().getPackageName()));
+            mHourlyImages[i] = mView.findViewById(getResources().getIdentifier("imageview_fragment_weather_hourly_icon_" + i, "id", getActivity().getPackageName()));
         }
-        mCurrentImage = view.findViewById(R.id.imageview_fragment_weather_current_condition);
-        mTodayViews[todayEnum.get("low")] = view.findViewById(R.id.textview_fragment_weather_current_low);
-        mTodayViews[todayEnum.get("high")] = view.findViewById(R.id.textview_fragment_weather_current_high);
-        mTodayViews[todayEnum.get("chill")] = view.findViewById(R.id.textview_fragment_weather_current_chill);
-        mTodayViews[todayEnum.get("description")] = view.findViewById(R.id.textview_fragment_weather_current_description);
-        mTodayViews[todayEnum.get("sunrise")] = view.findViewById(R.id.textview_fragment_weather_current_sunrise);
-        mTodayViews[todayEnum.get("sunset")] = view.findViewById(R.id.textview_fragment_weather_current_sunset);
-        mTodayViews[todayEnum.get("speed")] = view.findViewById(R.id.textview_fragment_weather_current_wind_speed);
-        mTodayViews[todayEnum.get("temp")] = view.findViewById(R.id.textview_fragment_weather_current_temp);
-        m10DayLayout = view.findViewById(R.id.layout_fragment_weather_10_day);
-        mTodayLayout = view.findViewById(R.id.layout_fragment_weather_today);
-        mFavLayout = view.findViewById(R.id.layout_fragment_weather_favorites);
+        mCurrentImage = mView.findViewById(R.id.imageview_fragment_weather_current_condition);
+        mTodayViews[todayEnum.get("low")] = mView.findViewById(R.id.textview_fragment_weather_current_low);
+        mTodayViews[todayEnum.get("high")] = mView.findViewById(R.id.textview_fragment_weather_current_high);
+        mTodayViews[todayEnum.get("chill")] = mView.findViewById(R.id.textview_fragment_weather_current_chill);
+        mTodayViews[todayEnum.get("description")] = mView.findViewById(R.id.textview_fragment_weather_current_description);
+        mTodayViews[todayEnum.get("sunrise")] = mView.findViewById(R.id.textview_fragment_weather_current_sunrise);
+        mTodayViews[todayEnum.get("sunset")] = mView.findViewById(R.id.textview_fragment_weather_current_sunset);
+        mTodayViews[todayEnum.get("speed")] = mView.findViewById(R.id.textview_fragment_weather_current_wind_speed);
+        mTodayViews[todayEnum.get("temp")] = mView.findViewById(R.id.textview_fragment_weather_current_temp);
+        m10DayLayout = mView.findViewById(R.id.layout_fragment_weather_10_day);
+        mTodayLayout = mView.findViewById(R.id.layout_fragment_weather_today);
+        mFavLayout = mView.findViewById(R.id.layout_fragment_weather_favorites);
         mFavLayout.setVisibility(View.GONE);
         mTodayLayout.setVisibility(View.GONE);
         m10DayLayout.setVisibility(View.VISIBLE);
-        mLocationName = view.findViewById(R.id.textview_fragment_weather_location);
-        mSearchButton = view.findViewById(R.id.imagebutton_fragment_weather_search);
+        mLocationName = mView.findViewById(R.id.textview_fragment_weather_location);
+        mSearchButton = mView.findViewById(R.id.imagebutton_fragment_weather_search);
         mSearchButton.setOnClickListener(this::onSearch);
-        ImageButton mapButton = view.findViewById(R.id.imagebutton_fragment_weather_map);
+        ImageButton mapButton = mView.findViewById(R.id.imagebutton_fragment_weather_map);
         mapButton.setOnClickListener(this::openMap);
-        Button dayButton = view.findViewById(R.id.button_weather_fragment_today);
+        Button dayButton = mView.findViewById(R.id.button_weather_fragment_today);
         dayButton.setOnClickListener(this::showToday);
-        dayButton = view.findViewById(R.id.button_weather_fragment_10_day);
+        dayButton = mView.findViewById(R.id.button_weather_fragment_10_day);
         dayButton.setOnClickListener(this::show10Day);
-        dayButton = view.findViewById(R.id.button_fragment_weather_favorites);
+        dayButton = mView.findViewById(R.id.button_fragment_weather_favorites);
         dayButton.setOnClickListener(this::showFavorites);
-        mInputText = view.findViewById(R.id.edittext_fragment_weather_search);
+        mInputText = mView.findViewById(R.id.edittext_fragment_weather_search);
         getActivity().setTitle(getString(R.string.text_fragment_weather_title));
-        return view;
+        return mView;
     }
 
     private void reloadWeather () {
@@ -216,6 +220,23 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     }
 
+    private void loadFavorites () {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_locations))
+                .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleFavoriteGetOnPre)
+                .onPostExecute(this::handleFavoriteGetOnPost)
+                .onCancelled(this::handleFavoriteGetInError)
+                .build().execute();
+    }
+
     @Override
     public void onStart () {
         super.onStart();
@@ -225,6 +246,9 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             mLatLng = getArguments().getParcelable(getString(R.string.keys_map_latlng));
             //Get the unit
         }
+        Credentials credentials = (Credentials) getActivity().getIntent()
+                .getExtras().getSerializable(getActivity().getString(R.string.keys_intent_credentials));
+        mUsername = credentials.getUsername();
 
         Log.d("MAP", Boolean.toString(mLatLng == null));
         if (mLatLng != null) {
@@ -232,6 +256,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             //Log.d("MAP", Double.toString(mLatLng.longitude));
         }
         reloadWeather(mLatLng);
+        loadFavorites();
 
     }
 
@@ -247,6 +272,23 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void addToFavorites (LatLng latLng) {
         //Database call to add zip or latlng to database
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_locations))
+                .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
+                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(latLng.latitude))
+                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(latLng.longitude))
+                .appendQueryParameter(getString(R.string.keys_weather_nickname), "testNameLatlng")
+                .build();
+
+        new PutAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleFavoriteAddOnPre)
+                .onPostExecute(this::handleFavoriteAddOnPost)
+                .onCancelled(this::handleFavoriteAddInError)
+                .build().execute();
     }
 
     private void addToFavorites (String zip) {
@@ -259,15 +301,15 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 .appendPath(getString(R.string.ep_locations))
                 .appendQueryParameter(getString(R.string.keys_weather_username), mUsername)
                 .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
-                .appendQueryParameter(getString(R.string.keys_weather_nickname), "Nick")
+                .appendQueryParameter(getString(R.string.keys_weather_nickname), "testNameZip")
                 .build();
 
-//        new SendPostAsyncTask().Builder(uri.toString())
-//                .addHeaderField("authorization", mJwt)
-//                .onPreExecute(this::handleHourlyOnPre)
-//                .onPostExecute(this::handleHourlyOnPost)
-//                .onCancelled(this::handleHourlyInError)
-//                .build().execute();
+        new PutAsyncTask.Builder(uri.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleFavoriteAddOnPre)
+                .onPostExecute(this::handleFavoriteAddOnPost)
+                .onCancelled(this::handleFavoriteAddInError)
+                .build().execute();
 
     }
 
@@ -309,7 +351,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mTodayLayout.setVisibility(View.GONE);
         m10DayLayout.setVisibility(View.VISIBLE);
         mFavLayout.setVisibility(View.GONE);
-        inFav = false;
         mSearchButton.setImageResource(R.drawable.ic_search);
         mSearchButton.setOnClickListener(this::onSearch);
         //@android:drawable/ic_menu_search
@@ -319,7 +360,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mTodayLayout.setVisibility(View.VISIBLE);
         m10DayLayout.setVisibility(View.GONE);
         mFavLayout.setVisibility(View.GONE);
-        inFav = false;
         mSearchButton.setImageResource(R.drawable.ic_search);
         mSearchButton.setOnClickListener(this::onSearch);
 
@@ -329,7 +369,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mTodayLayout.setVisibility(View.GONE);
         m10DayLayout.setVisibility(View.GONE);
         mFavLayout.setVisibility(View.VISIBLE);
-        inFav = true;
         mSearchButton.setImageResource(R.drawable.ic_favorite_red);
         mSearchButton.setOnClickListener(this::onFavorite);
         Log.d("the JWT", mJwt.toString());
@@ -431,15 +470,40 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         Log.d("Favorites", result);
     }
 
-    private void handleFavoriteRemoveOnPre () {
+    private void handleFavoriteGetOnPre () {
         mWaitListener.onWaitFragmentInteractionShow();
     }
 
-    private void handleFavoriteRemoveOnPost (String result) {
+    private void handleFavoriteGetOnPost (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
+        try {
+            JSONObject fullResult = new JSONObject(result);
+            if (fullResult != null && fullResult.getString("status").equals("success")) {
+                JSONArray data = fullResult.getJSONArray("data");
+
+
+
+                LinearLayout main =(LinearLayout) mView.findViewById(R.id.layout_fragment_weather_favorites);
+                Favorite aFav;
+                for(int i=0;i<data.length();i++){
+                    View view = mInflater.inflate(R.layout.fragment_weather_favorite_single, null);
+                    view.findViewById()
+                    main.addView(view);
+                }
+
+
+
+
+
+
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void handleFavoriteRemoveInError (String result) {
+    private void handleFavoriteGetInError (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
         Log.d("Favorites", result);
     }
@@ -542,6 +606,22 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     @Override
     public void onWaitFragmentInteractionHide() {
 
+    }
+
+    @Override
+    public void onReloadFavorites() {
+        loadFavorites();
+    }
+
+    @Override
+    public void onLoadFavorite(LatLng latLng) {
+        reloadWeather(latLng);
+    }
+
+    @Override
+    public void onLoadFavorite(String zipcode) {
+        mLocation = zipcode;
+        reloadWeather();
     }
 
     /**
