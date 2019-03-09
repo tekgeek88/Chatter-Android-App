@@ -2,6 +2,7 @@ package edu.uw.team02tcss450.model;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -83,11 +84,11 @@ public class Favorite {
     }
 
 
-    public void onAttach(WeatherFragment context) {
-        if (context instanceof Favorite.OnFavoriteInteractionListener) {
-            mListener = (Favorite.OnFavoriteInteractionListener) context;
+    public void onAttach(Fragment fragment) {
+        if (fragment instanceof Favorite.OnFavoriteInteractionListener) {
+            mListener = (Favorite.OnFavoriteInteractionListener) fragment;
         } else {
-            throw new RuntimeException(context.toString()
+            throw new RuntimeException(fragment.toString()
                     + " must implement OnFavoriteInteractionListener");
         }
     }
@@ -106,7 +107,8 @@ public class Favorite {
         if (getZip() == 0) {
             mListener.onLoadFavorite(getLatlng());
         } else {
-            mListener.onLoadFavorite(Double.toString(getZip()));
+            Log.d("FAVORITES", Integer.toString((int)getZip()));
+            mListener.onLoadFavorite(Integer.toString((int)getZip()));
         }
     }
 

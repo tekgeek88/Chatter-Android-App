@@ -159,52 +159,66 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         return mView;
     }
 
-    private void reloadWeather () {
-        reloadWeather(null);
-    }
-
     private void reloadWeather (LatLng latLng) {
         Uri uri10Day;
         Uri uriHourly;
-        if (latLng == null) {
-            uri10Day = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_forecast))
-                    .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
-                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                    .build();
-            uriHourly = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_forecast))
-                    .appendPath(getString(R.string.ep_hourly))
-                    .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
-                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                    .build();
-        } else {
-            uri10Day = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_forecast))
-                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
-                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
-                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                    .build();
-            uriHourly = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_forecast))
-                    .appendPath(getString(R.string.ep_hourly))
-                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
-                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
-                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
-                    .build();
-        }
+        uri10Day = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_forecast))
+                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
+                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
+                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                .build();
+        uriHourly = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_forecast))
+                .appendPath(getString(R.string.ep_hourly))
+                .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
+                .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
+                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                .build();
+
+        new GetAsyncTask.Builder(uri10Day.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleWeatherOnPre)
+                .onPostExecute(this::handleWeatherOnPost)
+                .onCancelled(this::handleWeatherInError)
+                .build().execute();
+        new GetAsyncTask.Builder(uriHourly.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleHourlyOnPre)
+                .onPostExecute(this::handleHourlyOnPost)
+                .onCancelled(this::handleHourlyInError)
+                .build().execute();
+
+
+    }
+
+    private void reloadWeather (String zipcode) {
+        Uri uri10Day;
+        Uri uriHourly;
+        uri10Day = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_forecast))
+                .appendQueryParameter(getString(R.string.keys_weather_location), zipcode)
+                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                .build();
+        uriHourly = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_forecast))
+                .appendPath(getString(R.string.ep_hourly))
+                .appendQueryParameter(getString(R.string.keys_weather_location), zipcode)
+                .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                .build();
+
         new GetAsyncTask.Builder(uri10Day.toString())
                 .addHeaderField("authorization", mJwt)
                 .onPreExecute(this::handleWeatherOnPre)
@@ -265,7 +279,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private void onSearch(View v){
         mLocation = mInputText.getText().toString();
         //mInputText.setText("");
-        reloadWeather();
+        reloadWeather(mLocation);
     }
 
     private void openMap(View v) {
@@ -487,6 +501,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
 
                 LinearLayout main =(LinearLayout) mView.findViewById(R.id.layout_fragment_weather_favorites);
+                main.removeAllViews();
                 Favorite aFav;
                 ImageButton aLoad,aDelete;
                 TextView aName;
@@ -639,8 +654,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     @Override
     public void onLoadFavorite(String zipcode) {
-        mLocation = zipcode;
-        reloadWeather();
+        reloadWeather(zipcode);
     }
 
     /**
