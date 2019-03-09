@@ -495,18 +495,10 @@ public class HomeActivity extends AppCompatActivity
             } else {
                 Log.e("ERROR!", error);
                 //notify user
-                Bundle args = new Bundle();
-
-                args.putString(getString(R.string.key_email), mEmail);
-                args.putString(getString(R.string.keys_intent_jwt), mJwToken);
-                args.putInt(getString(R.string.key_chat_id), 1);
-
-                Fragment frag = new ChatFragment();
-                frag.setArguments(args);
                 onWaitFragmentInteractionHide();
                 Toast.makeText(this, "Error: " + error,
                         Toast.LENGTH_LONG).show();
-                loadFragment(frag, ChatFragment.getTAG());
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
