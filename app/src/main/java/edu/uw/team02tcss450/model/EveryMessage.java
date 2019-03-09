@@ -15,6 +15,15 @@ public class EveryMessage {
         mName = name;
         mMessageContent = messageContent;
         mEmail = email;
+        /*
+
+
+        "username": "TheRealTek",
+            "email": "tekgeek88@yahoo.com",
+            "message": "Hi",
+            "timestamp": "2019-03-07 22:41:20.811259"
+
+         */
     }
 
     public String getSenderName() {
@@ -27,7 +36,7 @@ public class EveryMessage {
         return mEmail;
     }
 
-    public Date getTimeStamp() {
+    public Date getmTimeStamp() {
         return mTimeStamp;
     }
 
@@ -35,7 +44,7 @@ public class EveryMessage {
         mTimeStamp = Timestamp.valueOf(timeStamp);
     }
 
-    public Date getChatId() {
+    public Date getmChatId() {
         return mTimeStamp;
     }
 
