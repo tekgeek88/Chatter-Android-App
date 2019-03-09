@@ -21,6 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,13 +49,17 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private TextView[] mTodayViews = new TextView[8];
 
+    private ImageView[] mHourlyImages = new ImageView[24];
+
+    private ImageView mCurrentImage;
+
     private LinearLayout m10DayLayout;
 
     private LinearLayout mTodayLayout;
 
     private LinearLayout mFavLayout;
 
-    private ImageView[] mIcons = new ImageView[10];
+    private ImageView[] m10DayImages = new ImageView[10];
 
     private TextView mLocationName;
 
@@ -99,13 +105,15 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             m10DayViews[1][i] = view.findViewById(getResources().getIdentifier("textview_weather_high_" + i, "id", getActivity().getPackageName()));
             m10DayViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_low_" + i, "id", getActivity().getPackageName()));
             m10DayViews[3][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_state_" + i, "id", getActivity().getPackageName()));
-            mIcons[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
+            m10DayImages[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_icon_" + i, "id", getActivity().getPackageName()));
         }
         for (int i = 0; i < mHourlyViews[0].length; i++) {
             mHourlyViews[0][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_time_" + i, "id", getActivity().getPackageName()));
             mHourlyViews[1][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_high_" + i, "id", getActivity().getPackageName()));
             mHourlyViews[2][i] = view.findViewById(getResources().getIdentifier("textview_fragment_weather_hourly_low_" + i, "id", getActivity().getPackageName()));
+            mHourlyImages[i] = view.findViewById(getResources().getIdentifier("imageview_fragment_weather_hourly_icon_" + i, "id", getActivity().getPackageName()));
         }
+        mCurrentImage = view.findViewById(R.id.imageview_fragment_weather_current_condition);
         mTodayViews[todayEnum.get("low")] = view.findViewById(R.id.textview_fragment_weather_current_low);
         mTodayViews[todayEnum.get("high")] = view.findViewById(R.id.textview_fragment_weather_current_high);
         mTodayViews[todayEnum.get("chill")] = view.findViewById(R.id.textview_fragment_weather_current_chill);
@@ -141,9 +149,10 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void reloadWeather (LatLng latLng) {
-        Uri uri;
+        Uri uri10Day;
+        Uri uriHourly;
         if (latLng == null) {
-            uri = new Uri.Builder()
+            uri10Day = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
                     .appendPath(getString(R.string.ep_weather))
@@ -151,8 +160,17 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
                     .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
                     .build();
+            uriHourly = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendPath(getString(R.string.ep_hourly))
+                    .appendQueryParameter(getString(R.string.keys_weather_location), mLocation)
+                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                    .build();
         } else {
-            uri = new Uri.Builder()
+            uri10Day = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
                     .appendPath(getString(R.string.ep_weather))
@@ -161,13 +179,31 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
                     .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
                     .build();
+            uriHourly = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_forecast))
+                    .appendPath(getString(R.string.ep_hourly))
+                    .appendQueryParameter(getString(R.string.keys_weather_latitude), Double.toString(mLatLng.latitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_longitude), Double.toString(mLatLng.longitude))
+                    .appendQueryParameter(getString(R.string.keys_weather_units), mUnit)
+                    .build();
         }
-        new GetAsyncTask.Builder(uri.toString())
+        new GetAsyncTask.Builder(uri10Day.toString())
                 .addHeaderField("authorization", mJwt)
                 .onPreExecute(this::handleWeatherOnPre)
                 .onPostExecute(this::handleWeatherOnPost)
                 .onCancelled(this::handleWeatherInError)
                 .build().execute();
+        new GetAsyncTask.Builder(uriHourly.toString())
+                .addHeaderField("authorization", mJwt)
+                .onPreExecute(this::handleHourlyOnPre)
+                .onPostExecute(this::handleHourlyOnPost)
+                .onCancelled(this::handleHourlyInError)
+                .build().execute();
+
+
     }
 
     @Override
@@ -301,6 +337,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 m10DayViews[1][i].setText(temp[1]);
                 m10DayViews[2][i].setText(temp[2]);
                 m10DayViews[3][i].setText(temp[3]);
+                //m10DayImages[i].setImageResource();
             }
             mLocationName.setText(location.getString("city"));
 
@@ -323,6 +360,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             mTodayViews[todayEnum.get("low")].setText(temp2);
             temp2 = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
             mTodayViews[todayEnum.get("high")].setText(temp2);
+
+            //mCurrentImage.setImageResource();
 
 
 
@@ -366,7 +405,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mWaitListener.onWaitFragmentInteractionShow();
     }
 
-    private void handleoHurlyOnPost (String result) {
+    private void handleHourlyOnPost (String result) {
         try {
             //Log.d("Weather", result);
             JSONObject fullResult = new JSONObject(result);
@@ -379,16 +418,27 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
             }
             JSONObject hourly = fullResult.getJSONObject("hourly");//location
-            JSONArray data = fullResult.getJSONArray("data");//forecasts
+            JSONArray data = hourly.getJSONArray("data");//forecasts
 
+            String temp;
+            JSONObject object;
+            Calendar calendar = Calendar.getInstance();
             for (int i = 0; i < data.length() && i < mHourlyViews[0].length; i++){
-
+                object = data.getJSONObject(i);
+                calendar.setTime(new Date(object.getInt("time")));
+                temp = calendar.get(Calendar.HOUR_OF_DAY) + ":00";
+                mHourlyViews[0][i].setText(temp);
+                temp = Math.round(object.getDouble("temperature")) + "\u00b0";
+                mHourlyViews[1][i].setText(temp);
+                temp = Math.floor(object.getDouble("humidity")*100) + "%";
+                mHourlyViews[2][i].setText(temp);
+                //mHourlyImages[i].setImageResource();
             }
 
             /**
              * 0 = time
              * 1 = high
-             * 2 = low
+             * 2 = low or now humidity
              */
             /*
             {
