@@ -1,7 +1,9 @@
 package edu.uw.team02tcss450;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -26,6 +28,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -92,6 +95,7 @@ public class HomeActivity extends AppCompatActivity
     private LatLng mLocation;
     private ConditionsFragment mConFrag;
     private boolean isReloaded = false;
+    private List<Connections> mFriends = new ArrayList<>();
 
     public Credentials getmCredentials() {
         return mCredentials;
@@ -145,6 +149,14 @@ public class HomeActivity extends AppCompatActivity
             };
         };
         createLocationRequest();
+
+
+        Button chatButton = findViewById(R.id.button_activity_home_chat);
+        chatButton.setVisibility(View.GONE);
+        chatButton.setOnClickListener(this::startChat);
+        Button removeButton = findViewById(R.id.button_activity_home_remove);
+        removeButton.setVisibility(View.GONE);
+        removeButton.setOnClickListener(this::removeSelectedFriend);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -249,6 +261,33 @@ public class HomeActivity extends AppCompatActivity
         return true;
 
     }
+    private void removeSelectedFriend(View view) {
+        if(!mFriends.isEmpty()) {
+            new AlertDialog.Builder(view.getContext())
+                    .setTitle("Remove Friend")
+                    .setMessage("Are you sure you want to break this friendship?")
+
+                    // Specifying a listener allows you to take an action before dismissing the dialog.
+                    // The dialog is automatically dismissed when a dialog button is clicked.
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            removeFriends();
+                        }
+                    })
+
+                    // A null listener allows the button to dismiss the dialog and take no further action.
+                    .setNegativeButton("No", null)
+                    .setIcon(R.drawable.ic_sad_face)
+                    .show();
+
+        }else{
+            Log.d("LOL","no selected friends to remove");
+        }
+    }
+    private void startChat(View view) {
+
+        loadChatFragment(1);
+    }
 
     private void loadConnectionFragment(){
         Credentials credentials = (Credentials) getIntent()
@@ -308,12 +347,17 @@ public class HomeActivity extends AppCompatActivity
                 Log.e("ERROR!", "No response");
                 //notify user
                 onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: No Friends yet!",
+                        Toast.LENGTH_LONG).show();
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
             //notify user
             onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -481,9 +525,9 @@ public class HomeActivity extends AppCompatActivity
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonMessage = data.getJSONObject(i);
                         EveryMessage tempMessage = new EveryMessage(
-                                jsonMessage.getString("email"),
+                                jsonMessage.getString("username"),
                                 jsonMessage.getString("message"),
-                                mEmail
+                                jsonMessage.getString("email")
                         );
                                 tempMessage.setChatId(jsonMessage.getInt("chatid"));
                                 tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
@@ -492,9 +536,9 @@ public class HomeActivity extends AppCompatActivity
                     }
                     Bundle args = new Bundle();
                     args.putSerializable(getString(R.string.keys_intent_messages), messageList);
-                    args.putString(getString(R.string.key_email), mEmail);
-                    args.putString(getString(R.string.keys_intent_jwt), mJwToken);
-                    args.putInt(getString(R.string.key_chat_id), 1);
+                    args.putSerializable(getString(R.string.key_email), mEmail);
+                    args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+                    args.putSerializable(getString(R.string.key_chat_id), 1);
 
                     Fragment frag = new ChatFragment();
                     frag.setArguments(args);
@@ -739,16 +783,49 @@ public class HomeActivity extends AppCompatActivity
     public void onListFragmentInteraction(Connections mItem) {
 
 
-        ConnectionDetailFragment connectionDetail = new ConnectionDetailFragment();
-        Bundle args = new Bundle();
-        args.putSerializable("firstname", mItem.getFirstName());
-        args.putSerializable("lastname", mItem.getLastName());
-        args.putSerializable("username", mItem.getUserName());
-        args.putSerializable("action", mItem.getVerified());
+//        ConnectionDetailFragment connectionDetail = new ConnectionDetailFragment();
+//        Bundle args = new Bundle();
+//        args.putSerializable("firstname", mItem.getFirstName());
+//        args.putSerializable("lastname", mItem.getLastName());
+//        args.putSerializable("username", mItem.getUserName());
+//        args.putSerializable("action", mItem.getVerified());
+//
+//        connectionDetail.setArguments(args);
+//        loadFragment(connectionDetail);
+        loadChatFragment(1);
 
-        connectionDetail.setArguments(args);
-        loadFragment(connectionDetail);
 
+
+    }
+
+    @Override
+    public void onCheckBoxListInteraction(View v, Connections item) {
+        mFriends.add(item);
+    }
+
+    public void removeFriends(){
+
+        for (int i = 0; i < mFriends.size(); i++) {
+            Log.d("LOL", mFriends.get(i).toString());
+            Credentials credentials = (Credentials) getIntent()
+                    .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_connections))
+                    //  .appendPath("delete")
+                    .appendQueryParameter("sent_from", credentials.getUsername())
+                    .appendQueryParameter("sent_to", mFriends.get(i).getUserName())
+                    .build();
+
+            new DelAsyncTask.Builder(uri.toString())
+                    .onPreExecute(this::onWaitFragmentInteractionShow)
+                    .onPostExecute(this::handleConnectionRemoveListGetOnPostExecute)
+                    .addHeaderField("authorization", mJwToken)
+                    .build().execute();
+        }
+        loadConnectionFragment();
+        mFriends.clear();
 
 
     }
@@ -797,22 +874,22 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void OnIndividualConnectionRemoveInteraction(String username) {
-        Credentials credentials = (Credentials) getIntent()
-                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connections))
-                //  .appendPath("delete")
-                .appendQueryParameter("sent_from",credentials.getUsername())
-                .appendQueryParameter("sent_to", username)
-                .build();
-
-        new DelAsyncTask.Builder(uri.toString())
-                .onPreExecute(this::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleConnectionRemoveListGetOnPostExecute)
-                .addHeaderField("authorization", mJwToken)
-                .build().execute();
+//        Credentials credentials = (Credentials) getIntent()
+//                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+//        Uri uri = new Uri.Builder()
+//                .scheme("https")
+//                .appendPath(getString(R.string.ep_base_url))
+//                .appendPath(getString(R.string.ep_connections))
+//                //  .appendPath("delete")
+//                .appendQueryParameter("sent_from",credentials.getUsername())
+//                .appendQueryParameter("sent_to", username)
+//                .build();
+//
+//        new DelAsyncTask.Builder(uri.toString())
+//                .onPreExecute(this::onWaitFragmentInteractionShow)
+//                .onPostExecute(this::handleConnectionRemoveListGetOnPostExecute)
+//                .addHeaderField("authorization", mJwToken)
+//                .build().execute();
 
 
 
