@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 
@@ -423,16 +424,21 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             String temp;
             JSONObject object;
             Calendar calendar = Calendar.getInstance();
+            long time;
+            Date date;
             for (int i = 0; i < data.length() && i < mHourlyViews[0].length; i++){
                 object = data.getJSONObject(i);
-                calendar.setTime(new Date(object.getInt("time")));
+                time = object.getLong("time");
+                calendar.set(Calendar.HOUR,(int)time);
+                calendar.setTimeZone(TimeZone.getDefault());
                 temp = calendar.get(Calendar.HOUR_OF_DAY) + ":00";
+                Log.d("TIME5", Integer.toString(calendar.get(Calendar.DAY_OF_WEEK)));
                 mHourlyViews[0][i].setText(temp);
                 temp = Math.round(object.getDouble("temperature")) + "\u00b0";
                 mHourlyViews[1][i].setText(temp);
                 temp = Math.floor(object.getDouble("humidity")*100) + "%";
                 mHourlyViews[2][i].setText(temp);
-                //mHourlyImages[i].setImageResource();
+                mHourlyImages[i].setImageResource(R.drawable.ic_weather_white_cloud);
             }
 
             /**
