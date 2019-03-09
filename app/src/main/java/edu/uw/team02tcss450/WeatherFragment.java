@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -379,11 +380,11 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void onFavorite (View v) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Name the Favorite");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Title");
 // I'm using fragment here so I'm using getView() to provide ViewGroup
 // but you can provide here any other instance of ViewGroup from your Fragment / Activity
-        View viewInflated = getLayoutInflater().inflate(R.layout.alert_name_input, (ViewGroup) getView(), false);
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.alert_name_input, (ViewGroup) getView(), false);
 // Set up the input
         final EditText input = (EditText) viewInflated.findViewById(R.id.edittext_alert_input);
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
@@ -399,7 +400,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 } else {
                     addToFavorites(mLatLng, input.getText().toString());
                 }
-
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -418,6 +418,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mFavLayout.setVisibility(View.GONE);
         mSearchButton.setImageResource(R.drawable.ic_search);
         mSearchButton.setOnClickListener(this::onSearch);
+        mInputText.setHint(R.string.text_fragment_weather_zip);
         //@android:drawable/ic_menu_search
     }
 
@@ -427,6 +428,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mFavLayout.setVisibility(View.GONE);
         mSearchButton.setImageResource(R.drawable.ic_search);
         mSearchButton.setOnClickListener(this::onSearch);
+        mInputText.setHint(R.string.text_fragment_weather_zip);
 
     }
 
@@ -436,6 +438,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mFavLayout.setVisibility(View.VISIBLE);
         mSearchButton.setImageResource(R.drawable.ic_favorite_red);
         mSearchButton.setOnClickListener(this::onFavorite);
+        mInputText.setHint(R.string.text_fragment_weather_text_add_to);
         Log.d("the JWT", mJwt.toString());
     }
 
@@ -548,14 +551,17 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 JSONObject piece;
                 Log.d("FAVORITES2", result);
 
-
-                LinearLayout main =(LinearLayout) mView.findViewById(R.id.layout_fragment_weather_favorites);
+                ScrollView scroller = mView.findViewById(R.id.scrollview_fragment_weather_list);
+                LinearLayout main = mView.findViewById(R.id.layout_fragment_weather_favorites);
                 main.removeAllViews();
+
+
                 Favorite aFav;
                 ImageButton aLoad,aDelete;
                 TextView aName;
                 double a = 0,b = 0, zip = 0;
                 for(int i=0;i<data.length();i++){
+                    a = 0;b=0;zip=0;
                     piece = data.getJSONObject(i);
                     View view = mInflater.inflate(R.layout.fragment_weather_favorite_single, null);
                     aLoad = view.findViewById(R.id.imagebutton_fragment_weather_favorite_load);
@@ -577,6 +583,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     mFavorites.add(aFav);
                     Log.d("FAVORITES", "Loaded a favorite:\t" + aFav.getZip());
                 }
+                //scroller.
             }
         } catch (JSONException e) {
             Log.d("FAVORITES2", e.toString());

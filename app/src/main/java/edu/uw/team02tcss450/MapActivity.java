@@ -129,7 +129,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 10));
+        //Far away 10
+        //City 13
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 12));
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
         mMap.setOnMarkerClickListener(this);

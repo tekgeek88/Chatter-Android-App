@@ -110,13 +110,9 @@ public class Favorite {
     }
 
     private void loadFavorite (View v) {
-        Log.d("FAVORITES", "In favorite load favorite");
-        Log.d("FAVORITES", getLatlng().toString());
-        Log.d("FAVORITES", Integer.toString((int)getZip()));
         if ((int)getZip() == 0) {
             mListener.onLoadFavorite(getLatlng());
         } else {
-            Log.d("FAVORITES", Integer.toString((int)getZip()));
             mListener.onLoadFavorite(Integer.toString((int)getZip()));
         }
     }
