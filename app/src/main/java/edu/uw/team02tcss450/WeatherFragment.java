@@ -428,15 +428,14 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             Date date;
             for (int i = 0; i < data.length() && i < mHourlyViews[0].length; i++){
                 object = data.getJSONObject(i);
-                time = object.getLong("time");
-                calendar.set(Calendar.HOUR,(int)time);
-                calendar.setTimeZone(TimeZone.getDefault());
+                time = object.getLong("time") * 1000;
+                date = new Date(time);
+                calendar.setTime(date);
                 temp = calendar.get(Calendar.HOUR_OF_DAY) + ":00";
-                Log.d("TIME5", Integer.toString(calendar.get(Calendar.DAY_OF_WEEK)));
                 mHourlyViews[0][i].setText(temp);
                 temp = Math.round(object.getDouble("temperature")) + "\u00b0";
                 mHourlyViews[1][i].setText(temp);
-                temp = Math.floor(object.getDouble("humidity")*100) + "%";
+                temp = (int)Math.floor(object.getDouble("humidity")*100) + "%";
                 mHourlyViews[2][i].setText(temp);
                 mHourlyImages[i].setImageResource(R.drawable.ic_weather_white_cloud);
             }
