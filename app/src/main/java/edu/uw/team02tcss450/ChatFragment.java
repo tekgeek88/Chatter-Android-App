@@ -108,36 +108,46 @@ public class ChatFragment extends Fragment {
         return rootLayout;
     }
 
+  
+        @Override
+        public void onStart() {
+            super.onStart();
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (getArguments() != null) {
-            //get the email and JWT from the Activity. Make sure the Keys match what you used
-            mEmail = getArguments().getString(getString(R.string.key_email));
-            mJwToken = getArguments().getString(getString(R.string.keys_intent_jwt));
-            Log.wtf("WTF", "Received the chat message list!");
-        }
-
-
-        for (int i = 0; i < mChatList.size(); i++) {
-            String sender = mChatList.get(i).getSenderName();
-            String messageText = mChatList.get(i).getSenderMessageContent();
-            mChatListAdapter = new ChatListAdapter(getContext(), mChatList, messageText, sender);
-            mMessageOutputListView.setAdapter(mChatListAdapter);
+            // Lets check and see if we have a package
+            if (getArguments() != null) {
+                //get the email and JWT from the Activity. Make sure the Keys match what you used
+                mEmail = getArguments().getString(getString(R.string.key_email));
+                mJwToken = getArguments().getString(getString(R.string.keys_intent_jwt));
+                mChatId = getArguments().getInt(getString(R.string.key_chat_id));
+            }
+            mChatList = new ArrayList<EveryMessage>();
+            // Open the bundle and stock all the messages in the order they were sent.
+            for (int i = mChatList.size() - 1; i >= 0; i--) {
+                String sender = mChatList.get(i).getSenderName();
+                String messageText = mChatList.get(i).getSenderMessageContent();
+                mChatList.add(new EveryMessage(sender, messageText, mEmail));
+                mChatListAdapter = new ChatListAdapter(getContext(), mChatList, messageText, sender);
+                mMessageOutputListView.setAdapter(mChatListAdapter);
+            }
             mMessageOutputListView.setSelection(mMessageOutputListView.getCount() - 1);
-        }
+
+            for (int i = 0; i < mChatList.size(); i++) {
+                String sender = mChatList.get(i).getSenderName();
+                String messageText = mChatList.get(i).getSenderMessageContent();
+                mChatListAdapter = new ChatListAdapter(getContext(), mChatList, messageText, sender);
+                mMessageOutputListView.setAdapter(mChatListAdapter);
+                mMessageOutputListView.setSelection(mMessageOutputListView.getCount() - 1);
+            }
 
 
-        //We will use this url every time the user hits send. Let's only build it once, ya?
-        mSendUrl = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_messaging_base))
-                .appendPath(getString(R.string.ep_messaging_send))
-                .build()
-                .toString();
+            //We will use this url every time the user hits send. Let's only build it once, ya?
+            mSendUrl = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_messaging_base))
+                    .appendPath(getString(R.string.ep_messaging_send))
+                    .build()
+                    .toString();
     }
 
 

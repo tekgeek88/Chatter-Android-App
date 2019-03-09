@@ -120,12 +120,13 @@
 
             <CheckBox
                 android:id="@+id/checkBox_request_check"
-                android:layout_width="71dp"
+                style="@style/checkbox_chatter"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="25dp" />
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="8dp" />
 
         </RelativeLayout>
 
