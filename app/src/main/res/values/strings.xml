@@ -86,9 +86,16 @@
     <string name="text_fragment_weather_zip">Enter a Zip code</string>
     <string name="text_fragment_weather_invalid_zip">Invalid Zip code</string>
     <string name="title_activity_map">Map</string>
+    <string name="text_fragment_weather_10_days">10 days</string>
+    <string name="text_fragment_weather_today">Today</string>
+    <string name="text_fragment_weather_favorites">Favorites</string>
+    <string name="text_fragment_weather_title">Weather</string>
+    <string name="text_fragment_weather_text_add_to">Save Current Location</string>
+
     <string name="key_chat_id">chat id</string>
     <string name="keys_intent_messages">every message</string>
     <string name="ep_getAll">getAll</string>
+
 
 </resources>
 
