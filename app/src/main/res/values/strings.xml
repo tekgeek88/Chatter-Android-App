@@ -89,6 +89,7 @@
     <string name="text_fragment_weather_10_days">10 days</string>
     <string name="text_fragment_weather_today">Today</string>
     <string name="text_fragment_weather_favorites">Favorites</string>
+    <string name="text_fragment_weather_title">Weather</string>
 
     <string name="key_chat_id">chat id</string>
     <string name="keys_intent_messages">every message</string>
