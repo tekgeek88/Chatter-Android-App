@@ -143,7 +143,7 @@ public class ChatFragment extends Fragment {
                 mJwToken = getArguments().getString(getString(R.string.keys_intent_jwt));
                 mChatId = getArguments().getInt(getString(R.string.key_chat_id));
             }
-
+            mChatList = new ArrayList<EveryMessage>();
             // Open the bundle and stock all the messages in the order they were sent.
             for (int i = mChatList.size() - 1; i >= 0; i--) {
                 String sender = mChatList.get(i).getSenderName();
