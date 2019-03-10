@@ -95,6 +95,7 @@
     <string name="key_chat_id">chat id</string>
     <string name="keys_intent_messages">every message</string>
     <string name="ep_getAll">getAll</string>
+    <string name="keys_intent_connections_received">connections received</string>
 
 
 </resources>
