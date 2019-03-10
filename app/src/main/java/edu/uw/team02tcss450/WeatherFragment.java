@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,17 +24,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.Inflater;
 
 import edu.uw.team02tcss450.model.Credentials;
 import edu.uw.team02tcss450.model.Favorite;
+import edu.uw.team02tcss450.utils.DelAsyncTask;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
+import edu.uw.team02tcss450.utils.PutAsyncTask;
 
 
 /**

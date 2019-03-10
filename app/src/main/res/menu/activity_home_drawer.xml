@@ -23,11 +23,6 @@
         android:title="Requests"
         android:icon="@drawable/ic_group_add_black_24dp"/>
 
-    <item android:id="@+id/nav_tabfrag2_fragment"
-        android:title="Tab Frag 2"
-        android:icon="@drawable/ic_group_add_black_24dp"/>
-
-
     <!--<item android:id="@+id/nav_profile_fragment"-->
         <!--android:title="Profile"-->
         <!--android:icon="@drawable/ic_profile"/>-->

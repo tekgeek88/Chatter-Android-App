@@ -114,8 +114,13 @@ public class RequestSearchListFragment extends Fragment {
     }
 
     public void updateConnections(Connections[] connections) {
-        mConnections = new ArrayList<Connections>(
-                Arrays.asList((Connections[]) connections));
-        mAdapter.notifyDataSetChanged();
+        if (null != connections) {
+            if (null != connections && null != mAdapter) {
+                mConnections = new ArrayList<Connections>(
+                        Arrays.asList((Connections[]) connections));
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+
     }
 }
