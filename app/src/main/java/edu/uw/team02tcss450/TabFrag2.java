@@ -50,6 +50,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private String searchParam = "first_name"; // The initial term the spinner is selected with.
 
     private OnTabFrag2InteractionListener mListener;
 
@@ -58,6 +59,8 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
     private Connections[] mRequestsSentData;
     private RequestReceivedListFragment mRequestsReceivedFragment;
     private Connections[] mRequestsReceivedData;
+    private RequestSearchListFragment mRequestsSearchFragment;
+    private Connections[] mRequestsSearchData;
 
     /**
      * Use this factory method to create a new instance of
@@ -110,6 +113,12 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
             args.putSerializable(getString(R.string.keys_intent_connections_received), mRequestsSentData);
             mRequestsReceivedFragment.setArguments(args);
         }
+        args = new Bundle();
+        mRequestsSearchFragment = new RequestSearchListFragment();
+        if (null != mRequestsSearchData) {
+            args.putSerializable(getString(R.string.keys_intent_connections_search), mRequestsSearchData);
+            mRequestsSearchFragment.setArguments(args);
+        }
 
 
         EditText edittext_searchbox = v.findViewById(R.id.edittext_tabfragment_searchbox);
@@ -124,12 +133,13 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
                     inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                             InputMethodManager.HIDE_NOT_ALWAYS);
                     if (v.getText().toString().isEmpty()) {
-                        Toast toast = Toast.makeText(getActivity(), "Please type in a valid search entry", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getActivity(), "Search for nothing and find nothing...", Toast.LENGTH_LONG);
                         toast.show();
                     } else {
                         // Fetch users and open a new fragment so we can add them
                         //                        doUpdate(v.getText().toString());
                         Log.wtf("WTF", v.getText().toString());
+                        doSearch(v.getText().toString());
                     }
                 }
                 return false;
@@ -212,7 +222,28 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         mArrayAdapter.setDropDownViewResource(R.layout.my_spinner); // where custom-spinner is mycustom xml file.
         search_spinner.setAdapter(mArrayAdapter);
         search_spinner.setOnItemSelectedListener(this);
-        getActivity().findViewById(R.id.appbarid).setVisibility(View.GONE);
+    }
+
+    private void doSearch(String searchTerm) {
+        Log.wtf("WTF", "param: " + searchParam + " value: " + searchTerm);
+
+        // Fetch Requests Sent
+        HomeActivity homeActivity = (HomeActivity) getActivity();
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(homeActivity.getString(R.string.ep_base_url))
+                .appendPath(homeActivity.getString(R.string.ep_connections))
+                .appendPath(homeActivity.getString(R.string.ep_search))
+                .appendQueryParameter("user", homeActivity.getmCredentials().getUsername())
+                .appendQueryParameter(searchParam, searchTerm)
+                .build();
+
+        new edu.uw.team02tcss450.utils.GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::handleRequestsSearchPreExecute)
+                .onPostExecute(this::handleRequestSearchOnPostExecute)
+                .addHeaderField("authorization", homeActivity.getmJwToken())
+                .build().execute();
+
     }
 
     private void fetchConnections() {
@@ -257,6 +288,11 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
 
     private void onRequestsReceivedLoadPreExecute() {
         Toast.makeText(getActivity(), "Fetching Friend requests others have sent you",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleRequestsSearchPreExecute() {
+        Toast.makeText(getActivity(), "Searching...",
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -381,6 +417,67 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         setupTabLabels(tabLayout);
     }
 
+    public void handleRequestSearchOnPostExecute(final String result) {
+        //parse JSON
+        HomeActivity homeActivity = (HomeActivity)getActivity();
+        String error;
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            error = resultsJSON.getString("message");
+            if (success) {
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<Connections> connectionList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                                jsonConnection.getString("firstname"),
+                                jsonConnection.getString("lastname"),
+                                jsonConnection.getString("username"),
+                                jsonConnection.getInt("verified"))
+                                .build());
+                    }
+                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    connectionAsArray = connectionList.toArray(connectionAsArray);
+                    mRequestsReceivedData = connectionAsArray;
+                    mRequestsSearchFragment.updateConnections(mRequestsSearchData);
+                    Toast.makeText(homeActivity, "SUCCESS: " + connectionAsArray.length + " request(s) received",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("ERROR!", error);
+                    //notify user
+                    Toast.makeText(homeActivity, "Error: " + error,
+                            Toast.LENGTH_SHORT).show();
+                    updateDataModelInFragments();
+
+                }
+            } else {
+                Log.e("ERROR!", error);
+                //notify user
+                Toast.makeText(homeActivity, "Error: " + error,
+                        Toast.LENGTH_SHORT).show();
+                updateDataModelInFragments();
+
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            Toast.makeText(homeActivity, "Error: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+            updateDataModelInFragments();
+
+
+        }
+        ViewPager viewPager = getActivity().findViewById(R.id.viewpager_id);
+        setupViewPager(viewPager);
+        TabLayout tabLayout = getActivity().findViewById(R.id.tablayout_id);
+        setupTabLabels(tabLayout);
+
+    }
+
 
     private void updateDataModelInFragments() {
         Bundle args;
@@ -477,17 +574,16 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         TextView tv = (TextView)view;
-        String searchMethod = tv.getText().toString();
+        String selectedText = tv.getText().toString();
         Log.wtf("WTF", "id: " + id + "view: " + tv.getText().toString());
-
-        if ("First Name".equals(searchMethod)) {
-
-        } else if ("Last Name".equals(searchMethod)) {
-
-        } else if ("Username".equals(searchMethod)) {
-
-        } else if ("Email".equals(searchMethod)) {
-
+        if ("First Name".equals(selectedText)) {
+            searchParam = "first_name";
+        } else if ("Last Name".equals(selectedText)) {
+            searchParam = "last_name";
+        } else if ("Username".equals(selectedText)) {
+            searchParam = "username";
+        } else if ("Email".equals(selectedText)) {
+            searchParam = "email";
         }
     }
 
@@ -534,7 +630,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
             adapter.addFragment(mRequestsSentFragment, "Requests Sent");
             adapter.addFragment(mRequestsReceivedFragment, "Request Received");
-            adapter.addFragment(new RequestSearchFragment(), "");
+            adapter.addFragment(mRequestsSearchFragment, "Search");
             viewPager.setAdapter(adapter);
         }
     }
