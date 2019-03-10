@@ -195,6 +195,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         builder.setView(viewInflated);
 
 // Set up the buttons
+
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

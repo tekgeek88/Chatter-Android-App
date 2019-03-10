@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import edu.uw.team02tcss450.model.Credentials;
@@ -289,6 +292,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void openMap(View v) {
+        Log.d("FAVORITES3", mLatLng.toString());
+        Log.d("FAVORITES3", mLocation);
         mListener.onWeatherFragmentOpenMap(mLatLng);
     }
 
@@ -375,14 +380,12 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void onFavorite (View v) {
         AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(getContext());
-        dlgAlert.setMessage("Are you sure you want to add this location to yuor favorites?");
+        dlgAlert.setMessage("Are you sure you want to add this location to your favorites?");
         dlgAlert.setTitle("Add to favorites");
         dlgAlert.setNegativeButton("Cancel", null);
         dlgAlert.setPositiveButton("Yes", this::getNickname);
         dlgAlert.setCancelable(true);
         dlgAlert.create().show();
-
-
     }
 
     private void getNickname (DialogInterface a, int b) {
@@ -395,7 +398,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         final EditText input = (EditText) viewInflated.findViewById(R.id.edittext_alert_input);
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         builder.setView(viewInflated);
-
+        builder.setMessage("Input nickname of location");
 // Set up the buttons
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
@@ -537,6 +540,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void handleFavoriteAddOnPost (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
+        loadFavorites();
     }
 
     private void handleFavoriteAddInError (String result) {
