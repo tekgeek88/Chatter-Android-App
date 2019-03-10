@@ -23,10 +23,12 @@ import edu.uw.team02tcss450.model.Connections;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnRequestSentListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnRequestSearchListFragmentInteractionListener}
  * interface.
  */
 public class RequestSearchListFragment extends Fragment {
+
+    MyRequestSearchListRecyclerViewAdapter mAdapter;
 
     public static final String TAG = "REQUEST_SENT_FRAG";
 
@@ -36,7 +38,7 @@ public class RequestSearchListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnRequestSentListFragmentInteractionListener mListener;
+    private OnRequestSearchListFragmentInteractionListener mListener;
     private List<Connections> mConnections;
 
     /**
@@ -72,7 +74,8 @@ public class RequestSearchListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyRequestSentListRecyclerViewAdapter(mConnections, mListener));
+            mAdapter = new MyRequestSearchListRecyclerViewAdapter(mConnections, mListener);
+            recyclerView.setAdapter(mAdapter);
         }
         return view;
     }
@@ -81,8 +84,8 @@ public class RequestSearchListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRequestSentListFragmentInteractionListener) {
-            mListener = (OnRequestSentListFragmentInteractionListener) context;
+        if (context instanceof OnRequestSearchListFragmentInteractionListener) {
+            mListener = (OnRequestSearchListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnRequestSentListFragmentInteractionListener");
@@ -105,13 +108,14 @@ public class RequestSearchListFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnRequestSentListFragmentInteractionListener {
-        void onRequestSentListFragmentInteraction(Connections item);
-        void onRequestSentListButtonInteraction(View v, Connections item);
+    public interface OnRequestSearchListFragmentInteractionListener {
+        void onRequestSearchListFragmentInteraction(Connections item);
+        void onRequestSearchListButtonInteraction(View v, Connections item);
     }
 
     public void updateConnections(Connections[] connections) {
         mConnections = new ArrayList<Connections>(
                 Arrays.asList((Connections[]) connections));
+        mAdapter.notifyDataSetChanged();
     }
 }

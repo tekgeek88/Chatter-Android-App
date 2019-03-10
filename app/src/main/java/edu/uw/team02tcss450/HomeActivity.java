@@ -67,8 +67,9 @@ public class HomeActivity extends AppCompatActivity
         RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
         GoogleMap.OnMapClickListener,
         TabFragment.OnTabFragmentInteractionListener,
-        TabFrag2.OnTabFrag2InteractionListener {
-        RecentChatFragment.OnRecentChatListFragmentInteractionListener {
+        TabFrag2.OnTabFrag2InteractionListener,
+        RecentChatFragment.OnRecentChatListFragmentInteractionListener,
+        RequestSearchListFragment.OnRequestSearchListFragmentInteractionListener {
 
 
     public String getmJwToken() {
@@ -1076,6 +1077,16 @@ public class HomeActivity extends AppCompatActivity
     public void onRecentChatListFragmentInteraction(ChatThread mItem) {
 
         loadChatFragment(mItem.getChatId());
+
+    }
+
+    @Override
+    public void onRequestSearchListFragmentInteraction(Connections item) {
+
+    }
+
+    @Override
+    public void onRequestSearchListButtonInteraction(View v, Connections item) {
 
     }
 
