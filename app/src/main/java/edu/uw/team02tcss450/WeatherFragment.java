@@ -382,8 +382,6 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         dlgAlert.setPositiveButton("Yes", this::getNickname);
         dlgAlert.setCancelable(true);
         dlgAlert.create().show();
-
-
     }
 
     private void getNickname (DialogInterface a, int b) {
@@ -538,6 +536,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void handleFavoriteAddOnPost (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
+        loadFavorites();
     }
 
     private void handleFavoriteAddInError (String result) {
