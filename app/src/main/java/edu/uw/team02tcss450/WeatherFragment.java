@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.Inflater;
 
@@ -290,6 +293,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void openMap(View v) {
+        Log.d("FAVORITES3", mLatLng.toString());
+        Log.d("FAVORITES3", mLocation);
         mListener.onWeatherFragmentOpenMap(mLatLng);
     }
 
