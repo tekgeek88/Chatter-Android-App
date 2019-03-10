@@ -35,39 +35,6 @@ public class Connections implements Serializable {
 
         }
 
-//        /**
-//         * Add an optional url for the full blog post.
-//         *
-//         * @param val an optional url for the full blog post
-//         * @return the Builder of this BlogPost
-//         */
-//        public SetList.Builder addUrl(final String val) {
-//            mUrl = val;
-//            return this;
-//        }
-//
-//        /**
-//         * Add an optional teaser for the full blog post.
-//         *
-//         * @param val an optional url teaser for the full blog post.
-//         * @return the Builder of this BlogPost
-//         */
-//        public SetList.Builder addSetListData(final String val) {
-//            mSetListData = val;
-//            return this;
-//        }
-//
-//        /**
-//         * Add an optional author of the blog post.
-//         *
-//         * @param val an optional author of the blog post.
-//         * @return the Builder of this BlogPost
-//         */
-//        public SetList.Builder addSetListNotes(final String val) {
-//            mSetListNotes = val;
-//            return this;
-//        }
-
         public Connections build() {
             return new Connections(this);
         }

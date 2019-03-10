@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uw.team02tcss450.model.Connections;
-import edu.uw.team02tcss450.model.Credentials;
+import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
 
 
 /**
@@ -112,12 +112,12 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
     @Override
     public void onStart() {
         super.onStart();
-        Spinner search_spinner = getActivity().findViewById(R.id.spinner_search_options);
+
 //        ArrayAdapter<String> mArrayAdapter = ArrayAdapter<String>(,
 //                R.layout.my_spinner,
 //                getResources().getStringArray(R.array.search_options_array));
 
-
+        Spinner search_spinner = getActivity().findViewById(R.id.spinner_search_options);
         ArrayAdapter mArrayAdapter = ArrayAdapter.createFromResource(
                 getActivity().getApplicationContext(),
                 R.array.search_options_array, R.layout.my_spinner); // where array_name consists of the items to show in Spinner
@@ -194,25 +194,23 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
 
 
 
-    private void loadRequestsSentFragment(){
+    private void loadRequestsReceivedFragment(){
+
         HomeActivity homeActivity = (HomeActivity)getActivity();
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(homeActivity.getString(R.string.ep_base_url))
                 .appendPath(homeActivity.getString(R.string.ep_connections))
-                .appendQueryParameter("sent_from", homeActivity.getmCredentials().getUsername())
+                .appendQueryParameter("sent_to", homeActivity.getmCredentials().getUsername())
                 .build();
 
         new edu.uw.team02tcss450.utils.GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleRequestSentOnPostExecute)
+                .onPostExecute(this::handleRequestReceivedOnPostExecute)
                 .addHeaderField("authorization", homeActivity.getmJwToken())
                 .build().execute();
-        loadRequestsReceivedFragment();
-        Log.wtf("WTF", "done with sent frag!");
     }
-
 
 
     public void handleRequestReceivedOnPostExecute(final String result) {
@@ -239,7 +237,7 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
                     Fragment frag = new RequestReceivedListFragment();
                     frag.setArguments(args);
                     homeActivity.onWaitFragmentInteractionHide();
@@ -273,25 +271,24 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
 
 
 
-
-    private void loadRequestsReceivedFragment(){
-
+    private void loadRequestsSentFragment(){
         HomeActivity homeActivity = (HomeActivity)getActivity();
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(homeActivity.getString(R.string.ep_base_url))
                 .appendPath(homeActivity.getString(R.string.ep_connections))
-                .appendQueryParameter("sent_to", homeActivity.getmCredentials().getUsername())
+                .appendQueryParameter("sent_from", homeActivity.getmCredentials().getUsername())
                 .build();
 
         new edu.uw.team02tcss450.utils.GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleRequestReceivedOnPostExecute)
+                .onPostExecute(this::handleRequestSentOnPostExecute)
                 .addHeaderField("authorization", homeActivity.getmJwToken())
                 .build().execute();
+        loadRequestsReceivedFragment();
+        Log.wtf("WTF", "done with sent frag!");
     }
-
 
     public void handleRequestSentOnPostExecute(final String result) {
         //parse JSON
@@ -317,7 +314,7 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
                     Fragment frag = new RequestSentListFragment();
                     frag.setArguments(args);
                     homeActivity.onWaitFragmentInteractionHide();

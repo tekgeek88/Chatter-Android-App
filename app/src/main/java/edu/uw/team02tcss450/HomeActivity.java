@@ -13,7 +13,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -27,7 +26,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -44,7 +42,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,8 +63,12 @@ public class HomeActivity extends AppCompatActivity
         ConnectionListFragment.OnListFragmentInteractionListener,
         ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener,
-        RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
-        GoogleMap.OnMapClickListener, TabFragment.OnTabFragmentInteractionListener, RecentChatFragment.OnRecentChatListFragmentInteractionListener {
+        RequestSentListFragment.OnRequestSentListFragmentInteractionListener,
+        RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
+        GoogleMap.OnMapClickListener,
+        TabFragment.OnTabFragmentInteractionListener,
+        TabFrag2.OnTabFrag2InteractionListener {
+        RecentChatFragment.OnRecentChatListFragmentInteractionListener {
 
 
     public String getmJwToken() {
@@ -256,6 +257,9 @@ public class HomeActivity extends AppCompatActivity
 
         else if (id == R.id.nav_logout_fragment) {
             logout();
+        }
+        else if (id == R.id.nav_tabfrag2_fragment) {
+            loadFragment(new TabFrag2());
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -496,7 +500,7 @@ public class HomeActivity extends AppCompatActivity
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
                     Fragment frag = new RequestReceivedListFragment();
                     frag.setArguments(args);
                     onWaitFragmentInteractionHide();
@@ -551,7 +555,7 @@ public class HomeActivity extends AppCompatActivity
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
                     Fragment frag = new RequestSentListFragment();
                     frag.setArguments(args);
                     onWaitFragmentInteractionHide();
@@ -1038,17 +1042,17 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestSentListButtonInteraction(View v, Connections connection) {
+    public void onRequestSentListButtonInteraction(View v, Connections item) {
         int id = v.getId();
-
         if (id == R.id.textview_requests_accept) {
             Log.wtf("WTF", "PENDING was pressed!");
         } else if (id == R.id.textview_requests_cancel) {
             Log.wtf("WTF", "CANCEL was pressed!");
-            AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
+            AsyncTaskFactory.removeConnectionRequestSentTo(
+                    this,
+                    mJwToken,
+                    item.getUserName());
         }
-        removeFragment(RequestSentListFragment.TAG);
-        // Update the fragment
     }
 
     @Override
@@ -1058,6 +1062,11 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onRequestTabInteraction(String interaction) {
+
+    }
+
+    @Override
+    public void onFrag2Interaction(View view) {
 
     }
 

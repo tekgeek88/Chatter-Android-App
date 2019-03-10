@@ -22,7 +22,7 @@ import edu.uw.team02tcss450.model.Connections;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnRequestListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnRequestSentListFragmentInteractionListener}
  * interface.
  */
 public class RequestSentListFragment extends Fragment {
@@ -35,7 +35,7 @@ public class RequestSentListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnRequestListFragmentInteractionListener mListener;
+    private OnRequestSentListFragmentInteractionListener mListener;
     private List<Connections> mConnections;
 
     /**
@@ -48,13 +48,12 @@ public class RequestSentListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRetainInstance(true);
         if (getArguments() != null) {
             Log.e("List", getArguments().toString());
-
             mConnections = new ArrayList<Connections>(
                     Arrays.asList((Connections[]) getArguments()
-                            .getSerializable(getString(R.string.keys_intent_connections))));
+                            .getSerializable(getString(R.string.keys_intent_connections_sent))));
         }
     }
 
@@ -81,11 +80,11 @@ public class RequestSentListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRequestListFragmentInteractionListener) {
-            mListener = (OnRequestListFragmentInteractionListener) context;
+        if (context instanceof OnRequestSentListFragmentInteractionListener) {
+            mListener = (OnRequestSentListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnRequestListFragmentInteractionListener");
+                    + " must implement OnRequestSentListFragmentInteractionListener");
         }
     }
 
@@ -105,8 +104,13 @@ public class RequestSentListFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnRequestListFragmentInteractionListener {
+    public interface OnRequestSentListFragmentInteractionListener {
         void onRequestSentListFragmentInteraction(Connections item);
         void onRequestSentListButtonInteraction(View v, Connections item);
+    }
+
+    public void updateConnections(Connections[] connections) {
+        mConnections = new ArrayList<Connections>(
+                Arrays.asList((Connections[]) connections));
     }
 }

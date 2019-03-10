@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
-            android:textColor="@color/textHintColor"
+            android:textColor="@color/secondaryTextColor"
             android:textColorLink="@color/primaryTextColor" />
 
         <AutoCompleteTextView
@@ -77,7 +77,7 @@
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/secondaryLightColor"
             app:tabTextAppearance="@style/TextAppearance.AppCompat.Title"
-            app:tabTextColor="@color/textHintColor" />
+            app:tabTextColor="@color/secondaryTextColor" />
 
 
     </android.support.design.widget.AppBarLayout>
