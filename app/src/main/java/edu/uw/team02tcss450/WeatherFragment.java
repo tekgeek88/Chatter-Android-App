@@ -376,7 +376,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void onFavorite (View v) {
         AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(getContext());
-        dlgAlert.setMessage("Are you sure you want to add this location to yuor favorites?");
+        dlgAlert.setMessage("Are you sure you want to add this location to your favorites?");
         dlgAlert.setTitle("Add to favorites");
         dlgAlert.setNegativeButton("Cancel", null);
         dlgAlert.setPositiveButton("Yes", this::getNickname);
@@ -396,7 +396,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         final EditText input = (EditText) viewInflated.findViewById(R.id.edittext_alert_input);
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         builder.setView(viewInflated);
-
+        builder.setMessage("Input nickname of location");
 // Set up the buttons
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
