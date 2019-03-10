@@ -80,22 +80,13 @@
                 android:layout_below="@+id/textview_requests_namefirst"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="0dp"
-                android:layout_toEndOf="@+id/label_username"
+                android:layout_toEndOf="@+id/textview_requests_namefirst"
                 android:text="NickName"
                 android:textAppearance="?attr/textAppearanceListItem"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="109dp" />
 
-            <TextView
-                android:id="@+id/label_username"
-                style="@style/textview_chatter_listitem_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/textview_requests_namefirst"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="0dp"
-                android:layout_toEndOf="@+id/imageview_request_fragment_profile_photo"
-                android:text="Username: " />
+
 
             <TextView
                 android:id="@+id/textview_requests_accept"
@@ -120,12 +111,12 @@
 
             <CheckBox
                 android:id="@+id/checkBox_request_check"
-                android:layout_width="71dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="25dp" />
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="0dp" />
 
         </RelativeLayout>
 

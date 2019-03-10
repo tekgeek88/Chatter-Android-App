@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uw.team02tcss450.model.ChatThread;
 import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
 import edu.uw.team02tcss450.model.EveryMessage;
@@ -66,7 +67,7 @@ public class HomeActivity extends AppCompatActivity
         ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener,
         RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
-        GoogleMap.OnMapClickListener, TabFragment.OnTabFragmentInteractionListener {
+        GoogleMap.OnMapClickListener, TabFragment.OnTabFragmentInteractionListener, RecentChatFragment.OnRecentChatListFragmentInteractionListener {
 
 
     public String getmJwToken() {
@@ -239,7 +240,8 @@ public class HomeActivity extends AppCompatActivity
             loadConnectionFragment();
         }else if (id == R.id.nav_chat_fragment) {
             // Always load the global chat from this side bar action
-            loadChatFragment(1);
+            //loadChatFragment(1);
+            loadRecentChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
 
         else if (id == R.id.nav_requests_fragment) {
@@ -261,6 +263,76 @@ public class HomeActivity extends AppCompatActivity
         return true;
 
     }
+
+    private void loadRecentChatFragment() {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_recentChats))
+                .appendQueryParameter("username",credentials.getUsername())
+                .build();
+
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRecentChatGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    private void handleRecentChatGetOnPostExecute(final String result) {
+        //parse JSON
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<ChatThread> chatList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        chatList.add(new ChatThread.Builder(jsonConnection.getString("name"),
+                                jsonConnection.getInt("chatid"))
+                                .build());
+                    }
+                    // Log.d("cded","ghjkl");
+                    ChatThread[] chatAsArray = new ChatThread[chatList.size()];
+                    chatAsArray = chatList.toArray(chatAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(RecentChatFragment.ARG_CONNECTION_LIST, chatAsArray);
+                    Fragment frag = new RecentChatFragment();
+                    frag.setArguments(args);
+
+                    onWaitFragmentInteractionHide();
+
+                    loadFragment(frag);
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: No Friends yet!",
+                        Toast.LENGTH_LONG).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
+
+    }
+
     private void removeSelectedFriend(View view) {
         if(!mFriends.isEmpty()) {
             new AlertDialog.Builder(view.getContext())
@@ -335,6 +407,7 @@ public class HomeActivity extends AppCompatActivity
                     args.putSerializable(ConnectionListFragment.ARG_CONNECTION_LIST, connectionAsArray);
                     Fragment frag = new ConnectionListFragment();
                     frag.setArguments(args);
+
                     onWaitFragmentInteractionHide();
 
                     loadFragment(frag);
@@ -985,6 +1058,15 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onRequestTabInteraction(String interaction) {
+
+    }
+
+
+
+    @Override
+    public void onRecentChatListFragmentInteraction(ChatThread mItem) {
+
+        loadChatFragment(mItem.getChatId());
 
     }
 
