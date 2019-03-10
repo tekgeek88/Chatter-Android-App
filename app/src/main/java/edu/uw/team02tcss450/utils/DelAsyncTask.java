@@ -1,4 +1,4 @@
-package edu.uw.team02tcss450;
+package edu.uw.team02tcss450.utils;
 
 import android.os.AsyncTask;
 
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * @author Charles Bryan
  * @version 1 OCT 2018
  */
-public class PutAsyncTask extends AsyncTask<Void, String, String> {
+public class DelAsyncTask extends AsyncTask<Void, String, String> {
 
     private final String mUrl;
 
@@ -133,8 +133,8 @@ public class PutAsyncTask extends AsyncTask<Void, String, String> {
          *
          * @return a SendPostAsyncTask with the current attributes
          */
-        public PutAsyncTask build() {
-            return new PutAsyncTask(this);
+        public DelAsyncTask build() {
+            return new DelAsyncTask(this);
         }
 
     }
@@ -144,7 +144,7 @@ public class PutAsyncTask extends AsyncTask<Void, String, String> {
      *
      * @param builder the builder used to construct this object
      */
-    private PutAsyncTask(final Builder builder) {
+    private DelAsyncTask(final Builder builder) {
         mUrl = builder.mUrl;
 
         mOnPre = builder.onPre;
@@ -163,14 +163,13 @@ public class PutAsyncTask extends AsyncTask<Void, String, String> {
     @Override
     protected String doInBackground(Void... voids) {
 
-
         StringBuilder response = new StringBuilder();
         HttpURLConnection urlConnection = null;
 
         try {
             URL urlObject = new URL(mUrl);
             urlConnection = (HttpURLConnection) urlObject.openConnection();
-            urlConnection.setRequestMethod("PUT");
+            urlConnection.setRequestMethod("DELETE");
             for (final String key: mHeaders.keySet()) {
                 urlConnection.setRequestProperty(key, mHeaders.get(key));
             }

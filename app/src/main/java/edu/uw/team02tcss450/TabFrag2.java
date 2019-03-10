@@ -292,6 +292,9 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
     }
 
     private void handleRequestsSearchPreExecute() {
+        if (null != mRequestsSearchFragment.mAdapter) {
+            mRequestsSearchFragment.mAdapter.clear();
+        }
         Toast.makeText(getActivity(), "Searching...",
                 Toast.LENGTH_SHORT).show();
     }
@@ -435,12 +438,12 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
-                                jsonConnection.getInt("verified"))
+                                1)
                                 .build());
                     }
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
-                    mRequestsReceivedData = connectionAsArray;
+                    mRequestsSearchData = connectionAsArray;
                     mRequestsSearchFragment.updateConnections(mRequestsSearchData);
                     Toast.makeText(homeActivity, "SUCCESS: " + connectionAsArray.length + " request(s) received",
                             Toast.LENGTH_SHORT).show();
@@ -449,7 +452,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
                     //notify user
                     Toast.makeText(homeActivity, "Error: " + error,
                             Toast.LENGTH_SHORT).show();
-                    updateDataModelInFragments();
+//                    updateDataModelInFragments();
 
                 }
             } else {
@@ -457,7 +460,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
                 //notify user
                 Toast.makeText(homeActivity, "Error: " + error,
                         Toast.LENGTH_SHORT).show();
-                updateDataModelInFragments();
+//                updateDataModelInFragments();
 
 
             }
@@ -467,7 +470,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
             //notify user
             Toast.makeText(homeActivity, "Error: " + e.getMessage(),
                     Toast.LENGTH_SHORT).show();
-            updateDataModelInFragments();
+//            updateDataModelInFragments();
 
 
         }
@@ -475,6 +478,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         setupViewPager(viewPager);
         TabLayout tabLayout = getActivity().findViewById(R.id.tablayout_id);
         setupTabLabels(tabLayout);
+        viewPager.setCurrentItem(2);
 
     }
 
@@ -501,13 +505,12 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         int position = tab.getPosition();
         switch (position) {
             case 0:
-                Log.wtf("WTF", "Tab: " + position);
+                getActivity().findViewById(R.id.appbarid).setVisibility(View.GONE);
                 break;
             case 1:
-                Log.wtf("WTF", "Tab: " + position);
+                getActivity().findViewById(R.id.appbarid).setVisibility(View.GONE);
                 break;
             case 2:
-                Log.wtf("WTF", "Tab: " + position);
                 getActivity().findViewById(R.id.appbarid).setVisibility(View.VISIBLE);
                 break;
 
@@ -577,9 +580,9 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         String selectedText = tv.getText().toString();
         Log.wtf("WTF", "id: " + id + "view: " + tv.getText().toString());
         if ("First Name".equals(selectedText)) {
-            searchParam = "first_name";
+            searchParam = "firstname";
         } else if ("Last Name".equals(selectedText)) {
-            searchParam = "last_name";
+            searchParam = "lastname";
         } else if ("Username".equals(selectedText)) {
             searchParam = "username";
         } else if ("Email".equals(selectedText)) {

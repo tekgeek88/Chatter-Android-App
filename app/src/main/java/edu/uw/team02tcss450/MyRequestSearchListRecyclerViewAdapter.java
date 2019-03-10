@@ -48,7 +48,8 @@ public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
         holder.mCheckBox.setVisibility(View.GONE);
-        holder.mBtnAccept.setText("PENDING");
+        holder.mBtnAccept.setVisibility(View.GONE);
+        holder.mBtnCancel.setText("SEND REQUEST");
         holder.mBtnAccept.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -106,7 +107,15 @@ public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter
         for(Connections c: items) {
             mValues.add(c);
         }
+        notifyDataSetChanged();
     }
+
+    public void clear() {
+        mValues.clear();
+        notifyDataSetChanged();
+    }
+
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;

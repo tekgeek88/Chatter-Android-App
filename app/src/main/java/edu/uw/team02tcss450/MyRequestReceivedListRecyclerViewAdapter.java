@@ -52,11 +52,15 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
             @Override
             public void onClick(View v) {
                 mListener.onRequestReceivedListButtonInteraction(v, holder.mItem);
+                mValues.remove(position);
+                notifyDataSetChanged();
             }
         });
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mValues.remove(position);
+                notifyDataSetChanged();
                 mListener.onRequestReceivedListButtonInteraction(v, holder.mItem);
             }
         });

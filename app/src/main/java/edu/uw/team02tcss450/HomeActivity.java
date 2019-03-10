@@ -50,6 +50,7 @@ import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
 import edu.uw.team02tcss450.model.EveryMessage;
 import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
+import edu.uw.team02tcss450.utils.DelAsyncTask;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
@@ -247,20 +248,11 @@ public class HomeActivity extends AppCompatActivity
         } //else if (id == R.id.nav_profile_fragment) {
 
         else if (id == R.id.nav_requests_fragment) {
-            TabFragment tabFragment = new TabFragment();
-            Bundle args = new Bundle();
-            args.putSerializable(getString(R.string.key_email), mEmail);
-            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-            args.putSerializable(getString(R.string.key_username), mCredentials.getUsername());
-            tabFragment.setArguments(args);
-            loadFragment(tabFragment);
+            loadFragment(new TabFrag2());
         }
 
         else if (id == R.id.nav_logout_fragment) {
             logout();
-        }
-        else if (id == R.id.nav_tabfrag2_fragment) {
-            loadFragment(new TabFrag2());
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -441,6 +433,44 @@ public class HomeActivity extends AppCompatActivity
 
 
     public void handleRequestOnPostWithToast(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Success: " + response,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + response,
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + response,
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+
+    public void handleFriendRequestOnPostWithToast(final String result) {
         //parse JSON
         String response = "";
         try {
@@ -1087,6 +1117,16 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onRequestSearchListButtonInteraction(View v, Connections item) {
+        int id = v.getId();
+        if (id == R.id.textview_requests_accept) {
+            Log.wtf("WTF", "PENDING was pressed!");
+        } else if (id == R.id.textview_requests_cancel) {
+//            Log.wtf("WTF", "CANCEL was pressed!");
+            AsyncTaskFactory.sendFriendRequestTo(
+                    this,
+                    mJwToken,
+                    item.getUserName());
+        }
 
     }
 
