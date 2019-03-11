@@ -267,6 +267,7 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
 
     private void handleWeatherInError (String result) {
         Log.d("Conditions", result);
+        mWaitListener.onWaitFragmentInteractionHide();
     }
 
 

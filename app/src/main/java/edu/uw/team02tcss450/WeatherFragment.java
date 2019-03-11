@@ -144,11 +144,11 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mCodes.put(9,"rainy");
         mCodes.put(10,"rainy");
         mCodes.put(11,"rainy");
-        mCodes.put(12,"snowy");
+        mCodes.put(12,"rainy");
         mCodes.put(13,"snowy");
         mCodes.put(14,"snowy");
         mCodes.put(15,"snowy");
-        mCodes.put(16,"snowy");
+        mCodes.put(16,"rainy");
         mCodes.put(17,"rainy");
         mCodes.put(18,"rainy");
         mCodes.put(19,"sunny");
@@ -568,6 +568,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 m10DayViews[2][i].setText(temp[2]);
                 m10DayViews[3][i].setText(temp[3]);
                 m10DayImages[i].setImageResource(mIcons.get(mCodes.get(day.getInt("code"))));
+                Log.d("Weather", "Code: " + day.getInt("code"));
             }
             mLocationName.setText(location.getString("city"));
 
@@ -743,7 +744,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 } else {
                     mHourlyImages[i].setImageResource(mIcons.get("sunny"));
                 }
-                Log.d("Weather", "Hourly: " + object.getString("icon"));
+                //Log.d("Weather", "Hourly: " + object.getString("icon"));
             }
 
 
