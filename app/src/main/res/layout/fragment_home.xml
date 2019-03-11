@@ -17,4 +17,11 @@
         android:layout_height="263dp">
 
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/layout_fragment_home_chats_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
 </LinearLayout>
