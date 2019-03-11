@@ -101,14 +101,17 @@ public class RequestSentListFragment extends Fragment {
     }
 
     public void addItem(Connections c) {
-        mConnections.add(c);
-        mAdapter.notifyDataSetChanged();
+        if (null != c) {
+            mConnections.add(c);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     public void removeItem(Connections c) {
-        mConnections.remove(c);
-        mAdapter.notifyDataSetChanged();
-
+        if (null != c) {
+            mConnections.remove(c);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     /**
