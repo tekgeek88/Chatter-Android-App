@@ -5,6 +5,7 @@
     <color name="colorAccent">#42A5F5</color>
     <color name="colorPrimaryAlpha">#FAFAFA</color>
     <color name="primaryColor">#303f9f</color>
+    <color name="textHintColor">#9B9B9B</color>
     <color name="primaryLightColor">#666AD1</color>
     <color name="primaryDarkColor">#001970</color>
     <color name="secondaryColor">#42A5F5</color>
@@ -12,10 +13,6 @@
     <color name="secondaryDarkColor">#0077C2</color>
     <color name="primaryTextColor">#FFFFFF</color>
     <color name="secondaryTextColor">#000000</color>
-    <color name="textHintColor">#9B9B9B</color>
     <color name="cardBackgroundColor">#E1E2E1</color>
-    <color name="colorMenuBackgroundDark">#3a3a3a</color>
-
-
-
+    <color name="colorMenuBackgroundDark">#3A3A3A</color>
 </resources>

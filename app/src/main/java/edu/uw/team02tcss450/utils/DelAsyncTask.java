@@ -1,4 +1,4 @@
-package edu.uw.team02tcss450;
+package edu.uw.team02tcss450.utils;
 
 import android.os.AsyncTask;
 

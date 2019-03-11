@@ -7,23 +7,23 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import edu.uw.team02tcss450.RequestSentListFragment.OnRequestSentListFragmentInteractionListener;
-import edu.uw.team02tcss450.model.Connections;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uw.team02tcss450.RequestSearchListFragment.OnRequestSearchListFragmentInteractionListener;
+import edu.uw.team02tcss450.model.Connections;
+
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Connections} and makes a call to the
- * specified {@link OnRequestSentListFragmentInteractionListener}.
+ * specified {@link OnRequestSearchListFragmentInteractionListener}.
  */
-public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<MyRequestSentListRecyclerViewAdapter.ViewHolder> {
+public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter<MyRequestSearchListRecyclerViewAdapter.ViewHolder> {
 
     private final List<Connections> mValues;
-    private final OnRequestSentListFragmentInteractionListener mListener;
-    private MyRequestSentListRecyclerViewAdapter mAdapter;
+    private final OnRequestSearchListFragmentInteractionListener mListener;
+    private MyRequestSearchListRecyclerViewAdapter mAdapter;
 
-    public MyRequestSentListRecyclerViewAdapter(List<Connections> items, OnRequestSentListFragmentInteractionListener listener) {
+    public MyRequestSearchListRecyclerViewAdapter(List<Connections> items, OnRequestSearchListFragmentInteractionListener listener) {
         if (null == items) {
             items = new ArrayList<>();
         }
@@ -42,18 +42,19 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
     public void onBindViewHolder(final ViewHolder holder, int position) {
 //        TextView status = (TextView) holder.mView.findViewById(R.id.textview_fragment_connection_status);
 //        status.setText(mValues.get(position).getVerified());
-        MyRequestSentListRecyclerViewAdapter adapter = this;
+        MyRequestSearchListRecyclerViewAdapter adapter = this;
         holder.mItem = mValues.get(position);
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
         holder.mCheckBox.setVisibility(View.GONE);
-        holder.mBtnAccept.setText("PENDING");
+        holder.mBtnAccept.setVisibility(View.GONE);
+        holder.mBtnCancel.setText("SEND REQUEST");
         holder.mBtnAccept.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                mListener.onRequestSentListButtonInteraction(v, holder.mItem);
+                mListener.onRequestSearchListButtonInteraction(v, holder.mItem);
             }
         });
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +62,7 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
             public void onClick(View v) {
                 mValues.remove(position);
                 notifyDataSetChanged();
-                mListener.onRequestSentListButtonInteraction(v, holder.mItem);
+                mListener.onRequestSearchListButtonInteraction(v, holder.mItem);
             }
         });
 
@@ -71,7 +72,7 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onRequestSentListFragmentInteraction(holder.mItem);
+                    mListener.onRequestSearchListFragmentInteraction(holder.mItem);
                 }
             }
         });
@@ -95,6 +96,26 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
         mValues.remove(connection);
         notifyDataSetChanged();
     }
+
+    public void addItem(Connections connection) {
+        mValues.add(connection);
+        notifyDataSetChanged();
+    }
+
+    public void setItems(List<Connections> items) {
+        mValues.clear();
+        for(Connections c: items) {
+            mValues.add(c);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void clear() {
+        mValues.clear();
+        notifyDataSetChanged();
+    }
+
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;

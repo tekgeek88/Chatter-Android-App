@@ -20,6 +20,8 @@
     <string name="ep_startChat">startChat</string>
     <string name="ep_recentChats">recentChats</string>
     <string name="ep_confirm">confirm</string>
+    <string name="ep_hourly">hourly</string>
+    <string name="ep_locations">locations</string>
 
 
 </resources>

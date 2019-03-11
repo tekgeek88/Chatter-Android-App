@@ -1,17 +1,19 @@
 package edu.uw.team02tcss450;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -27,14 +29,19 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +50,7 @@ import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
 import edu.uw.team02tcss450.model.EveryMessage;
 import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
+import edu.uw.team02tcss450.utils.DelAsyncTask;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
@@ -56,19 +64,45 @@ public class HomeActivity extends AppCompatActivity
         ConnectionListFragment.OnListFragmentInteractionListener,
         ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener,
-        RequestSentListFragment.OnRequestListFragmentInteractionListener, RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
-        GoogleMap.OnMapClickListener, TabFragment.OnTabFragmentInteractionListener, RecentChatFragment.OnRecentChatListFragmentInteractionListener {
+        RequestSentListFragment.OnRequestSentListFragmentInteractionListener,
+        RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
+        GoogleMap.OnMapClickListener,
+        TabFragment.OnTabFragmentInteractionListener,
+        TabFrag2.OnTabFrag2InteractionListener,
+        RecentChatFragment.OnRecentChatListFragmentInteractionListener,
+        RequestSearchListFragment.OnRequestSearchListFragmentInteractionListener {
 
 
     public String getmJwToken() {
         return mJwToken;
     }
 
+    /**
+     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
+     */
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 100000;//100,000mili or 100 seconds
+
+    /**
+     * The fastest rate for active location updates. Exact. Updates will never be more frequent
+     * than this value.
+     */
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 10;//10 seconds
+    private static final int MY_PERMISSIONS_LOCATIONS = 8414;
+    private LocationRequest mLocationRequest;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+
     private String mJwToken;
     private String mEmail;
     private String mUsername;
     private LatLng mLocation;
+
     private int mChatId;
+
+    private ConditionsFragment mConFrag;
+    private boolean isReloaded = false;
+
     private List<Connections> mFriends = new ArrayList<>();
 
     public Credentials getmCredentials() {
@@ -93,9 +127,41 @@ public class HomeActivity extends AppCompatActivity
                 loadChatFragment(1);
             }
         });
+        //GPS
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
+                            , Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_LOCATIONS);
+        } else {
+            //The user has already allowed the use of Locations. Get the current location.
+            requestLocation();
+        }
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    // ...
+                    setLocation(location);
+                    Log.d("LOCATION UPDATE!", location.toString());
+                }
+            };
+        };
+        createLocationRequest();
+
+
         Button chatButton = findViewById(R.id.button_activity_home_chat);
         chatButton.setVisibility(View.GONE);
-        chatButton.setOnClickListener(this::startChat);
+        chatButton.setOnClickListener(view->startChat());
         Button removeButton = findViewById(R.id.button_activity_home_remove);
         removeButton.setVisibility(View.GONE);
         removeButton.setOnClickListener(this::removeSelectedFriend);
@@ -173,6 +239,7 @@ public class HomeActivity extends AppCompatActivity
             WeatherFragment tempFrag = new WeatherFragment();
             Bundle args = new Bundle();
             args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            requestLocation();
             args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
@@ -183,21 +250,14 @@ public class HomeActivity extends AppCompatActivity
             //loadChatFragment(1);
             loadRecentChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
-
         else if (id == R.id.nav_requests_fragment) {
-            TabFragment tabFragment = new TabFragment();
-            Bundle args = new Bundle();
-            args.putSerializable(getString(R.string.key_email), mEmail);
-            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-            args.putSerializable(getString(R.string.key_username), mCredentials.getUsername());
-            tabFragment.setArguments(args);
-            loadFragment(tabFragment);
+            loadFragment(new TabFrag2());
+        }else if (id == R.id.nav_refer_fragment) {
+            loadFragment(new InvitationFragment());
         }
-
         else if (id == R.id.nav_logout_fragment) {
             logout();
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -296,7 +356,7 @@ public class HomeActivity extends AppCompatActivity
             Log.d("LOL","no selected friends to remove");
         }
     }
-    private void startChat(View view) {
+    private void startChat() {
         if(!mFriends.isEmpty()) {
             Credentials credentials = (Credentials) getIntent()
                     .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
@@ -368,7 +428,7 @@ public class HomeActivity extends AppCompatActivity
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("username",credentials.getUsername())
+                .appendQueryParameter("username", credentials.getUsername())
                 .build();
 
 
@@ -472,6 +532,82 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+    public void handleSendEmailInviteOnPostWithToast(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Success: " + response,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + response,
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + response,
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+
+    public void handleFriendRequestOnPostWithToast(final String result) {
+        //parse JSON
+        String message = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            message = resultsJSON.getString("message");
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    message = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Success: " + message,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Log.e("ERROR!", message);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + message,
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.e("ERROR!", message);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + message,
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+
+        }
+    }
+
 
     public void handleRequestReceivedOnPostExecute(final String result) {
         //parse JSON
@@ -496,7 +632,7 @@ public class HomeActivity extends AppCompatActivity
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
                     Fragment frag = new RequestReceivedListFragment();
                     frag.setArguments(args);
                     onWaitFragmentInteractionHide();
@@ -551,7 +687,7 @@ public class HomeActivity extends AppCompatActivity
                     Connections[] connectionAsArray = new Connections[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections), connectionAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
                     Fragment frag = new RequestSentListFragment();
                     frag.setArguments(args);
                     onWaitFragmentInteractionHide();
@@ -662,6 +798,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        isReloaded = false;
         if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
             && getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)).equals(WeatherFragment.TAG)) {
             WeatherFragment tempFrag = new WeatherFragment();
@@ -756,18 +893,18 @@ public class HomeActivity extends AppCompatActivity
         loadFragment(homeFragment);
 
         // Alex
-        ConditionsFragment conFrag = new ConditionsFragment();
+        mConFrag = new ConditionsFragment();
         Bundle conArgs = new Bundle();
         conArgs.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
         conArgs.putParcelable(getString(R.string.keys_map_latlng), mLocation);
-        conFrag.setArguments(conArgs);
+        mConFrag.setArguments(conArgs);
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, homeFragment);
         transaction.commit();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.layout_fragment_home_conditions_container, conFrag, ConditionsFragment.TAG)
+                .replace(R.id.layout_fragment_home_conditions_container, mConFrag, ConditionsFragment.TAG)
                 .addToBackStack(null)
                 .commit();
     }
@@ -852,21 +989,23 @@ public class HomeActivity extends AppCompatActivity
         logout();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //startLocationUpdates();
+    }
 
     @Override
-    public void onListFragmentInteraction(Connections mItem) {
+    protected void onPause() {
+        super.onPause();
+        //stopLocationUpdates();
+    }
 
+    @Override
+    public void onListFragmentInteraction(Connections item) {
 
-//        ConnectionDetailFragment connectionDetail = new ConnectionDetailFragment();
-//        Bundle args = new Bundle();
-//        args.putSerializable("firstname", mItem.getFirstName());
-//        args.putSerializable("lastname", mItem.getLastName());
-//        args.putSerializable("username", mItem.getUserName());
-//        args.putSerializable("action", mItem.getVerified());
-//
-//        connectionDetail.setArguments(args);
-//        loadFragment(connectionDetail);
-        loadChatFragment(1);
+        mFriends.add(item);
+        startChat();
 
 
 
@@ -1031,17 +1170,17 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestSentListButtonInteraction(View v, Connections connection) {
+    public void onRequestSentListButtonInteraction(View v, Connections item) {
         int id = v.getId();
-
         if (id == R.id.textview_requests_accept) {
             Log.wtf("WTF", "PENDING was pressed!");
         } else if (id == R.id.textview_requests_cancel) {
             Log.wtf("WTF", "CANCEL was pressed!");
-            AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
+            AsyncTaskFactory.removeConnectionRequestSentTo(
+                    this,
+                    mJwToken,
+                    item.getUserName());
         }
-        removeFragment(RequestSentListFragment.TAG);
-        // Update the fragment
     }
 
     @Override
@@ -1054,12 +1193,37 @@ public class HomeActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void onFrag2Interaction(View view) {
+
+    }
+
 
 
     @Override
     public void onRecentChatListFragmentInteraction(ChatThread mItem) {
 
         loadChatFragment(mItem.getChatId());
+
+    }
+
+    @Override
+    public void onRequestSearchListFragmentInteraction(Connections item) {
+
+    }
+
+    @Override
+    public void onRequestSearchListButtonInteraction(View v, Connections item) {
+        int id = v.getId();
+        if (id == R.id.textview_requests_accept) {
+            Log.wtf("WTF", "PENDING was pressed!");
+        } else if (id == R.id.textview_requests_cancel) {
+//            Log.wtf("WTF", "CANCEL was pressed!");
+            AsyncTaskFactory.sendFriendRequestTo(
+                    this,
+                    mJwToken,
+                    item.getUserName());
+        }
 
     }
 
@@ -1108,14 +1272,93 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onWeatherFragmentOpenMap(LatLng location) {
-        if (mLocation == null){
+        if (mLocation == null && location == null){
             mLocation = new LatLng(47.2529,-122.4443);//Tacoma
         }
+
         Intent i = new Intent(this, MapActivity.class);
         i.putExtra(getString(R.string.keys_intent_jwt), mJwToken);
-        i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        if (location == null){
+            i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        } else {
+            i.putExtra(getString(R.string.keys_map_latlng), location);
+        }
         i.putExtra(getString(R.string.keys_intent_credentials), mCredentials);
         startActivity(i);
     }
 
+
+    //GPS
+    private void requestLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            //Log.d("REQUEST LOCATION", "User did NOT allow permission to request location!");
+        } else {
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                setLocation(location);
+                                //Log.d("LOCATION", location.toString());
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void setLocation(final Location location) {
+        mLocation = new LatLng(location.getLatitude(),location.getLongitude());
+        if (mConFrag != null && !isReloaded) {
+            mConFrag.reloadWeather(mLocation);
+            isReloaded = true;
+        }
+    }
+
+    /**
+     * Create and configure a Location Request used when retrieving location updates
+     */
+    protected void createLocationRequest() {
+        mLocationRequest = LocationRequest.create();
+
+        // Sets the desired interval for active location updates. This interval is
+        // inexact. You may not receive updates at all if no location sources are available, or
+        // you may receive them slower than requested. You may also receive updates faster than
+        // requested if other applications are requesting location at a faster interval.
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates faster than this value.
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    /**
+     * Requests location updates from the FusedLocationApi.
+     */
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                    mLocationCallback,
+                    null /* Looper */);
+        }
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    protected void stopLocationUpdates() {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
 }

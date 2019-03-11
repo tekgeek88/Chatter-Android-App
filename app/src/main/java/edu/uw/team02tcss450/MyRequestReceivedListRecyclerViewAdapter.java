@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.uw.team02tcss450.RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener;
@@ -23,6 +24,9 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
     private final OnRequestReceivedListFragmentInteractionListener mListener;
 
     public MyRequestReceivedListRecyclerViewAdapter(List<Connections> items, OnRequestReceivedListFragmentInteractionListener listener) {
+        if (null == items) {
+            items = new ArrayList<>();
+        }
         mValues = items;
         mListener = listener;
     }
@@ -48,11 +52,15 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
             @Override
             public void onClick(View v) {
                 mListener.onRequestReceivedListButtonInteraction(v, holder.mItem);
+                mValues.remove(position);
+                notifyDataSetChanged();
             }
         });
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mValues.remove(position);
+                notifyDataSetChanged();
                 mListener.onRequestReceivedListButtonInteraction(v, holder.mItem);
             }
         });
@@ -71,7 +79,12 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        if (null == mValues) {
+                return 0;
+        } else {
+            return mValues.size();
+        }
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
