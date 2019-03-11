@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -33,7 +34,13 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
 
     private WaitFragment.OnFragmentInteractionListener mWaitListener;
 
+    private Map<String, Integer> mIcons = new HashMap<>(8);
+
+    private Map<Integer, String> mCodes = new HashMap<>(47);
+
     private LatLng mLatlng;
+
+    private ImageView mCurrentImage;
 
     @Override
     public void onWaitFragmentInteractionShow() {
@@ -66,6 +73,8 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_conditions, container, false);
+        initIcons();
+        initConditions();
         mViews.put(Weather.Speed, view.findViewById(R.id.textview_condition_fragment_speed));
         mViews.put(Weather.Wind, view.findViewById(R.id.textview_condition_fragment_wind));
         mViews.put(Weather.Set, view.findViewById(R.id.textview_condition_fragment_set));
@@ -75,6 +84,7 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
         mViews.put(Weather.High, view.findViewById(R.id.textview_condition_fragment_high));
         mViews.put(Weather.Low, view.findViewById(R.id.textview_condition_fragment_low));
         mViews.put(Weather.Location, view.findViewById(R.id.textview_condition_fragment_location));
+        mCurrentImage = view.findViewById(R.id.image_conditions_fragment_condition);
 
         return view;
     }
@@ -82,6 +92,68 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
     @Override
     public void onResume () {
         super.onResume();
+    }
+
+    private void initIcons () {
+        mIcons.put("sunny",R.drawable.ic_sunny);
+        mIcons.put("rainy",R.drawable.ic_rain_day);
+        mIcons.put("lightning",R.drawable.ic_lightining);
+        mIcons.put("cloudy",R.drawable.ic_cloud_day);
+        mIcons.put("breezy",R.drawable.ic_breezy);
+        mIcons.put("partly cloudy",R.drawable.ic_partly_cloudy_day);
+        mIcons.put("snowy",R.drawable.ic_snow_day);
+
+    }
+
+    private void initConditions () {
+        mCodes.put(0,"breezy");
+        mCodes.put(1,"lightning");
+        mCodes.put(2,"breezy");
+        mCodes.put(3,"lightning");
+        mCodes.put(4,"lightning");
+        mCodes.put(5,"snowy");
+        mCodes.put(6,"rainy");
+        mCodes.put(7,"snowy");
+        mCodes.put(8,"rainy");
+        mCodes.put(9,"rainy");
+        mCodes.put(10,"rainy");
+        mCodes.put(11,"rainy");
+        mCodes.put(12,"snowy");
+        mCodes.put(13,"snowy");
+        mCodes.put(14,"snowy");
+        mCodes.put(15,"snowy");
+        mCodes.put(16,"snowy");
+        mCodes.put(17,"rainy");
+        mCodes.put(18,"rainy");
+        mCodes.put(19,"sunny");
+        mCodes.put(20,"cloudy");
+        mCodes.put(21,"cloudy");
+        mCodes.put(22,"cloudy");
+        mCodes.put(23,"breezy");
+        mCodes.put(24,"breezy");
+        mCodes.put(25,"sunny");
+        mCodes.put(26,"cloudy");
+        mCodes.put(27,"partly cloudy");
+        mCodes.put(28,"partly cloudy");
+        mCodes.put(29,"partly cloudy");
+        mCodes.put(30,"partly cloudy");
+        mCodes.put(31,"sunny");
+        mCodes.put(32,"sunny");
+        mCodes.put(33,"sunny");
+        mCodes.put(34,"sunny");
+        mCodes.put(35,"rainy");
+        mCodes.put(36,"sunny");
+        mCodes.put(37,"lightning");
+        mCodes.put(38,"lightning");
+        mCodes.put(39,"lightning");
+        mCodes.put(40,"rainy");
+        mCodes.put(41,"snowy");
+        mCodes.put(42,"snowy");
+        mCodes.put(43,"snowy");
+        mCodes.put(44,"partly cloudy");
+        mCodes.put(45,"lightning");
+        mCodes.put(46,"snowy");
+        mCodes.put(47,"lightning");
     }
 
 
@@ -182,6 +254,7 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
             mViews.get(Weather.Low).setText(temp);
             temp = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
             mViews.get(Weather.High).setText(temp);
+            mCurrentImage.setImageResource(mIcons.get(mCodes.get(currentObs.getJSONObject("condition").getInt("code"))));
 
             mWaitListener.onWaitFragmentInteractionHide();
 
@@ -194,6 +267,7 @@ public class ConditionsFragment extends Fragment implements WaitFragment.OnFragm
 
     private void handleWeatherInError (String result) {
         Log.d("Conditions", result);
+        mWaitListener.onWaitFragmentInteractionHide();
     }
 
 
