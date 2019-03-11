@@ -68,6 +68,7 @@ public class HomeActivity extends AppCompatActivity
     private String mEmail;
     private String mUsername;
     private LatLng mLocation;
+    private int mChatId;
     private List<Connections> mFriends = new ArrayList<>();
 
     public Credentials getmCredentials() {
@@ -296,8 +297,68 @@ public class HomeActivity extends AppCompatActivity
         }
     }
     private void startChat(View view) {
+        if(!mFriends.isEmpty()) {
+            Credentials credentials = (Credentials) getIntent()
+                    .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_startChat))
+                    .appendQueryParameter("count", String.valueOf(mFriends.size()+1))
+                    .appendQueryParameter("username1", credentials.getUsername());
+             for(int i = 0; i<mFriends.size();i++) {
 
-        loadChatFragment(1);
+                    builder.appendQueryParameter("username"+(i+2), mFriends.get(i).getUserName()).build();
+                        /// .build();
+             }
+            Uri uri = builder.build();
+           Log.d("URL",uri.toString());
+            mFriends.clear();
+            new GetAsyncTask.Builder(uri.toString())
+                    .onPreExecute(this::onWaitFragmentInteractionShow)
+                    .onPostExecute(this::handleStartChatGetOnPostExecute)
+                    .addHeaderField("authorization", mJwToken)
+                    .build().execute();
+//
+//            loadChatFragment(1);
+        }else{
+            Log.d("LOL","no selected friends to remove");
+        }
+    }
+
+    private void handleStartChatGetOnPostExecute(final String result) {
+        //parse JSON
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+
+                if (resultsJSON.has("data")) {
+                    int chatId = resultsJSON.getInt("data");
+                    onWaitFragmentInteractionHide();
+
+                    loadChatFragment(chatId);
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: No Friends yet!",
+                        Toast.LENGTH_LONG).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void loadConnectionFragment(){
@@ -550,7 +611,7 @@ public class HomeActivity extends AppCompatActivity
                     args.putSerializable(getString(R.string.keys_intent_messages), messageList);
                     args.putString(getString(R.string.key_email), mEmail);
                     args.putString(getString(R.string.keys_intent_jwt), mJwToken);
-                    args.putInt(getString(R.string.key_chat_id), 1);
+                    args.putInt(getString(R.string.key_chat_id), mChatId);
 
                     Fragment frag = new ChatFragment();
                     frag.setArguments(args);
@@ -564,13 +625,26 @@ public class HomeActivity extends AppCompatActivity
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Error: " + error,
                             Toast.LENGTH_LONG).show();
+
+
                 }
             } else {
                 Log.e("ERROR!", error);
                 //notify user
                 onWaitFragmentInteractionHide();
-                Toast.makeText(this, "Error: " + error,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, "Error: " + error,
+//                        Toast.LENGTH_LONG).show();
+                Bundle args = new Bundle();
+                args.putString(getString(R.string.key_email), mEmail);
+                args.putString(getString(R.string.keys_intent_jwt), mJwToken);
+                args.putInt(getString(R.string.key_chat_id), mChatId);
+
+                Fragment frag = new ChatFragment();
+                frag.setArguments(args);
+
+                onWaitFragmentInteractionHide();
+
+                loadFragment(frag, ChatFragment.getTAG());
 
             }
         } catch (JSONException e) {
@@ -627,7 +701,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     public void loadChatFragment(int chatId) {
-
+          mChatId = chatId;
         // Create the request
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -804,25 +878,17 @@ public class HomeActivity extends AppCompatActivity
     }
 
     public void removeFriends(){
-
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+       // AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
         for (int i = 0; i < mFriends.size(); i++) {
             Log.d("LOL", mFriends.get(i).toString());
-            Credentials credentials = (Credentials) getIntent()
-                    .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-            Uri uri = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_connections))
-                    //  .appendPath("delete")
-                    .appendQueryParameter("sent_from", credentials.getUsername())
-                    .appendQueryParameter("sent_to", mFriends.get(i).getUserName())
-                    .build();
+            if(mFriends.get(i).getUserName()== credentials.getUsername()){
+                AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, mFriends.get(i).getUserName());
+            }else{
+                AsyncTaskFactory.removeConnectionRequestSentFrom(this, mJwToken,  mFriends.get(i).getUserName());
+            }
 
-            new DelAsyncTask.Builder(uri.toString())
-                    .onPreExecute(this::onWaitFragmentInteractionShow)
-                    .onPostExecute(this::handleConnectionRemoveListGetOnPostExecute)
-                    .addHeaderField("authorization", mJwToken)
-                    .build().execute();
         }
         loadConnectionFragment();
         mFriends.clear();
