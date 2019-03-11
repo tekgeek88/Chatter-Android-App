@@ -3,6 +3,7 @@ package edu.uw.team02tcss450;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,6 +85,12 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private ImageButton mSearchButton;
 
+    private Map<String, Integer> mIcons = new HashMap<>(8);
+
+    private Map<Integer, String> mCodes = new HashMap<>(47);
+
+    private Map<String, String> mHourlyCodes = new HashMap<>(12);
+
     private LatLng mLatLng;
 
     private String mLocation = "";
@@ -113,6 +120,77 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         todayEnum.put("sunset", 0);
     }
 
+    private void initIcons () {
+        mIcons.put("sunny",R.drawable.ic_sunny);
+        mIcons.put("rainy",R.drawable.ic_rain_day);
+        mIcons.put("lightning",R.drawable.ic_lightining);
+        mIcons.put("cloudy",R.drawable.ic_cloud_day);
+        mIcons.put("breezy",R.drawable.ic_breezy);
+        mIcons.put("partly cloudy",R.drawable.ic_partly_cloudy_day);
+        mIcons.put("snowy",R.drawable.ic_snow_day);
+
+    }
+
+    private void initConditions () {
+        mCodes.put(0,"breezy");
+        mCodes.put(1,"lightning");
+        mCodes.put(2,"breezy");
+        mCodes.put(3,"lightning");
+        mCodes.put(4,"lightning");
+        mCodes.put(5,"snowy");
+        mCodes.put(6,"rainy");
+        mCodes.put(7,"snowy");
+        mCodes.put(8,"rainy");
+        mCodes.put(9,"rainy");
+        mCodes.put(10,"rainy");
+        mCodes.put(11,"rainy");
+        mCodes.put(12,"snowy");
+        mCodes.put(13,"snowy");
+        mCodes.put(14,"snowy");
+        mCodes.put(15,"snowy");
+        mCodes.put(16,"snowy");
+        mCodes.put(17,"rainy");
+        mCodes.put(18,"rainy");
+        mCodes.put(19,"sunny");
+        mCodes.put(20,"cloudy");
+        mCodes.put(21,"cloudy");
+        mCodes.put(22,"cloudy");
+        mCodes.put(23,"breezy");
+        mCodes.put(24,"breezy");
+        mCodes.put(25,"sunny");
+        mCodes.put(26,"cloudy");
+        mCodes.put(27,"partly cloudy");
+        mCodes.put(28,"partly cloudy");
+        mCodes.put(29,"partly cloudy");
+        mCodes.put(30,"partly cloudy");
+        mCodes.put(31,"sunny");
+        mCodes.put(32,"sunny");
+        mCodes.put(33,"sunny");
+        mCodes.put(34,"sunny");
+        mCodes.put(35,"rainy");
+        mCodes.put(36,"sunny");
+        mCodes.put(37,"lightning");
+        mCodes.put(38,"lightning");
+        mCodes.put(39,"rainy");
+        mCodes.put(40,"rainy");
+        mCodes.put(41,"snowy");
+        mCodes.put(42,"snowy");
+        mCodes.put(43,"snowy");
+        mCodes.put(44,"partly cloudy");
+        mCodes.put(45,"lightning");
+        mCodes.put(46,"snowy");
+        mCodes.put(47,"lightning");
+    }
+
+    private void initHourly () {
+        mHourlyCodes.put("cloudy","cloudy");
+        mHourlyCodes.put("clear-day","sunny");
+        mHourlyCodes.put("partly-cloudy-day","partly cloudy");
+        mHourlyCodes.put("rain","rainy");
+        mHourlyCodes.put("partly-cloudy-night","partly cloudy");
+        //mHourlyCodes.put("cloudy","cloudy");
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -120,6 +198,9 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mInflater = inflater;
         mView = inflater.inflate(R.layout.fragment_weather, container, false);
         initMap();
+        initIcons();
+        initConditions();
+        initHourly();
         for (int i = 0; i < m10DayViews[0].length; i++){
             m10DayViews[0][i] = mView.findViewById(getResources().getIdentifier("textview_fragment_weather_date_" + i, "id", getActivity().getPackageName()));
             m10DayViews[1][i] = mView.findViewById(getResources().getIdentifier("textview_weather_high_" + i, "id", getActivity().getPackageName()));
@@ -475,16 +556,18 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
             //10 Day
             String temp[] = new String[4];
+            JSONObject day;
             for (int i = 0; i < forecast.length(); i++){
-                temp[0] = forecast.getJSONObject(i).getString("day");
-                temp[1] = "High " + forecast.getJSONObject(i).getString("high") + "\u00b0";
-                temp[2] = "Low " + forecast.getJSONObject(i).getString("low") + "\u00b0";
-                temp[3] = forecast.getJSONObject(i).getString("text");
+                day = forecast.getJSONObject(i);
+                temp[0] = day.getString("day");
+                temp[1] = "High " + day.getString("high") + "\u00b0";
+                temp[2] = "Low " + day.getString("low") + "\u00b0";
+                temp[3] = day.getString("text");
                 m10DayViews[0][i].setText(temp[0]);
                 m10DayViews[1][i].setText(temp[1]);
                 m10DayViews[2][i].setText(temp[2]);
                 m10DayViews[3][i].setText(temp[3]);
-                //m10DayImages[i].setImageResource();
+                m10DayImages[i].setImageResource(mIcons.get(mCodes.get(day.getInt("code"))));
             }
             mLocationName.setText(location.getString("city"));
 
@@ -507,8 +590,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
             mTodayViews[todayEnum.get("low")].setText(temp2);
             temp2 = "High " + forecast.getJSONObject(0).getString("high") + "\u00b0";
             mTodayViews[todayEnum.get("high")].setText(temp2);
-
-            //mCurrentImage.setImageResource();
+            //Log.d("Weather", "Current: " + currentObs.toString());
+            mCurrentImage.setImageResource(mIcons.get(mCodes.get(currentObs.getJSONObject("condition").getInt("code"))));
 
 
 
@@ -655,8 +738,15 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                 mHourlyViews[1][i].setText(temp);
                 temp = (int)Math.floor(object.getDouble("precipProbability")*100) + "%";
                 mHourlyViews[2][i].setText(temp);
-                mHourlyImages[i].setImageResource(R.drawable.ic_weather_white_cloud);
+                if (mHourlyCodes.containsKey(object.getString("icon"))){
+                mHourlyImages[i].setImageResource(mIcons.get(mHourlyCodes.get(object.getString("icon"))));
+                } else {
+                    mHourlyImages[i].setImageResource(mIcons.get("sunny"));
+                }
+                Log.d("Weather", "Hourly: " + object.getString("icon"));
             }
+
+
 
             /**
              * 0 = time
