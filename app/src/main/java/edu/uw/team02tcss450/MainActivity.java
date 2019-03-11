@@ -51,10 +51,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 }
 
-            } else if (getIntent().getExtras().getString("type").equals("conn")) {
-                Toast.makeText(this, "Cool", Toast.LENGTH_LONG);
-
-            }
+            } 
         }
 
 

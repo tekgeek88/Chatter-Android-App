@@ -17,6 +17,7 @@
     <string name="text_not_signed_up_yet">Not signed up yet?</string>
     <string name="text_return_to_login">RETURN TO LOGIN</string>
     <string name="text_hello_weather">Hello Weather</string>
+    <string name="text_fragment_home_chats_title">Recent Chats</string>
 
 
     <!--##########  Nav Drawer Constants  ##########-->

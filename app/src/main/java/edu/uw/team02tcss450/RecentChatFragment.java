@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class RecentChatFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
+    public static final String TAG = "RECENT_CHAT_FRAG";
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
@@ -59,7 +59,7 @@ public class RecentChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_requestlist, container, false);
-        getActivity().setTitle("Recent Chats");
+        //getActivity().setTitle("Recent Chats"); Moved to where it gets loaded in home activity
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();

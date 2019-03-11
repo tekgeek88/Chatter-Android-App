@@ -353,6 +353,7 @@ public class HomeActivity extends AppCompatActivity
                     onWaitFragmentInteractionHide();
 
                     loadFragment(frag);
+                    setTitle("Recent Chats");
                 } else {
                     Log.e("ERROR!", "No data array");
                     //notify user
@@ -375,6 +376,62 @@ public class HomeActivity extends AppCompatActivity
                     Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    private void handleRecentChatHomepageGetOnPostExecute(final String result) {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        //parse JSON
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<ChatThread> chatList = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        chatList.add(new ChatThread.Builder(jsonConnection.getString("name"),
+                                jsonConnection.getInt("chatid"),
+                                credentials.getUsername())
+                                .build());
+                    }
+                    // Log.d("cded","ghjkl");
+                    ChatThread[] chatAsArray = new ChatThread[chatList.size()];
+                    chatAsArray = chatList.toArray(chatAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(RecentChatFragment.ARG_CONNECTION_LIST, chatAsArray);
+                    Fragment frag = new RecentChatFragment();
+                    frag.setArguments(args);
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.layout_fragment_home_chats_container, frag, RecentChatFragment.TAG)
+                            .addToBackStack(null)
+                            .commit();
+
+                    onWaitFragmentInteractionHide();
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: No Friends yet!",
+                        Toast.LENGTH_LONG).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void removeSelectedFriend(View view) {
@@ -961,6 +1018,25 @@ public class HomeActivity extends AppCompatActivity
                 .replace(R.id.layout_fragment_home_conditions_container, mConFrag, ConditionsFragment.TAG)
                 .addToBackStack(null)
                 .commit();
+
+        // Alex Recent chat on homepage
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_recentChats))
+                .appendQueryParameter("username",mCredentials.getUsername())
+                .build();
+
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+
+
+
     }
 
 
