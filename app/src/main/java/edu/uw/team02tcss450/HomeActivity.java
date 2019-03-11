@@ -434,6 +434,11 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+    private void handleRecentChatHomepageInError (final String result) {
+        onWaitFragmentInteractionHide();
+        Log.d("Homepage","Empty load : " + result);
+    }
+
     private void removeSelectedFriend(View view) {
         if(!mFriends.isEmpty()) {
 
@@ -1031,6 +1036,7 @@ public class HomeActivity extends AppCompatActivity
         new GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(this::onWaitFragmentInteractionShow)
                 .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
+                .onCancelled(this::handleRecentChatHomepageInError)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
 
