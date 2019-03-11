@@ -78,7 +78,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onBackPressed() {
-        //goBack(true);
+        mLocation = mLastLocation;
+        Intent i = new Intent(this, HomeActivity.class);
+        i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) mCredentials);
+        i.putExtra(getString(R.string.keys_intent_jwt), mJwt);
+        i.putExtra(getString(R.string.keys_map_latlng), mLocation);
+        i.putExtra(getString(R.string.keys_intent_fragment_tag), WeatherFragment.TAG);
+        //i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+        startActivity(i);
+        //End this Activity and remove it from the Activity back stack.
+        mWaitListener = null;
+        finish();
     }
 
     private void goBack (View v) {

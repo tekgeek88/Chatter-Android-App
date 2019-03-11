@@ -2,10 +2,13 @@ package edu.uw.team02tcss450.model;
 
 import android.util.Log;
 
-public class ChatThread {
+import java.io.Serializable;
+
+public class ChatThread implements Serializable {
     private final int mChatId;
     private  String mName;
     private final String mUserName;
+    private static final long serialVersionUID = 752647229332776147L;
 
 
     /**
