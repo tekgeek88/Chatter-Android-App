@@ -6,9 +6,11 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import edu.uw.team02tcss450.HomeActivity;
 import edu.uw.team02tcss450.MainActivity;
 import edu.uw.team02tcss450.R;
 import me.pushy.sdk.Pushy;
@@ -34,30 +36,65 @@ public class PushReceiver extends BroadcastReceiver {
         //perform so logic/routing based on the "type"
         //feel free to change the key or type of values. You could use numbers like HTTP: 404 etc
         String typeOfMessage = intent.getStringExtra("type");
+        Bundle args = new Bundle();
+        String sender = "";
+        String message = "";
+        String chatId = "";
 
-        //The WS sent us the name of the sender
-        String sender = intent.getStringExtra("sender");
+        String fromFirstname = "";
+        String fromUsername = "";
 
-        String messageText = intent.getStringExtra("message");
+
+
+        args.putString("type", typeOfMessage);
+
+        if ("msg".equals(typeOfMessage)){
+            //The WS sent us the name of the sender
+            sender = intent.getStringExtra("sender");
+            message = intent.getStringExtra("message");
+            chatId = intent.getStringExtra("chat_id");
+            args.putString("sender", sender);
+            args.putString("message", message);
+            args.putString("chat_id", chatId);
+            Log.wtf("Pushy Msg", "sender: " + sender + " chatId: " + chatId + " message: " + message);
+        } else if ("conn".equals(typeOfMessage)){
+            fromFirstname = intent.getStringExtra("fromFirstname");
+            fromUsername = intent.getStringExtra("fromUsername");
+            message = intent.getStringExtra("message");
+            args.putString("fromFirstname", fromFirstname);
+            args.putString("fromUsername", fromUsername);
+            args.putString("message", message);
+            Log.wtf("Pushy conn", "fromFirstname: " + fromFirstname + " fromUsername: " + fromUsername + " message: " + message);
+        } else if ("convo".equals(typeOfMessage)){
+
+        }
 
         ActivityManager.RunningAppProcessInfo appProcessInfo = new ActivityManager.RunningAppProcessInfo();
         ActivityManager.getMyMemoryState(appProcessInfo);
 
+
+
+
         if (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE) {
             //app is in the foreground so send the message to the active Activities
-            Log.d("ChatterApp", "Message received in foreground: " + messageText);
+            Log.d("Pushy", "Message received in foreground: ");
+
+
+//
 
             //create an Intent to broadcast a message to other parts of the app.
             Intent i = new Intent(RECEIVED_NEW_MESSAGE);
+            i.putExtra("TYPE", typeOfMessage);
             i.putExtra("SENDER", sender);
-            i.putExtra("MESSAGE", messageText);
+            i.putExtra("MESSAGE", message);
+            i.putExtra("CHAT_ID", chatId);
             i.putExtras(intent.getExtras());
 
             context.sendBroadcast(i);
 
         } else {
             //app is in the background so create and post a notification
-            Log.d("ChatterApp", "Message received in background: " + messageText);
+            Log.d("Pushy:", "Message received in background: " + typeOfMessage);
 
             Intent i = new Intent(context, MainActivity.class);
             i.putExtras(intent.getExtras());
@@ -71,7 +108,7 @@ public class PushReceiver extends BroadcastReceiver {
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_chat_black_24dp)
                     .setContentTitle("Message from: " + sender)
-                    .setContentText(messageText)
+                    .setContentText(message)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentIntent(pendingIntent);
 

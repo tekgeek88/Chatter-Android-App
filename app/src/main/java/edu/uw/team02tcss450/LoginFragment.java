@@ -293,15 +293,6 @@ public class LoginFragment extends Fragment {
     }
 
 
-    public void updateContent(Credentials credentials) {
-        EditText textView_email = getActivity().findViewById(R.id.edittext_fragment_login_email);
-        textView_email.setText(credentials.getEmail());
-
-        EditText textView_password = getActivity().findViewById(R.id.edittext_fragment_login_password);
-        textView_password.setText(credentials.getPassword());
-    }
-
-
     /**
      * Handle errors that may occur during the AsyncTask.
      *
