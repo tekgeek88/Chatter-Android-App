@@ -246,15 +246,14 @@ public class HomeActivity extends AppCompatActivity
             //loadChatFragment(1);
             loadRecentChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
-
         else if (id == R.id.nav_requests_fragment) {
             loadFragment(new TabFrag2());
+        }else if (id == R.id.nav_refer_fragment) {
+            loadFragment(new InvitationFragment());
         }
-
         else if (id == R.id.nav_logout_fragment) {
             logout();
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -365,7 +364,7 @@ public class HomeActivity extends AppCompatActivity
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("username",credentials.getUsername())
+                .appendQueryParameter("username", credentials.getUsername())
                 .build();
 
 
@@ -469,8 +468,7 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-
-    public void handleFriendRequestOnPostWithToast(final String result) {
+    public void handleSendEmailInviteOnPostWithToast(final String result) {
         //parse JSON
         String response = "";
         try {
@@ -494,6 +492,45 @@ public class HomeActivity extends AppCompatActivity
                 //notify user
                 onWaitFragmentInteractionHide();
                 Toast.makeText(this, "Error: " + response,
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+
+    public void handleFriendRequestOnPostWithToast(final String result) {
+        //parse JSON
+        String message = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            message = resultsJSON.getString("message");
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    message = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Success: " + message,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Log.e("ERROR!", message);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + message,
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.e("ERROR!", message);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + message,
                         Toast.LENGTH_LONG).show();
             }
         } catch (JSONException e) {

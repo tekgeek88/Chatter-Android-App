@@ -76,6 +76,7 @@ public class RequestSearchListFragment extends Fragment {
             }
             mAdapter = new MyRequestSearchListRecyclerViewAdapter(mConnections, mListener);
             recyclerView.setAdapter(mAdapter);
+//            recyclerView.setAdapter(new MyRequestSearchListRecyclerViewAdapter(mConnections, mListener));
         }
         return view;
     }
