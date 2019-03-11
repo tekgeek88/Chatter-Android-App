@@ -12,13 +12,16 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
+
 import edu.uw.team02tcss450.HomeActivity;
 import edu.uw.team02tcss450.R;
 import edu.uw.team02tcss450.WaitFragment;
 import edu.uw.team02tcss450.WeatherFragment;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
 
-public class Favorite {
+public class Favorite implements Serializable {
+    private static final long serialVersionUID = 75262295622776147L;
     private TextView mName;
     private ImageButton mDelete;
     private ImageButton mLoad;

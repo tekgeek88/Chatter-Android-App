@@ -687,7 +687,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
     private void handleFavoriteGetInError (String result) {
         mWaitListener.onWaitFragmentInteractionHide();
-        Log.d("Favorites", result);
+        Log.d("Favorites", "GetInError : " + result);
     }
 
     private void handleFavoriteRemoveInError(String result) {
