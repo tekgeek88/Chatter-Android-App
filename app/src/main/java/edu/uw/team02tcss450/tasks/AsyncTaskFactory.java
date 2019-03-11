@@ -27,7 +27,7 @@ public class AsyncTaskFactory {
 
         new GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
-                .onPostExecute(homeActivity::handleRequestOnPostWithToast)
+                .onPostExecute(homeActivity::handleRemoveConnectionRequestSentToOnPost)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
@@ -44,7 +44,7 @@ public class AsyncTaskFactory {
 
         new DelAsyncTask.Builder(uri.toString())
                 .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
-                .onPostExecute(homeActivity::handleRequestOnPostWithToast)
+                .onPostExecute(homeActivity::handleRemoveConnectionRequestSentToOnPost)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
@@ -61,7 +61,7 @@ public class AsyncTaskFactory {
 
         new DelAsyncTask.Builder(uri.toString())
                 .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
-                .onPostExecute(homeActivity::handleRequestOnPostWithToast)
+                .onPostExecute(homeActivity::handleRemoveConnectionRequestSentToOnPost)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
 

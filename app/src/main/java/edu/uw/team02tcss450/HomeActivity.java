@@ -92,6 +92,8 @@ public class HomeActivity extends AppCompatActivity
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
+    private TabFrag2 mTabFragmentHolder;
+    private Connections mConnectionCallback;
 
     private String mJwToken;
     private String mEmail;
@@ -251,7 +253,8 @@ public class HomeActivity extends AppCompatActivity
             loadRecentChatFragment();
         } //else if (id == R.id.nav_profile_fragment) {
         else if (id == R.id.nav_requests_fragment) {
-            loadFragment(new TabFrag2());
+            mTabFragmentHolder = new TabFrag2();
+            loadFragment(mTabFragmentHolder);
         }else if (id == R.id.nav_refer_fragment) {
             loadFragment(new InvitationFragment());
         }
@@ -495,7 +498,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    public void handleRequestOnPostWithToast(final String result) {
+    public void handleRemoveConnectionRequestSentToOnPost(final String result) {
         //parse JSON
         String response = "";
         try {
@@ -507,6 +510,7 @@ public class HomeActivity extends AppCompatActivity
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Success: " + response,
                             Toast.LENGTH_LONG).show();
+                    mTabFragmentHolder.getmRequestsSentFragment().removeItem(mConnectionCallback);
                 } else {
                     Log.e("ERROR!", response);
                     //notify user
@@ -583,6 +587,8 @@ public class HomeActivity extends AppCompatActivity
                     onWaitFragmentInteractionHide();
                     Toast.makeText(this, "Success: " + message,
                             Toast.LENGTH_LONG).show();
+                    mTabFragmentHolder.getmRequestsSentFragment().addItem(mConnectionCallback);
+
                 } else {
                     Log.e("ERROR!", message);
                     //notify user
@@ -661,6 +667,25 @@ public class HomeActivity extends AppCompatActivity
                     Toast.LENGTH_LONG).show();
 
         }
+    }
+
+    public void removeConnectionRequestSentTo(String sent_to_username){
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", mCredentials.getUsername())
+                .appendQueryParameter("sent_to", sent_to_username)
+                .build();
+
+        new DelAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRemoveConnectionRequestSentToOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
     }
 
 
@@ -1122,6 +1147,8 @@ public class HomeActivity extends AppCompatActivity
 
     }
 
+
+
     @Override
     public void OnIndividualConnectionChatInteraction(String url) {
         loadChatFragment(1);
@@ -1171,15 +1198,13 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onRequestSentListButtonInteraction(View v, Connections item) {
+        mConnectionCallback = item;
         int id = v.getId();
         if (id == R.id.textview_requests_accept) {
             Log.wtf("WTF", "PENDING was pressed!");
         } else if (id == R.id.textview_requests_cancel) {
             Log.wtf("WTF", "CANCEL was pressed!");
-            AsyncTaskFactory.removeConnectionRequestSentTo(
-                    this,
-                    mJwToken,
-                    item.getUserName());
+            removeConnectionRequestSentTo(item.getUserName());
         }
     }
 
@@ -1219,6 +1244,7 @@ public class HomeActivity extends AppCompatActivity
             Log.wtf("WTF", "PENDING was pressed!");
         } else if (id == R.id.textview_requests_cancel) {
 //            Log.wtf("WTF", "CANCEL was pressed!");
+            mConnectionCallback = item;
             AsyncTaskFactory.sendFriendRequestTo(
                     this,
                     mJwToken,

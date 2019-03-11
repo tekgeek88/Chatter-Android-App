@@ -59,8 +59,6 @@ public class MyRequestSentListRecyclerViewAdapter extends RecyclerView.Adapter<M
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mValues.remove(position);
-                notifyDataSetChanged();
                 mListener.onRequestSentListButtonInteraction(v, holder.mItem);
             }
         });
