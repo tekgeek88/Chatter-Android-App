@@ -123,7 +123,7 @@ public class ChatFragment extends Fragment {
 
             mChatList = new ArrayList<EveryMessage>();
 
-                if (getArguments() != null) {
+                if (getArguments().getSerializable(getString(R.string.keys_intent_messages)) != null) {
                 mChatList = (ArrayList<EveryMessage>) getArguments().getSerializable(getString(R.string.keys_intent_messages));
             }
                 rootLayout.findViewById(R.id.btn_fragment_chat_send).setOnClickListener(this::handleSendClick);

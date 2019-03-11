@@ -35,8 +35,8 @@ public class EveryMessage {
         mTimeStamp = Timestamp.valueOf(timeStamp);
     }
 
-    public Date getChatId() {
-        return mTimeStamp;
+    public int getChatId() {
+        return mChatId;
     }
 
     public void setChatId(int chatId) {
