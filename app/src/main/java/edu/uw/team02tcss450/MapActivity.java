@@ -44,6 +44,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        mMarker = null;
         if (savedInstanceState == null) {
             mCredentials = (Credentials) getIntent()
                     .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
@@ -77,7 +78,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onBackPressed() {
-        goBack(true);
+        //goBack(true);
     }
 
     private void goBack (View v) {
