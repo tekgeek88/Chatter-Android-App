@@ -44,6 +44,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        mMarker = null;
         if (savedInstanceState == null) {
             mCredentials = (Credentials) getIntent()
                     .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
@@ -58,26 +59,37 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        ImageButton button = findViewById(R.id.imagebutton_activity_map_return);
+        ImageButton button = findViewById(R.id.imagebutton_activity_map_check);
         button.setOnClickListener(this::goBack);
+        button = findViewById(R.id.imagebutton_activity_map_save);
+        button.setOnClickListener(this::savePressed);
         if (this instanceof WaitFragment.OnFragmentInteractionListener) {
             mWaitListener = (WaitFragment.OnFragmentInteractionListener) this;
         }
     }
 
 
-    @Override
-    public void onBackPressed() {
-        goBack();
+    private void savePressed (View v) {
+        if (mMarker == null) {
+            mLocation = mMap.getCameraPosition().target;
+        }
+        openSaveDialog();
     }
 
-    private void goBack () {
-        goBack(null);
+    @Override
+    public void onBackPressed() {
+        //goBack(true);
     }
 
     private void goBack (View v) {
-        if (mMarker == null){
+        goBack(false);
+    }
+
+    private void goBack (boolean b) {
+        if (mMarker == null && b){
             mLocation = mLastLocation;
+        } else if (mMarker == null && !b) {
+            mLocation = mMap.getCameraPosition().target;
         }
         Intent i = new Intent(this, HomeActivity.class);
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) mCredentials);
@@ -178,6 +190,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         dlgAlert.setPositiveButton("Remove", this::onRemoveMarker);
         dlgAlert.setNegativeButton("Cancel", null);
         dlgAlert.setNeutralButton("Add to favorites", this::openNickname);
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
+    }
+
+    private void openSaveDialog () {
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+        dlgAlert.setMessage("Add to favorites to keep this location");
+        dlgAlert.setTitle("Save Setup");
+        dlgAlert.setNegativeButton("Cancel", null);
+        dlgAlert.setPositiveButton("Add to favorites", this::openNickname);
         dlgAlert.setCancelable(true);
         dlgAlert.create().show();
     }

@@ -9,7 +9,19 @@
     tools:context=".MapActivity" >
 
     <ImageButton
-        android:id="@+id/imagebutton_activity_map_return"
+        android:id="@+id/imagebutton_activity_map_save"
+        style="@style/button_chatter_solid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_marginBottom="20dp"
+        android:padding="18dp"
+        android:paddingRight="20dp"
+        android:src="@drawable/ic_favorite_theme_color"
+        android:text="" />
+
+    <ImageButton
+        android:id="@+id/imagebutton_activity_map_check"
         style="@style/button_chatter_solid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,6 +29,6 @@
         android:layout_marginBottom="20dp"
         android:padding="18dp"
         android:paddingRight="20dp"
-        android:src="@android:drawable/ic_menu_revert"
-        android:text="Demo Button" />
-    </fragment>
+        android:src="@drawable/ic_search_secondary_color"
+        android:text="" />
+</fragment>
