@@ -18,10 +18,21 @@
 
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/textview_fragment_home_chats_title"
+        style="@style/edittext_chatter_plaintext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="40dp"
+        android:text="@string/text_fragment_home_chats_title"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
     <FrameLayout
         android:id="@+id/layout_fragment_home_chats_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
     </FrameLayout>
+
 </LinearLayout>
