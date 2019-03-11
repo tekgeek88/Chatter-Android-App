@@ -2,9 +2,11 @@ package edu.uw.team02tcss450;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -89,6 +91,7 @@ public class HomeActivity extends AppCompatActivity
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 10;//10 seconds
     private static final int MY_PERMISSIONS_LOCATIONS = 8414;
+    public static View mAlertDialogView = null;
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
@@ -106,6 +109,10 @@ public class HomeActivity extends AppCompatActivity
     private boolean isReloaded = false;
 
     private List<Connections> mFriends = new ArrayList<>();
+    private boolean mLoadFromChatNotification = false;
+    private boolean mLoadFromConnRequest = false;
+    private boolean mLoadFromConvoRequest = false;
+
 
     public Credentials getmCredentials() {
         return mCredentials;
@@ -161,6 +168,9 @@ public class HomeActivity extends AppCompatActivity
         createLocationRequest();
 
 
+
+
+
         Button chatButton = findViewById(R.id.button_activity_home_chat);
         chatButton.setVisibility(View.GONE);
         chatButton.setOnClickListener(view->startChat());
@@ -190,8 +200,36 @@ public class HomeActivity extends AppCompatActivity
                 args.putString(getString(R.string.key_email), mEmail);
             }
         }
-    }
 
+
+
+
+
+}
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, MainActivity.class);
+        startService(intent);
+
+        
+
+        isReloaded = false;
+        if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
+                && getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)).equals(WeatherFragment.TAG)) {
+            WeatherFragment tempFrag = new WeatherFragment();
+            Bundle args = new Bundle();
+            mJwToken = getIntent().getExtras().getString(getString(R.string.keys_intent_jwt));
+            mLocation = getIntent().getExtras().getParcelable(getString(R.string.keys_map_latlng));
+            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
+            args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
+            tempFrag.setArguments(args);
+            loadFragment(tempFrag);
+        } else {
+            loadHomeFragment();
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -286,6 +324,8 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void handleRecentChatGetOnPostExecute(final String result) {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
         //parse JSON
         try {
             JSONObject resultsJSON = new JSONObject(result);
@@ -298,7 +338,8 @@ public class HomeActivity extends AppCompatActivity
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
                         chatList.add(new ChatThread.Builder(jsonConnection.getString("name"),
-                                jsonConnection.getInt("chatid"))
+                                jsonConnection.getInt("chatid"),
+                                credentials.getUsername())
                                 .build());
                     }
                     // Log.d("cded","ghjkl");
@@ -338,12 +379,14 @@ public class HomeActivity extends AppCompatActivity
 
     private void removeSelectedFriend(View view) {
         if(!mFriends.isEmpty()) {
-            new AlertDialog.Builder(view.getContext())
-                    .setTitle("Remove Friend")
-                    .setMessage("Are you sure you want to break this friendship?")
 
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(mAlertDialogView.getContext());
+                   builder.setTitle("Remove Friend")
+                    .setMessage("Are you sure you want to break this friendship?")
                     // Specifying a listener allows you to take an action before dismissing the dialog.
                     // The dialog is automatically dismissed when a dialog button is clicked.
+
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             removeFriends();
@@ -351,12 +394,17 @@ public class HomeActivity extends AppCompatActivity
                     })
 
                     // A null listener allows the button to dismiss the dialog and take no further action.
-                    .setNegativeButton("No", null)
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            mFriends.clear();
+                        }
+                    })
                     .setIcon(R.drawable.ic_sad_face)
                     .show();
 
         }else{
             Log.d("LOL","no selected friends to remove");
+
         }
     }
     private void startChat() {
@@ -369,13 +417,13 @@ public class HomeActivity extends AppCompatActivity
                     .appendPath(getString(R.string.ep_startChat))
                     .appendQueryParameter("count", String.valueOf(mFriends.size()+1))
                     .appendQueryParameter("username1", credentials.getUsername());
-             for(int i = 0; i<mFriends.size();i++) {
+            for(int i = 0; i<mFriends.size();i++) {
 
-                    builder.appendQueryParameter("username"+(i+2), mFriends.get(i).getUserName()).build();
-                        /// .build();
-             }
+                builder.appendQueryParameter("username"+(i+2), mFriends.get(i).getUserName()).build();
+                /// .build();
+            }
             Uri uri = builder.build();
-           Log.d("URL",uri.toString());
+            Log.d("URL",uri.toString());
             mFriends.clear();
             new GetAsyncTask.Builder(uri.toString())
                     .onPreExecute(this::onWaitFragmentInteractionShow)
@@ -763,8 +811,8 @@ public class HomeActivity extends AppCompatActivity
                                 jsonMessage.getString("message"),
                                 mEmail
                         );
-                                tempMessage.setChatId(jsonMessage.getInt("chatid"));
-                                tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
+                        tempMessage.setChatId(jsonMessage.getInt("chatid"));
+                        tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
                         messageList.add(tempMessage
                         );
                     }
@@ -820,25 +868,6 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        isReloaded = false;
-        if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
-            && getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)).equals(WeatherFragment.TAG)) {
-            WeatherFragment tempFrag = new WeatherFragment();
-            Bundle args = new Bundle();
-            mJwToken = getIntent().getExtras().getString(getString(R.string.keys_intent_jwt));
-            mLocation = getIntent().getExtras().getParcelable(getString(R.string.keys_map_latlng));
-            args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-            args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
-            tempFrag.setArguments(args);
-            loadFragment(tempFrag);
-        } else {
-            loadHomeFragment();
-        }
-    }
-
     public void loadFragment(Fragment frag) {
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
@@ -863,7 +892,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     public void loadChatFragment(int chatId) {
-          mChatId = chatId;
+        mChatId = chatId;
         // Create the request
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -1039,12 +1068,13 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onCheckBoxListInteraction(View v, Connections item) {
         mFriends.add(item);
+        mAlertDialogView = v;
     }
 
     public void removeFriends(){
         Credentials credentials = (Credentials) getIntent()
                 .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-       // AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
+        // AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
         for (int i = 0; i < mFriends.size(); i++) {
             Log.d("LOL", mFriends.get(i).toString());
             if(mFriends.get(i).getUserName()== credentials.getUsername()){
@@ -1254,43 +1284,43 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    // Deleting the Pushy device token must be done asynchronously. Good thing
-    // we have something that allows us to do that.
-    class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
+// Deleting the Pushy device token must be done asynchronously. Good thing
+// we have something that allows us to do that.
+class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            onWaitFragmentInteractionShow();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            //since we are already doing stuff in the background, go ahead
-            //and remove the credentials from shared prefs here.
-            SharedPreferences prefs =
-                    getSharedPreferences(
-                            getString(R.string.keys_shared_prefs),
-                            Context.MODE_PRIVATE);
-
-            prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
-            prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
-
-            //unregister the device from the Pushy servers
-            Pushy.unregister(HomeActivity.this);
-
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            //close the app
-            finishAndRemoveTask();
-        }
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        onWaitFragmentInteractionShow();
     }
+
+    @Override
+    protected Void doInBackground(Void... voids) {
+
+        //since we are already doing stuff in the background, go ahead
+        //and remove the credentials from shared prefs here.
+        SharedPreferences prefs =
+                getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+
+        prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
+        prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
+
+        //unregister the device from the Pushy servers
+        Pushy.unregister(HomeActivity.this);
+
+        return null;
+    }
+
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        //close the app
+        finishAndRemoveTask();
+    }
+}
 
     @Override
     public void onWeatherFragmentInteraction(Uri uri) {

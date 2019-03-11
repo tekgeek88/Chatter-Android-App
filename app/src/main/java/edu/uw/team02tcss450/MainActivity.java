@@ -3,10 +3,12 @@ package edu.uw.team02tcss450;
 import edu.uw.team02tcss450.model.Credentials;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.Serializable;
 
@@ -18,12 +20,44 @@ public class MainActivity extends AppCompatActivity implements
         VerificationFragment.OnVerificationFragmentInteractionListener {
 
     private boolean mLoadFromChatNotification = false;
+    private boolean mLoadFromConnRequest = false;
+    private boolean mLoadFromConvoRequest = false;
     private static final String TAG = MainActivity.class.getSimpleName();
+    private Bundle args;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        String type;
+        // Check for notifications from pushy
+        if (getIntent().getExtras() != null) {
+            args = new Bundle();
+            if (getIntent().getExtras().containsKey("type")) {
+                type = getIntent().getExtras().getString("type");
+                args.putString("type", type);
+                mLoadFromChatNotification = "msg".equals(type);
+                mLoadFromConnRequest = "conn".equals(type);
+                mLoadFromConvoRequest = "convo".equals(type);
+                if (mLoadFromChatNotification) {
+                    args.putString("sender", getIntent().getStringExtra("sender"));
+                    args.putString("message", getIntent().getStringExtra("message"));
+                    args.putString("chat_id", getIntent().getStringExtra("chat_id"));
+                } else if (mLoadFromConvoRequest) {
+                    args.putString("fromFirstname", getIntent().getStringExtra("fromFirstname"));
+                    args.putString("fromUsername", getIntent().getStringExtra("fromUsername"));
+                    args.putString("message", getIntent().getStringExtra("message"));
+                } else if (mLoadFromConnRequest) {
+
+                }
+
+            } else if (getIntent().getExtras().getString("type").equals("conn")) {
+                Toast.makeText(this, "Cool", Toast.LENGTH_LONG);
+
+            }
+        }
+
+
 
         if (savedInstanceState == null) {
             if (findViewById(R.id.main_container) != null) {
@@ -40,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
         i.putExtra(getString(R.string.keys_intent_jwt), jwt);
         i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+        if (null != args) {
+            i.putExtras(args);
+        }
         startActivity(i);
         //End this Activity and remove it from the Activity back stack.
         finish();

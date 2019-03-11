@@ -1,8 +1,11 @@
 package edu.uw.team02tcss450.model;
 
+import android.util.Log;
+
 public class ChatThread {
     private final int mChatId;
-    private final String mName;
+    private  String mName;
+    private final String mUserName;
 
 
     /**
@@ -12,7 +15,8 @@ public class ChatThread {
      */
     public static class Builder {
         private final int mChatId;
-        private final String mName;
+        private  String mName;
+        private final String mUserName;
 
 
         /**
@@ -20,10 +24,10 @@ public class ChatThread {
          *
          * @param chatId the id of the user
          */
-        public Builder(String name, int chatId) {
+        public Builder(String name, int chatId, String userName) {
             this.mChatId = chatId;
             this.mName = name;
-
+            this.mUserName = userName;
 
         }
 
@@ -37,6 +41,7 @@ public class ChatThread {
     private ChatThread(final ChatThread.Builder builder) {
         this.mChatId= builder.mChatId;
         this.mName = builder.mName;
+        this.mUserName = builder.mUserName;
 
 
     }
@@ -46,6 +51,7 @@ public class ChatThread {
     }
 
     public String getName() {
+
         return mName;
     }
 
