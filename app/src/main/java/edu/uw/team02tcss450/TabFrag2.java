@@ -56,6 +56,19 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
 
     // Fragment Setup
     private RequestSentListFragment mRequestsSentFragment;
+
+    public RequestSentListFragment getmRequestsSentFragment() {
+        return mRequestsSentFragment;
+    }
+
+    public RequestReceivedListFragment getmRequestsReceivedFragment() {
+        return mRequestsReceivedFragment;
+    }
+
+    public RequestSearchListFragment getmRequestsSearchFragment() {
+        return mRequestsSearchFragment;
+    }
+
     private Connections[] mRequestsSentData;
     private RequestReceivedListFragment mRequestsReceivedFragment;
     private Connections[] mRequestsReceivedData;

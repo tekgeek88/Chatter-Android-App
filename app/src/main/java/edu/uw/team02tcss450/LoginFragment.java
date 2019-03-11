@@ -292,7 +292,6 @@ public class LoginFragment extends Fragment {
         prefs.edit().putString(getString(R.string.keys_prefs_password), credentials.getPassword()).apply();
     }
 
-
     /**
      * Handle errors that may occur during the AsyncTask.
      *
