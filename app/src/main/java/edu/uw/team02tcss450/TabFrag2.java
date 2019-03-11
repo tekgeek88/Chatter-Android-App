@@ -99,7 +99,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_tab_frag2, container, false);
-
+        getActivity().setTitle("Connection Manager");
         Bundle args;
         mRequestsSentFragment = new RequestSentListFragment();
         args = new Bundle();

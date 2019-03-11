@@ -29,6 +29,8 @@ public class RequestSentListFragment extends Fragment {
 
     public static final String TAG = "REQUEST_SENT_FRAG";
 
+    MyRequestSentListRecyclerViewAdapter mAdapter;
+
     /**
      * A simple {@link android.support.v4.app.Fragment} subclass.
      */
@@ -71,10 +73,14 @@ public class RequestSentListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyRequestSentListRecyclerViewAdapter(mConnections, mListener));
+            mAdapter = new MyRequestSentListRecyclerViewAdapter(mConnections, mListener);
+
+            recyclerView.setAdapter(mAdapter);
         }
         return view;
     }
+
+
 
 
     @Override
@@ -92,6 +98,11 @@ public class RequestSentListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void addItem(Connections c) {
+        mConnections.add(c);
+        mAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -112,5 +123,6 @@ public class RequestSentListFragment extends Fragment {
     public void updateConnections(Connections[] connections) {
         mConnections = new ArrayList<Connections>(
                 Arrays.asList((Connections[]) connections));
+
     }
 }

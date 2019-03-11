@@ -67,6 +67,25 @@ public class AsyncTaskFactory {
 
     }
 
+    public static void sendInvitiationEmail(HomeActivity homeActivity, String mJwToken, String to_email){
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(homeActivity.getString(R.string.ep_base_url))
+                .appendPath(homeActivity.getString(R.string.ep_connections))
+                .appendPath(homeActivity.getString(R.string.ep_invite))
+                .appendQueryParameter("from_username", getUsernameFromCreds(homeActivity))
+                .appendQueryParameter("to_email", to_email)
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
+                .onPostExecute(homeActivity::handleSendEmailInviteOnPostWithToast)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+    }
+
     public static void sendFriendRequestTo(HomeActivity homeActivity, String mJwToken, String to_username){
 
         Uri uri = new Uri.Builder()
