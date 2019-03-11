@@ -89,6 +89,7 @@ public class HomeActivity extends AppCompatActivity
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 10;//10 seconds
     private static final int MY_PERMISSIONS_LOCATIONS = 8414;
+    public static View mAlertDialogView = null;
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
@@ -283,6 +284,8 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void handleRecentChatGetOnPostExecute(final String result) {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
         //parse JSON
         try {
             JSONObject resultsJSON = new JSONObject(result);
@@ -295,7 +298,8 @@ public class HomeActivity extends AppCompatActivity
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
                         chatList.add(new ChatThread.Builder(jsonConnection.getString("name"),
-                                jsonConnection.getInt("chatid"))
+                                jsonConnection.getInt("chatid"),
+                                credentials.getUsername())
                                 .build());
                     }
                     // Log.d("cded","ghjkl");
@@ -335,12 +339,14 @@ public class HomeActivity extends AppCompatActivity
 
     private void removeSelectedFriend(View view) {
         if(!mFriends.isEmpty()) {
-            new AlertDialog.Builder(view.getContext())
-                    .setTitle("Remove Friend")
-                    .setMessage("Are you sure you want to break this friendship?")
 
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(mAlertDialogView.getContext());
+                   builder.setTitle("Remove Friend")
+                    .setMessage("Are you sure you want to break this friendship?")
                     // Specifying a listener allows you to take an action before dismissing the dialog.
                     // The dialog is automatically dismissed when a dialog button is clicked.
+
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             removeFriends();
@@ -348,12 +354,17 @@ public class HomeActivity extends AppCompatActivity
                     })
 
                     // A null listener allows the button to dismiss the dialog and take no further action.
-                    .setNegativeButton("No", null)
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            mFriends.clear();
+                        }
+                    })
                     .setIcon(R.drawable.ic_sad_face)
                     .show();
 
         }else{
             Log.d("LOL","no selected friends to remove");
+
         }
     }
     private void startChat() {
@@ -1014,6 +1025,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onCheckBoxListInteraction(View v, Connections item) {
         mFriends.add(item);
+        mAlertDialogView = v;
     }
 
     public void removeFriends(){
