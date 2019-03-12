@@ -53,6 +53,8 @@ public class RequestSentListFragment extends Fragment {
             mConnections = new ArrayList<Connection>(
                     Arrays.asList((Connection[]) getArguments()
                             .getSerializable(getString(R.string.keys_intent_connections_sent))));
+        } else {
+            mConnections = new ArrayList<>();
         }
     }
 
@@ -95,7 +97,7 @@ public class RequestSentListFragment extends Fragment {
     }
 
     public void addItem(Connection c) {
-        if (null != c && null != mConnections) {
+        if (null != c) {
             mConnections.add(c);
             mAdapter.notifyDataSetChanged();
         }
