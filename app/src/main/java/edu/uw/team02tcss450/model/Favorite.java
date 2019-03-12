@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ public class Favorite implements Serializable {
     private TextView mName;
     private ImageButton mDelete;
     private ImageButton mLoad;
+    private ConstraintLayout mLayout;
     private double mZipcode;
     private double mLat;
     private double mLong;
@@ -35,7 +37,7 @@ public class Favorite implements Serializable {
         //Required
         private TextView mName;
         private ImageButton mDelete;
-        private ImageButton mLoad;
+        private ConstraintLayout mLayout;
         private String mNickname;
 
         //Optional
@@ -43,11 +45,11 @@ public class Favorite implements Serializable {
         private double mLat = 0;
         private double mLong = 0;
 
-        public Builder (String nick, TextView name, ImageButton delete, ImageButton load) {
+        public Builder (String nick, TextView name, ImageButton delete, ConstraintLayout layout) {
             mNickname = nick;
             mName = name;
             mDelete = delete;
-            mLoad = load;
+            mLayout = layout;
         }
 
         public Builder LatLng (double lat, double lng) {
@@ -75,8 +77,8 @@ public class Favorite implements Serializable {
 
     private Favorite (Builder builder) {
         mNickname = builder.mNickname;
-        mLoad = builder.mLoad;
         mDelete = builder.mDelete;
+        mLayout = builder.mLayout;
         mName = builder.mName;
 
         mLat = builder.mLat;
@@ -86,8 +88,8 @@ public class Favorite implements Serializable {
     }
 
     private void onStart () {
-        mLoad.setOnClickListener(this::loadFavorite);
         mDelete.setOnClickListener(this::removeFavorite);
+        mLayout.setOnClickListener(this::loadFavorite);
         mName.setText(mNickname);
     }
 

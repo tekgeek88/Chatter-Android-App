@@ -3,10 +3,9 @@ package edu.uw.team02tcss450;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import edu.uw.team02tcss450.model.Credentials;
@@ -66,6 +63,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     private ImageView[] mHourlyImages = new ImageView[24];
 
     private ImageView mCurrentImage;
+
+    private ImageButton mFavButton;
 
     private ArrayList<Favorite> mFavorites = new ArrayList<>(10);
 
@@ -227,8 +226,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         mTodayLayout = mView.findViewById(R.id.layout_fragment_weather_today);
         mFavLayout = mView.findViewById(R.id.layout_fragment_weather_favorites);
         mFavLayout.setVisibility(View.GONE);
-        mTodayLayout.setVisibility(View.GONE);
-        m10DayLayout.setVisibility(View.VISIBLE);
+        mTodayLayout.setVisibility(View.VISIBLE);
+        m10DayLayout.setVisibility(View.GONE);
         mLocationName = mView.findViewById(R.id.textview_fragment_weather_location);
         mSearchButton = mView.findViewById(R.id.imagebutton_fragment_weather_search);
         mSearchButton.setOnClickListener(this::onSearch);
@@ -238,8 +237,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
         dayButton.setOnClickListener(this::showToday);
         dayButton = mView.findViewById(R.id.button_weather_fragment_10_day);
         dayButton.setOnClickListener(this::show10Day);
-        dayButton = mView.findViewById(R.id.button_fragment_weather_favorites);
-        dayButton.setOnClickListener(this::showFavorites);
+        mFavButton = mView.findViewById(R.id.imagebutton_fragment_weather_favorites);
+        mFavButton.setOnClickListener(this::showFavorites);
         mInputText = mView.findViewById(R.id.edittext_fragment_weather_search);
         getActivity().setTitle(getString(R.string.text_fragment_weather_title));
         return mView;
@@ -503,33 +502,36 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void show10Day (View v) {
-        mTodayLayout.setVisibility(View.GONE);
+        setLayoutsDefault();
         m10DayLayout.setVisibility(View.VISIBLE);
-        mFavLayout.setVisibility(View.GONE);
-        mSearchButton.setImageResource(R.drawable.ic_search);
-        mSearchButton.setOnClickListener(this::onSearch);
-        mInputText.setHint(R.string.text_fragment_weather_zip);
-        //@android:drawable/ic_menu_search
     }
 
     private void showToday (View v) {
+        setLayoutsDefault();
         mTodayLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showFavorites (View v) {
+        setLayoutsDefault();
+        mFavButton.setVisibility(View.GONE);
+        mFavButton.setClickable(false);
+        mFavLayout.setVisibility(View.VISIBLE);
+        mSearchButton.setImageResource(R.drawable.ic_favorite_red);
+        mSearchButton.setOnClickListener(this::onFavorite);
+        mInputText.setHint(getString(R.string.text_fragment_weather_text_add_to));
+        Log.d("the JWT", mJwt.toString());
+    }
+
+    private void setLayoutsDefault () {
+        mTodayLayout.setVisibility(View.GONE);
         m10DayLayout.setVisibility(View.GONE);
         mFavLayout.setVisibility(View.GONE);
         mSearchButton.setImageResource(R.drawable.ic_search);
         mSearchButton.setOnClickListener(this::onSearch);
         mInputText.setHint(R.string.text_fragment_weather_zip);
+        mFavButton.setVisibility(View.VISIBLE);
+        mFavButton.setClickable(true);
 
-    }
-
-    private void showFavorites (View v) {
-        mTodayLayout.setVisibility(View.GONE);
-        m10DayLayout.setVisibility(View.GONE);
-        mFavLayout.setVisibility(View.VISIBLE);
-        mSearchButton.setImageResource(R.drawable.ic_favorite_red);
-        mSearchButton.setOnClickListener(this::onFavorite);
-        mInputText.setHint(R.string.text_fragment_weather_text_add_to);
-        Log.d("the JWT", mJwt.toString());
     }
 
 
@@ -651,16 +653,17 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
 
 
                 Favorite aFav;
-                ImageButton aLoad,aDelete;
+                ImageButton aDelete;
                 TextView aName;
+                ConstraintLayout aLayout;
                 double a = 0,b = 0, zip = 0;
                 for(int i=0;i<data.length();i++){
                     a = 0;b=0;zip=0;
                     piece = data.getJSONObject(i);
                     View view = mInflater.inflate(R.layout.fragment_weather_favorite_single, null);
-                    aLoad = view.findViewById(R.id.imagebutton_fragment_weather_favorite_load);
                     aDelete = view.findViewById(R.id.imagebutton_fragment_weather_favorite_delete);
                     aName = view.findViewById(R.id.textview_fragment_weather_favorite_name);
+                    aLayout = view.findViewById(R.id.constraint_layout_fragment_weather_favorite_single);
                     if (!piece.get(getString(R.string.keys_favorite_latitude)).toString().equals("null")) {
                         a = piece.getDouble(getString(R.string.keys_favorite_latitude));
                         b = piece.getDouble(getString(R.string.keys_favorite_longitude));
@@ -668,7 +671,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     if (!piece.get(getString(R.string.keys_favorite_zipcode)).toString().equals("null")) {
                         zip = piece.getDouble(getString(R.string.keys_favorite_zipcode));
                     }
-                    aFav = new Favorite.Builder(piece.getString(getString(R.string.keys_favorite_nickname)),aName,aDelete,aLoad)
+                    aFav = new Favorite.Builder(piece.getString(getString(R.string.keys_favorite_nickname)),aName,aDelete,aLayout)
                             .LatLng(a,b)
                             .zipcode(zip)
                             .build();
@@ -820,11 +823,13 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     @Override
     public void onLoadFavorite(LatLng latLng) {
         reloadWeather(latLng);
+        showToday(null);
     }
 
     @Override
     public void onLoadFavorite(String zipcode) {
         reloadWeather(zipcode);
+        showToday(null);
     }
 
     @Override
