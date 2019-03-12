@@ -879,19 +879,18 @@ public class HomeActivity extends AppCompatActivity
                 .commit();
 
         // Alex Recent chat on homepage
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_recentChats))
-                .appendQueryParameter("username", mCredentials.getUsername())
-                .build();
-
-        new GetAsyncTask.Builder(uri.toString())
-                .onPreExecute(this::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
-                .onCancelled(this::handleRecentChatHomepageInError)
-                .addHeaderField("authorization", mJwToken)
-                .build().execute();
+//        Uri uri = new Uri.Builder()
+//                .scheme("https")
+//                .appendPath(getString(R.string.ep_base_url))
+//                .appendPath(getString(R.string.ep_recentChats))
+//                .appendQueryParameter("username", mCredentials.getUsername())
+//                .build();
+//
+//        new GetAsyncTask.Builder(uri.toString())
+//                .onPreExecute(this::onWaitFragmentInteractionShow)
+//                .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
+//                .addHeaderField("authorization", mJwToken)
+//                .build().execute();
     }
 
     @Override
