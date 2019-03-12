@@ -1,10 +1,8 @@
 package edu.uw.team02tcss450;
 
 
-import android.app.ActionBar;
 import android.content.Context;
 
-import edu.uw.team02tcss450.model.Connections;
 import edu.uw.team02tcss450.model.Credentials;
 
 import android.content.SharedPreferences;
@@ -12,7 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +20,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;

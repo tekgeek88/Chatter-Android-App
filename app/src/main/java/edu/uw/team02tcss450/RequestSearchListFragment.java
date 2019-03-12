@@ -15,15 +15,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uw.team02tcss450.model.Connections;
-
-//import edu.uw.team02tcss450.dummy.DummyContent;
-//import edu.uw.team02tcss450.dummy.DummyContent.DummyItem;
+import edu.uw.team02tcss450.model.Connection;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnRequestSearchListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnRequestSearchInteractionListener}
  * interface.
  */
 public class RequestSearchListFragment extends Fragment {
@@ -38,8 +35,8 @@ public class RequestSearchListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnRequestSearchListFragmentInteractionListener mListener;
-    private List<Connections> mConnections;
+    private OnRequestSearchInteractionListener mListener;
+    private List<Connection> mConnections;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -54,8 +51,8 @@ public class RequestSearchListFragment extends Fragment {
         setRetainInstance(true);
         if (getArguments() != null) {
             Log.e("List", getArguments().toString());
-            mConnections = new ArrayList<Connections>(
-                    Arrays.asList((Connections[]) getArguments()
+            mConnections = new ArrayList<Connection>(
+                    Arrays.asList((Connection[]) getArguments()
                             .getSerializable(getString(R.string.keys_intent_connections_sent))));
         }
     }
@@ -76,7 +73,6 @@ public class RequestSearchListFragment extends Fragment {
             }
             mAdapter = new MyRequestSearchListRecyclerViewAdapter(mConnections, mListener);
             recyclerView.setAdapter(mAdapter);
-//            recyclerView.setAdapter(new MyRequestSearchListRecyclerViewAdapter(mConnections, mListener));
         }
         return view;
     }
@@ -85,8 +81,8 @@ public class RequestSearchListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRequestSearchListFragmentInteractionListener) {
-            mListener = (OnRequestSearchListFragmentInteractionListener) context;
+        if (context instanceof OnRequestSearchInteractionListener) {
+            mListener = (OnRequestSearchInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnRequestSentListFragmentInteractionListener");
@@ -99,6 +95,29 @@ public class RequestSearchListFragment extends Fragment {
         mListener = null;
     }
 
+    public void addItem(Connection c) {
+        if (null != c && null != mConnections) {
+            mConnections.add(c);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void removeItem(Connection c) {
+        if (null != c && null != mConnections) {
+            mConnections.remove(c);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void updateConnections(Connection[] connection) {
+        if (null != connection) {
+            mConnections = new ArrayList<Connection>(
+                    Arrays.asList((Connection[]) connection));
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -109,19 +128,7 @@ public class RequestSearchListFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnRequestSearchListFragmentInteractionListener {
-        void onRequestSearchListFragmentInteraction(Connections item);
-        void onRequestSearchListButtonInteraction(View v, Connections item);
-    }
-
-    public void updateConnections(Connections[] connections) {
-        if (null != connections) {
-            if (null != connections && null != mAdapter) {
-                mConnections = new ArrayList<Connections>(
-                        Arrays.asList((Connections[]) connections));
-                mAdapter.notifyDataSetChanged();
-            }
-        }
-
+    public interface OnRequestSearchInteractionListener {
+        void onRequestSearchAcceptInteraction(Connection connection);
     }
 }

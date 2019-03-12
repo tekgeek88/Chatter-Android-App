@@ -2,11 +2,9 @@ package edu.uw.team02tcss450;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -48,12 +46,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uw.team02tcss450.model.ChatThread;
-import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.model.Connection;
 import edu.uw.team02tcss450.model.Credentials;
 import edu.uw.team02tcss450.model.EveryMessage;
 import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
 import edu.uw.team02tcss450.utils.DelAsyncTask;
 import edu.uw.team02tcss450.utils.GetAsyncTask;
+import edu.uw.team02tcss450.utils.PutAsyncTask;
 import edu.uw.team02tcss450.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
@@ -66,13 +65,13 @@ public class HomeActivity extends AppCompatActivity
         ConnectionListFragment.OnListFragmentInteractionListener,
         ConnectionDetailFragment.OnIndividualConnectionListener,
         WeatherFragment.OnWeatherFragmentInteractionListener,
-        RequestSentListFragment.OnRequestSentListFragmentInteractionListener,
-        RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
+        RequestReceivedListFragment.OnRequestReceivedInteractionListener,
         GoogleMap.OnMapClickListener,
         TabFragment.OnTabFragmentInteractionListener,
         TabFrag2.OnTabFrag2InteractionListener,
         RecentChatFragment.OnRecentChatListFragmentInteractionListener,
-        RequestSearchListFragment.OnRequestSearchListFragmentInteractionListener {
+        RequestSearchListFragment.OnRequestSearchInteractionListener,
+        RequestSentListFragment.OnRequestSentInteractionListener {
 
 
     public String getmJwToken() {
@@ -96,7 +95,7 @@ public class HomeActivity extends AppCompatActivity
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private TabFrag2 mTabFragmentHolder;
-    private Connections mConnectionCallback;
+    private Connection mConnectionCallback;
 
     private String mJwToken;
     private String mEmail;
@@ -108,7 +107,7 @@ public class HomeActivity extends AppCompatActivity
     private ConditionsFragment mConFrag;
     private boolean isReloaded = false;
 
-    private List<Connections> mFriends = new ArrayList<>();
+    private List<Connection> mFriends = new ArrayList<>();
     private boolean mLoadFromChatNotification = false;
     private boolean mLoadFromConnRequest = false;
     private boolean mLoadFromConvoRequest = false;
@@ -120,6 +119,11 @@ public class HomeActivity extends AppCompatActivity
 
     private Credentials mCredentials;
 
+
+
+    //########################################################################
+    //##                 THE ACTIVITY/FRAGMENT LIFE CYCLE
+    //########################################################################
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,17 +167,16 @@ public class HomeActivity extends AppCompatActivity
                     setLocation(location);
                     Log.d("LOCATION UPDATE!", location.toString());
                 }
-            };
+            }
+
+            ;
         };
         createLocationRequest();
 
 
-
-
-
         Button chatButton = findViewById(R.id.button_activity_home_chat);
         chatButton.setVisibility(View.GONE);
-        chatButton.setOnClickListener(view->startChat());
+        chatButton.setOnClickListener(view -> startChat());
         Button removeButton = findViewById(R.id.button_activity_home_remove);
         removeButton.setVisibility(View.GONE);
         removeButton.setOnClickListener(this::removeSelectedFriend);
@@ -200,20 +203,13 @@ public class HomeActivity extends AppCompatActivity
                 args.putString(getString(R.string.key_email), mEmail);
             }
         }
-
-
-
-
-
-}
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, MainActivity.class);
         startService(intent);
-
-        
 
         isReloaded = false;
         if (getIntent().getExtras().getString(getString(R.string.keys_intent_fragment_tag)) != null
@@ -232,6 +228,18 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //startLocationUpdates();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //stopLocationUpdates();
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -240,6 +248,7 @@ public class HomeActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -283,44 +292,25 @@ public class HomeActivity extends AppCompatActivity
             args.putParcelable(getString(R.string.keys_map_latlng), mLocation);
             tempFrag.setArguments(args);
             loadFragment(tempFrag);
-        } else if(id == R.id.nav_connection_fragment){
+        } else if (id == R.id.nav_connection_fragment) {
             loadConnectionFragment();
-        }else if (id == R.id.nav_chat_fragment) {
+        } else if (id == R.id.nav_chat_fragment) {
             // Always load the global chat from this side bar action
             //loadChatFragment(1);
             loadRecentChatFragment();
-        } //else if (id == R.id.nav_profile_fragment) {
+        }   //else if (id == R.id.nav_profile_fragment) {
         else if (id == R.id.nav_requests_fragment) {
             mTabFragmentHolder = new TabFrag2();
             loadFragment(mTabFragmentHolder);
-        }else if (id == R.id.nav_refer_fragment) {
+        } else if (id == R.id.nav_refer_fragment) {
             loadFragment(new InvitationFragment());
-        }
-        else if (id == R.id.nav_logout_fragment) {
+        } else if (id == R.id.nav_logout_fragment) {
             logout();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
 
-    }
-
-    private void loadRecentChatFragment() {
-        Credentials credentials = (Credentials) getIntent()
-                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_recentChats))
-                .appendQueryParameter("username",credentials.getUsername())
-                .build();
-
-
-        new GetAsyncTask.Builder(uri.toString())
-                .onPreExecute(this::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleRecentChatGetOnPostExecute)
-                .addHeaderField("authorization", mJwToken)
-                .build().execute();
     }
 
     private void handleRecentChatGetOnPostExecute(final String result) {
@@ -335,7 +325,7 @@ public class HomeActivity extends AppCompatActivity
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
                     List<ChatThread> chatList = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
+                    for (int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
                         chatList.add(new ChatThread.Builder(jsonConnection.getString("name"),
                                 jsonConnection.getInt("chatid"),
@@ -390,7 +380,7 @@ public class HomeActivity extends AppCompatActivity
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
                     List<ChatThread> chatList = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
+                    for (int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
                         chatList.add(new ChatThread.Builder(jsonConnection.getString("name"),
                                 jsonConnection.getInt("chatid"),
@@ -409,7 +399,6 @@ public class HomeActivity extends AppCompatActivity
                             .replace(R.id.layout_fragment_home_chats_container, frag, RecentChatFragment.TAG)
                             .addToBackStack(null)
                             .commit();
-
                     onWaitFragmentInteractionHide();
                 } else {
                     Log.e("ERROR!", "No data array");
@@ -435,11 +424,9 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void removeSelectedFriend(View view) {
-        if(!mFriends.isEmpty()) {
-
-
+        if (!mFriends.isEmpty()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(mAlertDialogView.getContext());
-                   builder.setTitle("Remove Friend")
+            builder.setTitle("Remove Friend")
                     .setMessage("Are you sure you want to break this friendship?")
                     // Specifying a listener allows you to take an action before dismissing the dialog.
                     // The dialog is automatically dismissed when a dialog button is clicked.
@@ -459,28 +446,28 @@ public class HomeActivity extends AppCompatActivity
                     .setIcon(R.drawable.ic_sad_face)
                     .show();
 
-        }else{
-            Log.d("LOL","no selected friends to remove");
-
+        } else {
+            Log.d("LOL", "no selected friends to remove");
         }
     }
+
     private void startChat() {
-        if(!mFriends.isEmpty()) {
+        if (!mFriends.isEmpty()) {
             Credentials credentials = (Credentials) getIntent()
                     .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
             Uri.Builder builder = new Uri.Builder();
             builder.scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
                     .appendPath(getString(R.string.ep_startChat))
-                    .appendQueryParameter("count", String.valueOf(mFriends.size()+1))
+                    .appendQueryParameter("count", String.valueOf(mFriends.size() + 1))
                     .appendQueryParameter("username1", credentials.getUsername());
-            for(int i = 0; i<mFriends.size();i++) {
+            for (int i = 0; i < mFriends.size(); i++) {
 
-                builder.appendQueryParameter("username"+(i+2), mFriends.get(i).getUserName()).build();
+                builder.appendQueryParameter("username" + (i + 2), mFriends.get(i).getUserName()).build();
                 /// .build();
             }
             Uri uri = builder.build();
-            Log.d("URL",uri.toString());
+            Log.d("URL", uri.toString());
             mFriends.clear();
             new GetAsyncTask.Builder(uri.toString())
                     .onPreExecute(this::onWaitFragmentInteractionShow)
@@ -489,8 +476,8 @@ public class HomeActivity extends AppCompatActivity
                     .build().execute();
 //
 //            loadChatFragment(1);
-        }else{
-            Log.d("LOL","no selected friends to remove");
+        } else {
+            Log.d("LOL", "no selected friends to remove");
         }
     }
 
@@ -529,25 +516,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    private void loadConnectionFragment(){
-        Credentials credentials = (Credentials) getIntent()
-                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("username", credentials.getUsername())
-                .build();
-
-
-        new GetAsyncTask.Builder(uri.toString())
-                .onPreExecute(this::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleConnectionListGetOnPostExecute)
-                .addHeaderField("authorization", mJwToken)
-                .build().execute();
-
-    }
-
 
     private void handleConnectionListGetOnPostExecute(final String result) {
         //parse JSON
@@ -558,10 +526,10 @@ public class HomeActivity extends AppCompatActivity
 
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
+                    List<Connection> connectionList = new ArrayList<>();
+                    for (int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
@@ -569,7 +537,7 @@ public class HomeActivity extends AppCompatActivity
                                 .build());
                     }
                     // Log.d("cded","ghjkl");
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(ConnectionListFragment.ARG_CONNECTION_LIST, connectionAsArray);
@@ -719,7 +687,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-
     public void handleRequestReceivedOnPostExecute(final String result) {
         //parse JSON
         String error;
@@ -730,17 +697,17 @@ public class HomeActivity extends AppCompatActivity
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
+                    List<Connection> connectionList = new ArrayList<>();
+                    for (int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
                                 jsonConnection.getInt("verified"))
                                 .build());
                     }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
@@ -770,11 +737,10 @@ public class HomeActivity extends AppCompatActivity
             onWaitFragmentInteractionHide();
             Toast.makeText(this, "Error: " + e.getMessage(),
                     Toast.LENGTH_LONG).show();
-
         }
     }
 
-    public void removeConnectionRequestSentTo(String sent_to_username){
+    public void removeConnectionRequestSentTo(String sent_to_username) {
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -790,140 +756,12 @@ public class HomeActivity extends AppCompatActivity
                 .onCancelled(this::handleErrorsInTask)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
-
     }
 
 
-    public void handleRequestSentOnPostExecute(final String result) {
-        //parse JSON
-        String error;
-        try {
-            JSONObject resultsJSON = new JSONObject(result);
-            boolean success = resultsJSON.getBoolean("success");
-            error = resultsJSON.getString("message");
-            if (success) {
-                if (resultsJSON.has("data")) {
-                    JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
-                        JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
-                                jsonConnection.getString("firstname"),
-                                jsonConnection.getString("lastname"),
-                                jsonConnection.getString("username"),
-                                jsonConnection.getInt("verified"))
-                                .build());
-                    }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
-                    connectionAsArray = connectionList.toArray(connectionAsArray);
-                    Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
-                    Fragment frag = new RequestSentListFragment();
-                    frag.setArguments(args);
-                    onWaitFragmentInteractionHide();
-                    loadFragment(frag, RequestSentListFragment.TAG);
-                } else {
-                    Log.e("ERROR!", error);
-                    //notify user
-                    onWaitFragmentInteractionHide();
-                    Toast.makeText(this, "Error: " + error,
-                            Toast.LENGTH_LONG).show();
-                }
-            } else {
-                Log.e("ERROR!", error);
-                //notify user
-                onWaitFragmentInteractionHide();
-                Toast.makeText(this, "Error: " + error,
-                        Toast.LENGTH_LONG).show();
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e("ERROR!", e.getMessage());
-            //notify user
-            onWaitFragmentInteractionHide();
-            Toast.makeText(this, "Error: " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
-
-        }
-    }
-
-
-
-    public void handleChatMessagesGetOnPostExecute(final String result) {
-        //parse JSON
-        String error = "";
-        try {
-            JSONObject resultsJSON = new JSONObject(result);
-            boolean success = resultsJSON.getBoolean("success");
-            error = resultsJSON.getString("message");
-            if (success) {
-                if (resultsJSON.has("data")) {
-                    JSONArray data = resultsJSON.getJSONArray("data");
-                    ArrayList<EveryMessage> messageList = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
-                        JSONObject jsonMessage = data.getJSONObject(i);
-                        EveryMessage tempMessage = new EveryMessage(
-                                jsonMessage.getString("email"),
-                                jsonMessage.getString("message"),
-                                mEmail
-                        );
-                        tempMessage.setChatId(jsonMessage.getInt("chatid"));
-                        tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
-                        messageList.add(tempMessage
-                        );
-                    }
-                    Bundle args = new Bundle();
-                    args.putSerializable(getString(R.string.keys_intent_messages), messageList);
-                    args.putString(getString(R.string.key_email), mEmail);
-                    args.putString(getString(R.string.keys_intent_jwt), mJwToken);
-                    args.putInt(getString(R.string.key_chat_id), mChatId);
-
-                    Fragment frag = new ChatFragment();
-                    frag.setArguments(args);
-
-                    onWaitFragmentInteractionHide();
-
-                    loadFragment(frag, ChatFragment.getTAG());
-                } else {
-                    Log.e("ERROR!", error);
-                    //notify user
-                    onWaitFragmentInteractionHide();
-                    Toast.makeText(this, "Error: " + error,
-                            Toast.LENGTH_LONG).show();
-
-
-                }
-            } else {
-                Log.e("ERROR!", error);
-                //notify user
-                onWaitFragmentInteractionHide();
-//                Toast.makeText(this, "Error: " + error,
-//                        Toast.LENGTH_LONG).show();
-                Bundle args = new Bundle();
-                args.putString(getString(R.string.key_email), mEmail);
-                args.putString(getString(R.string.keys_intent_jwt), mJwToken);
-                args.putInt(getString(R.string.key_chat_id), mChatId);
-
-                Fragment frag = new ChatFragment();
-                frag.setArguments(args);
-
-                onWaitFragmentInteractionHide();
-
-                loadFragment(frag, ChatFragment.getTAG());
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e("ERROR!", e.getMessage());
-            //notify user
-            onWaitFragmentInteractionHide();
-            Toast.makeText(this, "Error: " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
-
-        }
-    }
-
+    //########################################################################
+    //##                     FRAGMENT LOADERS / UTILS
+    //########################################################################
 
     public void loadFragment(Fragment frag) {
         FragmentTransaction transaction = getSupportFragmentManager()
@@ -947,7 +785,6 @@ public class HomeActivity extends AppCompatActivity
         transaction.commit();
     }
 
-
     public void loadChatFragment(int chatId) {
         mChatId = chatId;
         // Create the request
@@ -957,14 +794,12 @@ public class HomeActivity extends AppCompatActivity
                 .appendPath(getString(R.string.ep_messaging_base))
                 .appendPath(getString(R.string.ep_getAll))
                 .build();
-
-
         // Build the message to post
         JSONObject msg = new JSONObject();
 
         try {
             msg.put("chat_id", chatId);
-        } catch ( JSONException e) {
+        } catch (JSONException e) {
             Log.wtf("WTF", "SHIT HIT THE FAN!\n" + e.toString());
         }
 
@@ -974,22 +809,41 @@ public class HomeActivity extends AppCompatActivity
                 .onCancelled(this::handleErrorsInTask)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
-
-
-//        ChatFragment chatFragment = new ChatFragment();
-//        Bundle args = new Bundle();
     }
 
-    /**
-     * Handle errors that may occur during the AsyncTask.
-     *
-     * @param result the error message provide from the AsyncTask
-     */
-    private void handleErrorsInTask(String result) {
-        String response = result.toString();
-        onWaitFragmentInteractionHide();
-        Toast.makeText(this, "Error: " + response, Toast.LENGTH_LONG).show();
-        Log.e("ASYNC_TASK_ERROR", result);
+    private void loadConnectionFragment() {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("username", credentials.getUsername())
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleConnectionListGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    private void loadRecentChatFragment() {
+        Credentials credentials = (Credentials) getIntent()
+                .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_recentChats))
+                .appendQueryParameter("username", credentials.getUsername())
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRecentChatGetOnPostExecute)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
     }
 
     private void loadHomeFragment() {
@@ -1024,25 +878,14 @@ public class HomeActivity extends AppCompatActivity
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_recentChats))
-                .appendQueryParameter("username",mCredentials.getUsername())
+                .appendQueryParameter("username", mCredentials.getUsername())
                 .build();
-
 
         new GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(this::onWaitFragmentInteractionShow)
                 .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
-
-
-
-
-    }
-
-
-    @Override
-    public void onHomeFragmentInteraction(Uri uri) {
-
     }
 
     @Override
@@ -1062,8 +905,153 @@ public class HomeActivity extends AppCompatActivity
                 .commit();
     }
 
-    private void logout() {
 
+    //########################################################################
+    //##                     ASYNC TASK HANDLERS
+    //########################################################################
+
+    public void handleChatMessagesGetOnPostExecute(final String result) {
+        //parse JSON
+        String error = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            error = resultsJSON.getString("message");
+            if (success) {
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    ArrayList<EveryMessage> messageList = new ArrayList<>();
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject jsonMessage = data.getJSONObject(i);
+                        EveryMessage tempMessage = new EveryMessage(
+                                jsonMessage.getString("email"),
+                                jsonMessage.getString("message"),
+                                mEmail
+                        );
+                        tempMessage.setChatId(jsonMessage.getInt("chatid"));
+                        tempMessage.setTimeStamp(jsonMessage.getString("timestamp"));
+                        messageList.add(tempMessage
+                        );
+                    }
+                    Bundle args = new Bundle();
+                    args.putSerializable(getString(R.string.keys_intent_messages), messageList);
+                    args.putString(getString(R.string.key_email), mEmail);
+                    args.putString(getString(R.string.keys_intent_jwt), mJwToken);
+                    args.putInt(getString(R.string.key_chat_id), mChatId);
+
+                    Fragment frag = new ChatFragment();
+                    frag.setArguments(args);
+
+                    onWaitFragmentInteractionHide();
+                    loadFragment(frag, ChatFragment.getTAG());
+                } else {
+                    Log.e("ERROR!", error);
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", error);
+                onWaitFragmentInteractionHide();
+                Bundle args = new Bundle();
+                args.putString(getString(R.string.key_email), mEmail);
+                args.putString(getString(R.string.keys_intent_jwt), mJwToken);
+                args.putInt(getString(R.string.key_chat_id), mChatId);
+
+                Fragment frag = new ChatFragment();
+                frag.setArguments(args);
+
+                onWaitFragmentInteractionHide();
+
+                loadFragment(frag, ChatFragment.getTAG());
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void handleRequestSentOnPostExecute(final String result) {
+        //parse JSON
+        String error;
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            error = resultsJSON.getString("message");
+            if (success) {
+                if (resultsJSON.has("data")) {
+                    JSONArray data = resultsJSON.getJSONArray("data");
+                    List<Connection> connectionList = new ArrayList<>();
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject jsonConnection = data.getJSONObject(i);
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
+                                jsonConnection.getString("firstname"),
+                                jsonConnection.getString("lastname"),
+                                jsonConnection.getString("username"),
+                                jsonConnection.getInt("verified"))
+                                .build());
+                    }
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
+                    connectionAsArray = connectionList.toArray(connectionAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
+                    Fragment frag = new RequestSentListFragment();
+                    frag.setArguments(args);
+                    onWaitFragmentInteractionHide();
+                    loadFragment(frag, RequestSentListFragment.TAG);
+                } else {
+                    Log.e("ERROR!", error);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                    Toast.makeText(this, "Error: " + error,
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.e("ERROR!", error);
+                //notify user
+                onWaitFragmentInteractionHide();
+                Toast.makeText(this, "Error: " + error,
+                        Toast.LENGTH_LONG).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+            Toast.makeText(this, "Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    //########################################################################
+    //##                     ASYNC TASK HANDLERS
+    //########################################################################
+    /**
+     * Handle errors that may occur during the AsyncTask.
+     *
+     * @param result the error message provide from the AsyncTask
+     */
+    private void handleErrorsInTask(String result) {
+        String response = result.toString();
+        onWaitFragmentInteractionHide();
+        Toast.makeText(this, "Error: " + response, Toast.LENGTH_LONG).show();
+        Log.e("ASYNC_TASK_ERROR", result);
+
+    }
+
+
+    @Override
+    public void onHomeFragmentInteraction(Uri uri) {
+
+    }
+
+
+    private void logout() {
         SharedPreferences prefs =
                 getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
@@ -1071,21 +1059,21 @@ public class HomeActivity extends AppCompatActivity
         //remove the saved credentials from StoredPrefs
         prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
         prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
-
         new DeleteTokenAsyncTask().execute();
-
-        //close the app
-        //finishAndRemoveTask();
 
         //or close this activity and bring back the Login
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
+
+        //  TODO: PICK ONE OF THESE TO KEEP
         // End this Activity and remove it from the Activity back stack.
         finish();
+        //close the app
+        finishAndRemoveTask();
     }
 
-    private void changePassword() {
 
+    private void changePassword() {
         Credentials credentials = (Credentials) getIntent()
                 .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
         ChangePasswordFragment changePassFragment = new ChangePasswordFragment();
@@ -1093,9 +1081,8 @@ public class HomeActivity extends AppCompatActivity
         args.putString(getString(R.string.keys_intent_credentials), credentials.getEmail());
         changePassFragment.setArguments(args);
         loadFragment(changePassFragment);
-
-
     }
+
 
     @Override
     public void onChangePasswordSuccess(Credentials cr) {
@@ -1105,8 +1092,6 @@ public class HomeActivity extends AppCompatActivity
                 cr.getEmail());
         args.putString("fragment_header", getString(R.string.string_fragment_change_password_verification_change_successful));
         args.putString("fragment_body", getString(R.string.string_fragment_change_password_verification_first_phrase));
-
-
         verificationFragment.setArguments(args);
         loadFragment(verificationFragment);
 
@@ -1115,55 +1100,34 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onGoBackLoginClicked() {
-
         logout();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        //startLocationUpdates();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //stopLocationUpdates();
-    }
-
-    @Override
-    public void onListFragmentInteraction(Connections item) {
-
+    public void onListFragmentInteraction(Connection item) {
         mFriends.add(item);
         startChat();
-
-
-
     }
 
     @Override
-    public void onCheckBoxListInteraction(View v, Connections item) {
+    public void onCheckBoxListInteraction(View v, Connection item) {
         mFriends.add(item);
         mAlertDialogView = v;
     }
 
-    public void removeFriends(){
+    public void removeFriends() {
         Credentials credentials = (Credentials) getIntent()
                 .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
-        // AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, connection.getUserName());
         for (int i = 0; i < mFriends.size(); i++) {
             Log.d("LOL", mFriends.get(i).toString());
-            if(mFriends.get(i).getUserName()== credentials.getUsername()){
+            if (mFriends.get(i).getUserName() == credentials.getUsername()) {
                 AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, mFriends.get(i).getUserName());
-            }else{
-                AsyncTaskFactory.removeConnectionRequestSentFrom(this, mJwToken,  mFriends.get(i).getUserName());
+            } else {
+                AsyncTaskFactory.removeConnectionRequestSentFrom(this, mJwToken, mFriends.get(i).getUserName());
             }
-
         }
         loadConnectionFragment();
         mFriends.clear();
-
-
     }
 
     @Override
@@ -1174,12 +1138,12 @@ public class HomeActivity extends AppCompatActivity
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("sent_from",credentials.getUsername())
+                .appendQueryParameter("sent_from", credentials.getUsername())
                 .appendQueryParameter("sent_to", username)
                 .build();
 
-        Log.d("a1",username);
-        Log.d("a1",credentials.getUsername());
+        Log.d("a1", username);
+        Log.d("a1", credentials.getUsername());
         new GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(this::onWaitFragmentInteractionShow)
                 .onPostExecute(this::handleConnectionAddListGetOnPostExecute)
@@ -1228,31 +1192,7 @@ public class HomeActivity extends AppCompatActivity
 //                .build().execute();
 
 
-
     }
-
-    private void handleConnectionRemoveListGetOnPostExecute(final String result) {
-
-        try {
-            JSONObject resultsJSON = new JSONObject(result);
-            boolean success = resultsJSON.getBoolean("success");
-            if (success) {
-                loadConnectionFragment();
-
-            } else {
-                Log.e("ERROR!", "No response");
-                //notify user
-                onWaitFragmentInteractionHide();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e("ERROR!", e.getMessage());
-            //notify user
-            onWaitFragmentInteractionHide();
-        }
-
-    }
-
 
 
     @Override
@@ -1261,56 +1201,14 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onRequestReceivedListFragmentInteraction(Connections item) {
-        Log.wtf("WTF", "The listview was clicked!");
-    }
-
-    @Override
-    public void onRequestReceivedListButtonInteraction(View v, Connections connection) {
-
-        int id = v.getId();
-
-        if (id == R.id.textview_requests_accept) {
-            Log.wtf("WTF", "ACCEPT was pressed!");
-            AsyncTaskFactory.confirmConnection(this, mJwToken, connection.getUserName());
-        } else if (id == R.id.textview_requests_cancel) {
-            Log.wtf("WTF", "CANCEL was pressed!");
-            AsyncTaskFactory.removeConnectionRequestSentFrom(this, mJwToken, connection.getUserName());
-        }
-        removeFragment(RequestReceivedListFragment.TAG);
-        // Update the fragment
-
-    }
-
     @Nullable
     private void removeFragment(String tag) {
-
         Fragment frag = getSupportFragmentManager().findFragmentByTag(tag);
-
         if (frag != null) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(frag)
                     .commit();
-        }
-
-    }
-
-    @Override
-    public void onRequestSentListFragmentInteraction(Connections item) {
-
-    }
-
-    @Override
-    public void onRequestSentListButtonInteraction(View v, Connections item) {
-        mConnectionCallback = item;
-        int id = v.getId();
-        if (id == R.id.textview_requests_accept) {
-            Log.wtf("WTF", "PENDING was pressed!");
-        } else if (id == R.id.textview_requests_cancel) {
-            Log.wtf("WTF", "CANCEL was pressed!");
-            removeConnectionRequestSentTo(item.getUserName());
         }
     }
 
@@ -1330,73 +1228,262 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-
     @Override
     public void onRecentChatListFragmentInteraction(ChatThread mItem) {
-
         loadChatFragment(mItem.getChatId());
-
     }
 
-    @Override
-    public void onRequestSearchListFragmentInteraction(Connections item) {
 
+    //########################################################################
+    //##                  FRIEND REQUEST HANDLERS
+    //########################################################################
+
+
+    /**
+     * This method allows the view to speak with the controller. In-turn, the controller
+     * will let the data model know (the adapter) that it should remove some items. It
+     * will then remove items and the let the view know that it can update its view of the data
+     *
+     * @param connection
+     */
+    @Override
+    public void onRequestSentCancelInteraction(Connection connection) {
+        mConnectionCallback = connection;
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", mCredentials.getUsername())
+                .appendQueryParameter("sent_to", connection.getUserName())
+                .build();
+
+        new DelAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRequestSentCancelInteractionOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
     }
 
+
+
+    public void handleRequestSentCancelInteractionOnPost(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    mTabFragmentHolder.getmRequestsSentFragment().removeItem(mConnectionCallback);
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
+
     @Override
-    public void onRequestSearchListButtonInteraction(View v, Connections item) {
-        int id = v.getId();
-        if (id == R.id.textview_requests_accept) {
-            Log.wtf("WTF", "PENDING was pressed!");
-        } else if (id == R.id.textview_requests_cancel) {
-//            Log.wtf("WTF", "CANCEL was pressed!");
-            mConnectionCallback = item;
-            AsyncTaskFactory.sendFriendRequestTo(
-                    this,
-                    mJwToken,
-                    item.getUserName());
+    public void onRequestReceivedAcceptInteraction(Connection connection) {
+        mConnectionCallback = connection;
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendPath(getString(R.string.ep_confirm))
+                .appendQueryParameter("sent_from", connection.getUserName())
+                .appendQueryParameter("sent_to", mCredentials.getUsername())
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRequestReceivedAcceptInteractionOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+
+    public void handleRequestReceivedAcceptInteractionOnPost(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    mTabFragmentHolder.getmRequestsReceivedFragment().removeItem(mConnectionCallback);
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
+
+    @Override
+    public void onRequestReceivedCancelInteraction(Connection connection) {
+        mConnectionCallback = connection;
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", connection.getUserName())
+                .appendQueryParameter("sent_to", mCredentials.getUsername())
+                .build();
+
+        new DelAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRequestReceivedCancelInteractionOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    public void handleRequestReceivedCancelInteractionOnPost(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    mTabFragmentHolder.getmRequestsReceivedFragment().removeItem(mConnectionCallback);
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
+
+    @Override
+    public void onRequestSearchAcceptInteraction(Connection connection) {
+        mConnectionCallback = connection;
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", mCredentials.getUsername())
+                .appendQueryParameter("sent_to", connection.getUserName())
+                .build();
+
+        new PutAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRequestSearchAcceptInteractionOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+
+    public void handleRequestSearchAcceptInteractionOnPost(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+                    mTabFragmentHolder.getmRequestsSearchFragment().removeItem(mConnectionCallback);
+                    mTabFragmentHolder.getmRequestsSentFragment().addItem(mConnectionCallback);
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
+
+    // Deleting the Pushy device token must be done asynchronously. Good thing
+    // we have something that allows us to do that.
+    class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            onWaitFragmentInteractionShow();
         }
 
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //since we are already doing stuff in the background, go ahead
+            //and remove the credentials from shared prefs here.
+            SharedPreferences prefs =
+                    getSharedPreferences(
+                            getString(R.string.keys_shared_prefs),
+                            Context.MODE_PRIVATE);
+
+            prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
+            prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
+
+            //unregister the device from the Pushy servers
+            Pushy.unregister(HomeActivity.this);
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //close the app
+            finishAndRemoveTask();
+        }
     }
 
-
-// Deleting the Pushy device token must be done asynchronously. Good thing
-// we have something that allows us to do that.
-class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        onWaitFragmentInteractionShow();
-    }
-
-    @Override
-    protected Void doInBackground(Void... voids) {
-
-        //since we are already doing stuff in the background, go ahead
-        //and remove the credentials from shared prefs here.
-        SharedPreferences prefs =
-                getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-
-        prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
-        prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
-
-        //unregister the device from the Pushy servers
-        Pushy.unregister(HomeActivity.this);
-
-        return null;
-    }
-
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
-        //close the app
-        finishAndRemoveTask();
-    }
-}
 
     @Override
     public void onWeatherFragmentInteraction(Uri uri) {
@@ -1493,4 +1580,5 @@ class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
         // recommended in applications that request frequent location updates.
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
+
 }

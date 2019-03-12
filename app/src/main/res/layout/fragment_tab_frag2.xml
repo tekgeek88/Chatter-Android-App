@@ -9,41 +9,44 @@
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarid"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/design_default_color_primary"
+        android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.NoActionBar"
-        android:visibility="visible">
+        android:visibility="gone"
+        app:expanded="false">
 
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:visibility="visible">
 
             <CheckedTextView
                 android:id="@+id/spinner_search_options_item"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_alignStart="@+id/spinner_search_options"
                 android:layout_alignTop="@+id/spinner_search_options"
                 android:layout_alignEnd="@+id/spinner_search_options"
                 android:layout_alignBottom="@+id/spinner_search_options"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:checked="false"
                 android:ellipsize="marquee"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                 android:textColorLink="@color/primaryTextColor" />
 
             <AutoCompleteTextView
                 android:id="@+id/edittext_tabfragment_searchbox"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/spinner_search_options"
-                android:layout_alignParentStart="true"
 
                 android:layout_alignParentEnd="true"
-                android:layout_marginStart="11dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp"
                 android:background="@color/primaryTextColor"
                 android:drawableStart="@drawable/ic_search_secondary_color"
                 android:imeOptions="actionSearch"
@@ -55,12 +58,11 @@
             <TextView
                 android:id="@+id/textview_fragment_tab_searchbar_label2"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginStart="9dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
-                android:gravity="center"
                 android:paddingEnd="8dp"
                 android:text="Search by:"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
@@ -68,11 +70,11 @@
             <Spinner
                 android:id="@+id/spinner_search_options"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
-                android:layout_alignTop="@+id/textview_fragment_tab_searchbar_label2"
+                android:layout_height="24dp"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_toEndOf="@+id/textview_fragment_tab_searchbar_label2"
                 android:background="@color/primaryTextColor"
@@ -80,7 +82,7 @@
                 android:foregroundTint="@color/colorAccent"
                 android:outlineAmbientShadowColor="@color/colorAccent"
                 android:spinnerMode="dropdown"
-                android:theme="@style/spinner_chatter_theme" />
+                android:visibility="visible" />
 
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>

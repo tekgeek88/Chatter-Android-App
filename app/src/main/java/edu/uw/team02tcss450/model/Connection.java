@@ -2,7 +2,7 @@ package edu.uw.team02tcss450.model;
 
 import java.io.Serializable;
 
-public class Connections implements Serializable {
+public class Connection implements Serializable {
     private final int mMemberId;
     private final String mFirstName;
     private final String mLastName;
@@ -35,13 +35,13 @@ public class Connections implements Serializable {
 
         }
 
-        public Connections build() {
-            return new Connections(this);
+        public Connection build() {
+            return new Connection(this);
         }
 
     }
 
-    private Connections(final Connections.Builder builder) {
+    private Connection(final Connection.Builder builder) {
         this.mFirstName = builder.mFirstName;
         this.mLastName = builder.mLastName;
         this.mMemberId = builder.mMemberId;
@@ -58,26 +58,11 @@ public class Connections implements Serializable {
         return mLastName;
     }
 
-    public String getUserName() {
-        return mUserName;
-    }
+    public String getUserName() { return mUserName;  }
 
     public int getIsVerified() {return mVerified; }
 
-    public int getMemberId() {
-        return mMemberId;
-    }
-
-    public String getVerified() {
-        if(mVerified==1){
-            return "ADDED";
-        }else{
-            return "NOT ADDED";
-        }
-
-    }
-
-
+    public int getMemberId() {return mMemberId; }
 
 }
 

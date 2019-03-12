@@ -1,59 +1,40 @@
 package edu.uw.team02tcss450;
 
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.support.v4.app.FragmentTransaction;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import edu.uw.team02tcss450.ConnectionListFragment.OnListFragmentInteractionListener;
-import edu.uw.team02tcss450.model.Connections;
-import edu.uw.team02tcss450.utils.GetAsyncTask;
+import edu.uw.team02tcss450.model.Connection;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static android.provider.Settings.System.getString;
 
 public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<MyConnectionListRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Connections> mValues;
+    private final List<Connection> mValues;
     private final OnListFragmentInteractionListener mListener;
 
 
-    public MyConnectionListRecyclerViewAdapter(List<Connections> items, OnListFragmentInteractionListener listener) {
+    public MyConnectionListRecyclerViewAdapter(List<Connection> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
 
     }
 
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_requestlist_item, parent, false);
-
-
         return new ViewHolder(view);
     }
 
 
-
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-
-        mValues.get(position).getVerified();
         holder.mItem = mValues.get(position);
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
@@ -70,16 +51,7 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
             }
         });
 
-//        holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mListener.onRequestRemoveListButtonInteraction(v, holder.mItem);
-//            }
-//        });
         holder.mBtnAccept.setVisibility(View.GONE);
-
-
-
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,11 +70,10 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
     public int getItemCount() {
         return mValues.size();
     }
+
+
     public interface OnButtonFragmentInteractionListener {
-        // TODO: Update argument type and name
-
-
-        void onListFragmentInteraction(Connections mItem);
+        void onListFragmentInteraction(Connection mItem);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -113,7 +84,7 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
         public final TextView mBtnAccept;
         public final TextView mBtnCancel;
         public final CheckBox mCheckBox;
-        public Connections mItem;
+        public Connection mItem;
 
         public ViewHolder(View view) {
             super(view);
