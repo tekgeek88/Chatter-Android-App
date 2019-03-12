@@ -31,8 +31,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uw.team02tcss450.model.Connections;
-import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
+import edu.uw.team02tcss450.model.Connection;
 
 
 /**
@@ -224,17 +223,17 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
+                    List<Connection> connectionList = new ArrayList<>();
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
                                 jsonConnection.getInt("verified"))
                                 .build());
                     }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);
@@ -301,17 +300,17 @@ public class TabFragment extends Fragment implements AdapterView.OnItemSelectedL
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
+                    List<Connection> connectionList = new ArrayList<>();
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
                                 jsonConnection.getInt("verified"))
                                 .build());
                     }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(getString(R.string.keys_intent_connections_sent), connectionAsArray);

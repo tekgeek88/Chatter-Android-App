@@ -10,10 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import edu.uw.team02tcss450.dummy.DummyContent;
-import edu.uw.team02tcss450.dummy.DummyContent.DummyItem;
 import edu.uw.team02tcss450.model.ChatThread;
-import edu.uw.team02tcss450.model.Connections;
 
 import java.util.ArrayList;
 import java.util.Arrays;

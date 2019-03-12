@@ -10,20 +10,20 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uw.team02tcss450.RequestSearchListFragment.OnRequestSearchListFragmentInteractionListener;
-import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.RequestSearchListFragment.OnRequestSearchInteractionListener;
+import edu.uw.team02tcss450.model.Connection;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link Connections} and makes a call to the
- * specified {@link OnRequestSearchListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link Connection} and makes a call to the
+ * specified {@link OnRequestSearchInteractionListener}.
  */
 public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter<MyRequestSearchListRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Connections> mValues;
-    private final OnRequestSearchListFragmentInteractionListener mListener;
+    private final List<Connection> mValues;
+    private final OnRequestSearchInteractionListener mListener;
     private MyRequestSearchListRecyclerViewAdapter mAdapter;
 
-    public MyRequestSearchListRecyclerViewAdapter(List<Connections> items, OnRequestSearchListFragmentInteractionListener listener) {
+    public MyRequestSearchListRecyclerViewAdapter(List<Connection> items, OnRequestSearchInteractionListener listener) {
         if (null == items) {
             items = new ArrayList<>();
         }
@@ -47,32 +47,14 @@ public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
-        holder.mCheckBox.setVisibility(View.GONE);
-        holder.mBtnAccept.setVisibility(View.GONE);
         holder.mBtnCancel.setText("SEND REQUEST");
-        holder.mBtnAccept.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                mListener.onRequestSearchListButtonInteraction(v, holder.mItem);
-            }
-        });
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mValues.remove(position);
-                notifyDataSetChanged();
-                mListener.onRequestSearchListButtonInteraction(v, holder.mItem);
-            }
-        });
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onRequestSearchListFragmentInteraction(holder.mItem);
+                    mListener.onRequestSearchAcceptInteraction(holder.mItem);
                 }
             }
         });
@@ -87,28 +69,7 @@ public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter
         }
     }
 
-    public void removeItem(int position) {
-        mValues.remove(position);
-        notifyDataSetChanged();
-    }
 
-    public void removeItem(Connections connection) {
-        mValues.remove(connection);
-        notifyDataSetChanged();
-    }
-
-    public void addItem(Connections connection) {
-        mValues.add(connection);
-        notifyDataSetChanged();
-    }
-
-    public void setItems(List<Connections> items) {
-        mValues.clear();
-        for(Connections c: items) {
-            mValues.add(c);
-        }
-        notifyDataSetChanged();
-    }
 
     public void clear() {
         mValues.clear();
@@ -116,16 +77,13 @@ public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter
     }
 
 
-
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public Connections mItem;
+        public Connection mItem;
         public final TextView mFirstName;
         public final TextView mLastName;
         public final TextView mUserName;
-        public final TextView mBtnAccept;
         public final TextView mBtnCancel;
-        public final CheckBox mCheckBox;
 
         public ViewHolder(View view) {
             super(view);
@@ -133,9 +91,11 @@ public class MyRequestSearchListRecyclerViewAdapter extends RecyclerView.Adapter
             mFirstName = (TextView) view.findViewById(R.id.textview_requests_namefirst);
             mLastName = (TextView) view.findViewById(R.id.textview_requests_namelast);
             mUserName = (TextView) view.findViewById(R.id.textview_requests_nickname);
-            mBtnAccept = (TextView) view.findViewById(R.id.textview_requests_accept);
-            mBtnCancel = (TextView) view.findViewById(R.id.textview_requests_cancel);
-            mCheckBox = (CheckBox) view.findViewById(R.id.checkBox_request_check);
+            mBtnCancel = (TextView) view.findViewById(R.id.textview_requests_cancel); // Become the send request button
+
+            // These views have no meaing in this context
+            ((TextView) view.findViewById(R.id.textview_requests_accept)).setVisibility(View.GONE);
+            ((CheckBox) view.findViewById(R.id.checkBox_request_check)).setVisibility(View.GONE);
         }
 
         @Override

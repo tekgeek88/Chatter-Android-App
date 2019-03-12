@@ -10,19 +10,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-//import edu.uw.team02tcss450.dummy.DummyContent;
-//import edu.uw.team02tcss450.dummy.DummyContent.DummyItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.model.Connection;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnRequestSentListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnRequestSentInteractionListener}
  * interface.
  */
 public class RequestSentListFragment extends Fragment {
@@ -37,8 +34,8 @@ public class RequestSentListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnRequestSentListFragmentInteractionListener mListener;
-    private List<Connections> mConnections;
+    private OnRequestSentInteractionListener mListener;
+    private List<Connection> mConnections;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -53,9 +50,11 @@ public class RequestSentListFragment extends Fragment {
         setRetainInstance(true);
         if (getArguments() != null) {
             Log.e("List", getArguments().toString());
-            mConnections = new ArrayList<Connections>(
-                    Arrays.asList((Connections[]) getArguments()
+            mConnections = new ArrayList<Connection>(
+                    Arrays.asList((Connection[]) getArguments()
                             .getSerializable(getString(R.string.keys_intent_connections_sent))));
+        } else {
+            mConnections = new ArrayList<>();
         }
     }
 
@@ -80,14 +79,11 @@ public class RequestSentListFragment extends Fragment {
         return view;
     }
 
-
-
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRequestSentListFragmentInteractionListener) {
-            mListener = (OnRequestSentListFragmentInteractionListener) context;
+        if (context instanceof OnRequestSentInteractionListener) {
+            mListener = (OnRequestSentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnRequestSentListFragmentInteractionListener");
@@ -100,17 +96,24 @@ public class RequestSentListFragment extends Fragment {
         mListener = null;
     }
 
-    public void addItem(Connections c) {
+    public void addItem(Connection c) {
         if (null != c) {
             mConnections.add(c);
             mAdapter.notifyDataSetChanged();
         }
     }
 
-    public void removeItem(Connections c) {
-        if (null != c) {
+    public void removeItem(Connection c) {
+        if (null != c && null != mConnections) {
             mConnections.remove(c);
             mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void updateConnections(Connection[] connection) {
+        if (null != connection) {
+            mConnections = new ArrayList<Connection>(
+                    Arrays.asList((Connection[]) connection));
         }
     }
 
@@ -124,14 +127,10 @@ public class RequestSentListFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnRequestSentListFragmentInteractionListener {
-        void onRequestSentListFragmentInteraction(Connections item);
-        void onRequestSentListButtonInteraction(View v, Connections item);
-    }
+    public interface OnRequestSentInteractionListener {
 
-    public void updateConnections(Connections[] connections) {
-        mConnections = new ArrayList<Connections>(
-                Arrays.asList((Connections[]) connections));
-
+        // This interface is used to allow MainActivity to be in control
+        // of the removal of items from the data model
+        void onRequestSentCancelInteraction(Connection item);
     }
 }

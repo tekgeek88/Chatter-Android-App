@@ -15,17 +15,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.model.Connection;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnRequestReceivedListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnRequestReceivedInteractionListener}
  * interface.
  */
 public class RequestReceivedListFragment extends Fragment {
 
     public static final String TAG = "REQUEST_RECEIVED_FRAG";
+    MyRequestReceivedListRecyclerViewAdapter mAdapter;
 
 
     /**
@@ -34,8 +35,8 @@ public class RequestReceivedListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnRequestReceivedListFragmentInteractionListener mListener;
-    private List<Connections> mConnections;
+    private OnRequestReceivedInteractionListener mListener;
+    private List<Connection> mConnections;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -51,13 +52,12 @@ public class RequestReceivedListFragment extends Fragment {
 
         if (getArguments() != null) {
             Log.e("List", getArguments().toString());
-
-            Connections[] connects = (Connections[]) getArguments()
+            Connection[] connects = (Connection[]) getArguments()
                     .getSerializable(getString(R.string.keys_intent_connections_received));
             if (null == connects) {
                 mConnections = new ArrayList<>();
             } else {
-                mConnections = new ArrayList<Connections>(
+                mConnections = new ArrayList<Connection>(
                         Arrays.asList(connects));
             }
         }
@@ -78,17 +78,39 @@ public class RequestReceivedListFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            recyclerView.setAdapter(new MyRequestReceivedListRecyclerViewAdapter(mConnections, mListener));
+            mAdapter = new MyRequestReceivedListRecyclerViewAdapter(mConnections, mListener);
+            recyclerView.setAdapter(mAdapter);
         }
         return view;
+    }
+
+    public void addItem(Connection c) {
+        if (null != c && null != mConnections) {
+            mConnections.add(c);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void removeItem(Connection c) {
+        if (null != c && null != mConnections) {
+            mConnections.remove(c);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void updateConnections(Connection[] connections) {
+        if (null != connections) {
+            mConnections = new ArrayList<Connection>(
+                    Arrays.asList((Connection[]) connections));
+        }
     }
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRequestReceivedListFragmentInteractionListener) {
-            mListener = (OnRequestReceivedListFragmentInteractionListener) context;
+        if (context instanceof OnRequestReceivedInteractionListener) {
+            mListener = (OnRequestReceivedInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnRequestSentListFragmentInteractionListener");
@@ -111,14 +133,8 @@ public class RequestReceivedListFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnRequestReceivedListFragmentInteractionListener {
-        void onRequestReceivedListFragmentInteraction(Connections connection);
-        void onRequestReceivedListButtonInteraction(View v, Connections connection);
+    public interface OnRequestReceivedInteractionListener {
+        void onRequestReceivedAcceptInteraction(Connection connection);
+        void onRequestReceivedCancelInteraction(Connection connection);
     }
-
-    public void updateConnections(Connections[] connections) {
-        mConnections = new ArrayList<Connections>(
-                Arrays.asList((Connections[]) connections));
-    }
-
 }

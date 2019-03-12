@@ -10,20 +10,20 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uw.team02tcss450.RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener;
-import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.RequestReceivedListFragment.OnRequestReceivedInteractionListener;
+import edu.uw.team02tcss450.model.Connection;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link Connections} and makes a call to the
- * specified {@link OnRequestReceivedListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link Connection} and makes a call to the
+ * specified {@link OnRequestReceivedInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapter<MyRequestReceivedListRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Connections> mValues;
-    private final OnRequestReceivedListFragmentInteractionListener mListener;
+    private final List<Connection> mValues;
+    private final OnRequestReceivedInteractionListener mListener;
 
-    public MyRequestReceivedListRecyclerViewAdapter(List<Connections> items, OnRequestReceivedListFragmentInteractionListener listener) {
+    public MyRequestReceivedListRecyclerViewAdapter(List<Connection> items, OnRequestReceivedInteractionListener listener) {
         if (null == items) {
             items = new ArrayList<>();
         }
@@ -40,39 +40,22 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-//        TextView status = (TextView) holder.mView.findViewById(R.id.textview_fragment_connection_status);
-//        status.setText(mValues.get(position).getVerified());
-
         holder.mItem = mValues.get(position);
         holder.mFirstName.setText(mValues.get(position).getFirstName());
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
-        holder.mCheckBox.setVisibility(View.GONE);
+        // Request Received ACCEPT Interaction
         holder.mBtnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onRequestReceivedListButtonInteraction(v, holder.mItem);
-                mValues.remove(position);
-                notifyDataSetChanged();
+                mListener.onRequestReceivedAcceptInteraction(holder.mItem);
             }
         });
+        // Request Received CANCEL Interaction
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mValues.remove(position);
-                notifyDataSetChanged();
-                mListener.onRequestReceivedListButtonInteraction(v, holder.mItem);
-            }
-        });
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onRequestReceivedListFragmentInteraction(holder.mItem);
-                }
+                mListener.onRequestReceivedAcceptInteraction(holder.mItem);
             }
         });
     }
@@ -84,7 +67,6 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
         } else {
             return mValues.size();
         }
-
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -94,8 +76,7 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
         public final TextView mUserName;
         public final TextView mBtnAccept;
         public final TextView mBtnCancel;
-        public final CheckBox mCheckBox;
-        public Connections mItem;
+        public Connection mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -105,7 +86,7 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
             mUserName = (TextView) view.findViewById(R.id.textview_requests_nickname);
             mBtnAccept = (TextView) view.findViewById(R.id.textview_requests_accept);
             mBtnCancel = (TextView) view.findViewById(R.id.textview_requests_cancel);
-            mCheckBox = (CheckBox) view.findViewById(R.id.checkBox_request_check);
+            ((CheckBox) view.findViewById(R.id.checkBox_request_check)).setVisibility(View.GONE);
         }
 
         @Override
