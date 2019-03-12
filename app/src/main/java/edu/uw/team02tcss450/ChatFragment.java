@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import edu.uw.team02tcss450.model.EveryMessage;
 import edu.uw.team02tcss450.utils.PushReceiver;
@@ -123,9 +124,6 @@ public class ChatFragment extends Fragment {
 
             mChatList = new ArrayList<EveryMessage>();
 
-                if (getArguments().getSerializable(getString(R.string.keys_intent_messages)) != null) {
-                mChatList = (ArrayList<EveryMessage>) getArguments().getSerializable(getString(R.string.keys_intent_messages));
-            }
                 rootLayout.findViewById(R.id.btn_fragment_chat_send).setOnClickListener(this::handleSendClick);
             getActivity().setTitle("Chat");
                 return rootLayout;
@@ -144,16 +142,21 @@ public class ChatFragment extends Fragment {
                 mChatId = getArguments().getInt(getString(R.string.key_chat_id));
             }
 
+            if (getArguments().getSerializable(getString(R.string.keys_intent_messages)) != null) {
+                mChatList = (ArrayList<EveryMessage>) getArguments().getSerializable(getString(R.string.keys_intent_messages));
+            }
+
+            Collections.reverse(mChatList);
+
             // Open the bundle and stock all the messages in the order they were sent.
             for (int i = mChatList.size() - 1; i >= 0; i--) {
                 String sender = mChatList.get(i).getSenderName();
                 String messageText = mChatList.get(i).getSenderMessageContent();
-                mChatList.add(new EveryMessage(sender, messageText, mEmail));
                 mChatListAdapter = new ChatListAdapter(getContext(), mChatList, messageText, sender);
                 mMessageOutputListView.setAdapter(mChatListAdapter);
-//            mMessageOutputListView.setSelection(mMessageOutputListView.getCount() - 1);
             }
             mMessageOutputListView.setSelection(mMessageOutputListView.getCount() - 1);
+
 
 
             //We will use this url every time the user hits send. Let's only build it once, ya?

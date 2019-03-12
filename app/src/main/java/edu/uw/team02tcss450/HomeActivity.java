@@ -925,7 +925,7 @@ public class HomeActivity extends AppCompatActivity
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    ArrayList<EveryMessage> messageList = new ArrayList<>();
+                    ArrayList<EveryMessage> messageList = new ArrayList<EveryMessage>();
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject jsonMessage = data.getJSONObject(i);
                         EveryMessage tempMessage = new EveryMessage(
