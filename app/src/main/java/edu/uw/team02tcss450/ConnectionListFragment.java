@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import edu.uw.team02tcss450.model.Connections;
+import edu.uw.team02tcss450.model.Connection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public class ConnectionListFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
 
     public static final String ARG_CONNECTION_LIST = "connection lists";
-    private List<Connections> mConnections;
+    private List<Connection> mConnections;
 
 
     /**
@@ -63,8 +63,8 @@ public class ConnectionListFragment extends Fragment {
         if (getArguments() != null) {
             Log.e("List", getArguments().toString());
 
-            mConnections = new ArrayList<Connections>(
-                    Arrays.asList((Connections[]) getArguments().getSerializable(ARG_CONNECTION_LIST)));
+            mConnections = new ArrayList<Connection>(
+                    Arrays.asList((Connection[]) getArguments().getSerializable(ARG_CONNECTION_LIST)));
 
         }
 //        } else {
@@ -146,12 +146,12 @@ public class ConnectionListFragment extends Fragment {
         // TODO: Update argument type and name
 
 
-        void onListFragmentInteraction(Connections mItem);
+        void onListFragmentInteraction(Connection mItem);
 
 
 
 
-        void onCheckBoxListInteraction(View v, Connections mItem);
+        void onCheckBoxListInteraction(View v, Connection mItem);
     }
 
 

@@ -30,8 +30,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uw.team02tcss450.model.Connections;
-import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
+import edu.uw.team02tcss450.model.Connection;
 
 
 /**
@@ -41,8 +40,6 @@ import edu.uw.team02tcss450.tasks.AsyncTaskFactory;
  * to handle interaction events.
  */
 public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListener,
-        RequestSentListFragment.OnRequestSentListFragmentInteractionListener,
-        RequestReceivedListFragment.OnRequestReceivedListFragmentInteractionListener,
         AdapterView.OnItemSelectedListener {
 
 
@@ -69,11 +66,11 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         return mRequestsSearchFragment;
     }
 
-    private Connections[] mRequestsSentData;
+    private Connection[] mRequestsSentData;
     private RequestReceivedListFragment mRequestsReceivedFragment;
-    private Connections[] mRequestsReceivedData;
+    private Connection[] mRequestsReceivedData;
     private RequestSearchListFragment mRequestsSearchFragment;
-    private Connections[] mRequestsSearchData;
+    private Connection[] mRequestsSearchData;
 
     /**
      * Use this factory method to create a new instance of
@@ -103,8 +100,8 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mRequestsSentData = (Connections[]) getArguments().getSerializable(getString(R.string.keys_intent_connections_sent));
-            mRequestsReceivedData = (Connections[]) getArguments().getSerializable(getString(R.string.keys_intent_connections_received));
+            mRequestsSentData = (Connection[]) getArguments().getSerializable(getString(R.string.keys_intent_connections_sent));
+            mRequestsReceivedData = (Connection[]) getArguments().getSerializable(getString(R.string.keys_intent_connections_received));
         }
     }
 
@@ -256,7 +253,6 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
                 .onPostExecute(this::handleRequestSearchOnPostExecute)
                 .addHeaderField("authorization", homeActivity.getmJwToken())
                 .build().execute();
-
     }
 
     private void fetchConnections() {
@@ -323,17 +319,17 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
+                    List<Connection> connectionList = new ArrayList<>();
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
                                 jsonConnection.getInt("verified"))
                                 .build());
                     }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     mRequestsSentData = connectionAsArray;
                     updateDataModelInFragments();
@@ -385,17 +381,17 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
+                    List<Connection> connectionList = new ArrayList<>();
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
                                 jsonConnection.getInt("verified"))
                                 .build());
                     }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     mRequestsReceivedData = connectionAsArray;
                     updateDataModelInFragments();
@@ -444,17 +440,17 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
             if (success) {
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
-                    List<Connections> connectionList = new ArrayList<>();
+                    List<Connection> connectionList = new ArrayList<>();
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject jsonConnection = data.getJSONObject(i);
-                        connectionList.add(new Connections.Builder(jsonConnection.getInt("memberid"),
+                        connectionList.add(new Connection.Builder(jsonConnection.getInt("memberid"),
                                 jsonConnection.getString("firstname"),
                                 jsonConnection.getString("lastname"),
                                 jsonConnection.getString("username"),
                                 1)
                                 .build());
                     }
-                    Connections[] connectionAsArray = new Connections[connectionList.size()];
+                    Connection[] connectionAsArray = new Connection[connectionList.size()];
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     mRequestsSearchData = connectionAsArray;
                     mRequestsSearchFragment.updateConnections(mRequestsSearchData);
@@ -532,6 +528,7 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
         }
     }
 
+
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
         int position = tab.getPosition();
@@ -547,45 +544,14 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
                 Log.wtf("WTF", "Tab: " + position);
                 break;
         }
-
     }
+
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
 
     }
 
-    @Override
-    public void onRequestReceivedListFragmentInteraction(Connections connection) {
-
-    }
-
-    @Override
-    public void onRequestReceivedListButtonInteraction(View v, Connections connection) {
-
-    }
-
-    @Override
-    public void onRequestSentListFragmentInteraction(Connections item) {
-
-    }
-
-    @Override
-    public void onRequestSentListButtonInteraction(View v, Connections item) {
-        HomeActivity homeActivity = (HomeActivity) getActivity();
-
-        int id = v.getId();
-        if (id == R.id.textview_requests_accept) {
-            Log.wtf("WTF", "PENDING was pressed!");
-        } else if (id == R.id.textview_requests_cancel) {
-            Log.wtf("WTF", "CANCEL was pressed!");
-            AsyncTaskFactory.removeConnectionRequestSentTo(
-                    homeActivity,
-                    homeActivity.getmJwToken(),
-                    item.getUserName());
-        }
-
-    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -605,7 +571,6 @@ public class TabFrag2 extends Fragment implements TabLayout.OnTabSelectedListene
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-
     }
 
 
