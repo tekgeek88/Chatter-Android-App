@@ -52,7 +52,6 @@ public class RequestReceivedListFragment extends Fragment {
 
         if (getArguments() != null) {
             Log.e("List", getArguments().toString());
-
             Connection[] connects = (Connection[]) getArguments()
                     .getSerializable(getString(R.string.keys_intent_connections_received));
             if (null == connects) {

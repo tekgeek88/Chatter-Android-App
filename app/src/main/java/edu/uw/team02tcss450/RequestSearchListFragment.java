@@ -54,6 +54,8 @@ public class RequestSearchListFragment extends Fragment {
             mConnections = new ArrayList<Connection>(
                     Arrays.asList((Connection[]) getArguments()
                             .getSerializable(getString(R.string.keys_intent_connections_sent))));
+        } else {
+            mConnections = new ArrayList<>();
         }
     }
 
