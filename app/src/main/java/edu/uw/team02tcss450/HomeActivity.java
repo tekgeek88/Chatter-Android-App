@@ -423,6 +423,11 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+    private void handleRecentChatHomepageInError (final String result) {
+        onWaitFragmentInteractionHide();
+        Log.d("Homepage","Empty load : " + result);
+    }
+
     private void removeSelectedFriend(View view) {
         if (!mFriends.isEmpty()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(mAlertDialogView.getContext());
