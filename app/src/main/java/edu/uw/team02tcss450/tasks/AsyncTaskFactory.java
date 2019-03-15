@@ -44,7 +44,7 @@ public class AsyncTaskFactory {
 
         new DelAsyncTask.Builder(uri.toString())
                 .onPreExecute(homeActivity::onWaitFragmentInteractionShow)
-                .onPostExecute(homeActivity::handleRemoveConnectionRequestSentToOnPost)
+                .onPostExecute(homeActivity::handleRequestReceivedCancelInteractionOnPost)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }

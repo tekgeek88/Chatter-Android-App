@@ -17,7 +17,8 @@
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:text="Search by:"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused" />
 
 
         <Spinner

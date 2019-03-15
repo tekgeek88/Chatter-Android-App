@@ -639,7 +639,7 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
     }
 
     private void handleFavoriteGetOnPost (String result) {
-        mWaitListener.onWaitFragmentInteractionHide();
+//        mWaitListener.onWaitFragmentInteractionHide();
         try {
             JSONObject fullResult = new JSONObject(result);
             if (fullResult != null && fullResult.getString("status").equals("success")) {
@@ -680,6 +680,8 @@ public class WeatherFragment extends Fragment implements WaitFragment.OnFragment
                     mFavorites.add(aFav);
                     Log.d("FAVORITES", "Loaded a favorite:\t" + aFav.getZip());
                 }
+                Log.d("FAVORITES", "Close wait fragment");
+                mWaitListener.onWaitFragmentInteractionHide();
                 //scroller.
             }
         } catch (JSONException e) {

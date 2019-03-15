@@ -96,7 +96,8 @@ public class HomeActivity extends AppCompatActivity
     private LocationCallback mLocationCallback;
     private TabFrag2 mTabFragmentHolder;
     private Connection mConnectionCallback;
-
+    private ConnectionListFragment mConnectionListFragment;
+    private RecentChatFragment mRecentChatFragment;
     private String mJwToken;
     private String mEmail;
     private String mUsername;
@@ -337,12 +338,12 @@ public class HomeActivity extends AppCompatActivity
                     chatAsArray = chatList.toArray(chatAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(RecentChatFragment.ARG_CONNECTION_LIST, chatAsArray);
-                    Fragment frag = new RecentChatFragment();
-                    frag.setArguments(args);
+                    mRecentChatFragment = new RecentChatFragment();
+                    mRecentChatFragment.setArguments(args);
 
                     onWaitFragmentInteractionHide();
+                    loadFragment(mRecentChatFragment,RecentChatFragment.TAG);
 
-                    loadFragment(frag);
                     setTitle("Recent Chats");
                 } else {
                     Log.e("ERROR!", "No data array");
@@ -353,9 +354,12 @@ public class HomeActivity extends AppCompatActivity
                 Log.e("ERROR!", "No response");
                 //notify user
                 onWaitFragmentInteractionHide();
-                Toast.makeText(this, "Error: No Friends yet!",
+                Toast.makeText(this, "No Chats yet!",
                         Toast.LENGTH_LONG).show();
 
+                mRecentChatFragment = new RecentChatFragment();
+                loadFragment(mRecentChatFragment);
+                setTitle("Recent Chats");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -392,8 +396,10 @@ public class HomeActivity extends AppCompatActivity
                     chatAsArray = chatList.toArray(chatAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(RecentChatFragment.ARG_CONNECTION_LIST, chatAsArray);
+                    args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
                     Fragment frag = new RecentChatFragment();
                     frag.setArguments(args);
+                    Log.d("CHATTT","fghjkl");
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.layout_fragment_home_chats_container, frag, RecentChatFragment.TAG)
@@ -546,12 +552,12 @@ public class HomeActivity extends AppCompatActivity
                     connectionAsArray = connectionList.toArray(connectionAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(ConnectionListFragment.ARG_CONNECTION_LIST, connectionAsArray);
-                    Fragment frag = new ConnectionListFragment();
-                    frag.setArguments(args);
+                    mConnectionListFragment = new ConnectionListFragment();
+                    mConnectionListFragment.setArguments(args);
 
                     onWaitFragmentInteractionHide();
 
-                    loadFragment(frag);
+                    loadFragment(mConnectionListFragment);
                 } else {
                     Log.e("ERROR!", "No data array");
                     //notify user
@@ -561,8 +567,10 @@ public class HomeActivity extends AppCompatActivity
                 Log.e("ERROR!", "No response");
                 //notify user
                 onWaitFragmentInteractionHide();
-                Toast.makeText(this, "Error: No Friends yet!",
+                Toast.makeText(this, "No Friends yet!",
                         Toast.LENGTH_LONG).show();
+                mConnectionListFragment = new ConnectionListFragment();
+                loadFragment(mConnectionListFragment);
 
             }
         } catch (JSONException e) {
@@ -597,6 +605,7 @@ public class HomeActivity extends AppCompatActivity
                             Toast.LENGTH_LONG).show();
                 }
             } else {
+
                 Log.e("ERROR!", response);
                 //notify user
                 onWaitFragmentInteractionHide();
@@ -745,23 +754,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    public void removeConnectionRequestSentTo(String sent_to_username) {
-
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connections))
-                .appendQueryParameter("sent_from", mCredentials.getUsername())
-                .appendQueryParameter("sent_to", sent_to_username)
-                .build();
-
-        new DelAsyncTask.Builder(uri.toString())
-                .onPreExecute(this::onWaitFragmentInteractionShow)
-                .onPostExecute(this::handleRemoveConnectionRequestSentToOnPost)
-                .onCancelled(this::handleErrorsInTask)
-                .addHeaderField("authorization", mJwToken)
-                .build().execute();
-    }
 
 
     //########################################################################
@@ -825,7 +817,7 @@ public class HomeActivity extends AppCompatActivity
                 .appendPath(getString(R.string.ep_connections))
                 .appendQueryParameter("username", credentials.getUsername())
                 .build();
-
+       Log.d("LOL",uri.toString());
         new GetAsyncTask.Builder(uri.toString())
                 .onPreExecute(this::onWaitFragmentInteractionShow)
                 .onPostExecute(this::handleConnectionListGetOnPostExecute)
@@ -889,6 +881,7 @@ public class HomeActivity extends AppCompatActivity
 //        new GetAsyncTask.Builder(uri.toString())
 //                .onPreExecute(this::onWaitFragmentInteractionShow)
 //                .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
+//                .onCancelled(this::handleErrorsInTask)
 //                .addHeaderField("authorization", mJwToken)
 //                .build().execute();
     }
@@ -1108,32 +1101,78 @@ public class HomeActivity extends AppCompatActivity
         logout();
     }
 
-    @Override
-    public void onListFragmentInteraction(Connection item) {
-        mFriends.add(item);
-        startChat();
-    }
 
     @Override
     public void onCheckBoxListInteraction(View v, Connection item) {
         mFriends.add(item);
         mAlertDialogView = v;
     }
+    @Override
+    public void onUncheckBoxListInteraction(View v, Connection item){
+        mFriends.remove(item);
+    }
 
     public void removeFriends() {
+
         Credentials credentials = (Credentials) getIntent()
                 .getExtras().getSerializable(getString(R.string.keys_intent_credentials));
         for (int i = 0; i < mFriends.size(); i++) {
             Log.d("LOL", mFriends.get(i).toString());
-            if (mFriends.get(i).getUserName() == credentials.getUsername()) {
-                AsyncTaskFactory.removeConnectionRequestSentTo(this, mJwToken, mFriends.get(i).getUserName());
-            } else {
-                AsyncTaskFactory.removeConnectionRequestSentFrom(this, mJwToken, mFriends.get(i).getUserName());
-            }
+
+            removeIndividualFriend(mFriends.get(i));
         }
-        loadConnectionFragment();
+        mConnectionListFragment.removeItems((ArrayList<Connection>) mFriends);
         mFriends.clear();
+
+
     }
+
+    public void removeIndividualFriend(Connection item){
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connections))
+                .appendQueryParameter("sent_from", mCredentials.getUsername())
+                .appendQueryParameter("sent_to", item.getUserName())
+                .build();
+
+        new DelAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRemoveIndividualConnectionOnPost)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+
+    }
+
+    private void handleRemoveIndividualConnectionOnPost(final String result) {
+        //parse JSON
+        String response = "";
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                if (resultsJSON.has("message")) {
+                    response = resultsJSON.getString("message");
+                    onWaitFragmentInteractionHide();
+
+                } else {
+                    Log.e("ERROR!", response);
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", response);
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
 
     @Override
     public void OnIndividualConnectionAddInteraction(String username) {
@@ -1389,6 +1428,7 @@ public class HomeActivity extends AppCompatActivity
                     onWaitFragmentInteractionHide();
                 }
             } else {
+
                 Log.e("ERROR!", response);
                 //notify user
                 onWaitFragmentInteractionHide();

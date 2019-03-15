@@ -10,6 +10,7 @@ import android.widget.TextView;
 import edu.uw.team02tcss450.ConnectionListFragment.OnListFragmentInteractionListener;
 import edu.uw.team02tcss450.model.Connection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<MyConnectionListRecyclerViewAdapter.ViewHolder> {
@@ -19,6 +20,9 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
 
 
     public MyConnectionListRecyclerViewAdapter(List<Connection> items, OnListFragmentInteractionListener listener) {
+        if (null == items) {
+            items = new ArrayList<>();
+        }
         mValues = items;
         mListener = listener;
 
@@ -40,29 +44,21 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
         holder.mLastName.setText(mValues.get(position).getLastName());
         holder.mUserName.setText(mValues.get(position).getUserName());
         holder.mBtnCancel.setVisibility(View.GONE);
+
+        //Listener for checkbox
         holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(((CheckBox) v).isChecked()) {
                     mListener.onCheckBoxListInteraction(v, holder.mItem);
                 }else{
-
+                   mListener.onUncheckBoxListInteraction(v,holder.mItem);
                 }
             }
         });
 
         holder.mBtnAccept.setVisibility(View.GONE);
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
 
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
     }
 
 
@@ -71,10 +67,11 @@ public class MyConnectionListRecyclerViewAdapter extends RecyclerView.Adapter<My
         return mValues.size();
     }
 
-
-    public interface OnButtonFragmentInteractionListener {
-        void onListFragmentInteraction(Connection mItem);
+    //Removes the connections from the list
+    public void removeItem(Connection c){
+        mValues.remove(c);
     }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;

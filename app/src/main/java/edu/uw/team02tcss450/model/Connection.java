@@ -9,6 +9,7 @@ public class Connection implements Serializable {
     private final String mUserName;
     private final int mVerified;
 
+
     /**
      * Helper class for building Credentials.
      *

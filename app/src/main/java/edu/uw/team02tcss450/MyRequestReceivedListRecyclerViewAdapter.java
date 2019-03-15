@@ -55,7 +55,7 @@ public class MyRequestReceivedListRecyclerViewAdapter extends RecyclerView.Adapt
         holder.mBtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onRequestReceivedAcceptInteraction(holder.mItem);
+                mListener.onRequestReceivedCancelInteraction(holder.mItem);
             }
         });
     }
