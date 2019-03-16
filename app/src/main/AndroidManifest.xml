@@ -35,7 +35,7 @@
 
         <activity
             android:name=".MapActivity"
-            android:label="@string/title_activity_map"></activity>
+            android:label="@string/title_activity_map" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
@@ -83,6 +83,10 @@
             android:name="me.pushy.sdk.services.PushyJobService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <activity
+            android:name=".MapsActivitydelete"
+            android:label="@string/title_activity_maps_activitydelete"></activity>
     </application>
 
 </manifest>

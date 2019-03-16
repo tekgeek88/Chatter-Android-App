@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import edu.uw.team02tcss450.model.Connection;
@@ -27,10 +28,11 @@ import java.util.List;
 public class ConnectionListFragment extends Fragment {
 
 
+   // private static ArrayAdapter<Object> mConnectionAdapter;
     /**
      * A simple {@link android.support.v4.app.Fragment} subclass.
      */
-
+    private MyConnectionListRecyclerViewAdapter mConnectionAdapter;
     public Button mChatButton;
     public Button mRemoveButton;
     // TODO: Customize parameter argument names
@@ -40,7 +42,7 @@ public class ConnectionListFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
 
     public static final String ARG_CONNECTION_LIST = "connection lists";
-    private List<Connection> mConnections;
+    private  List<Connection> mConnections;
 
 
     /**
@@ -67,9 +69,7 @@ public class ConnectionListFragment extends Fragment {
                     Arrays.asList((Connection[]) getArguments().getSerializable(ARG_CONNECTION_LIST)));
 
         }
-//        } else {
-//            mConnections = Arrays.asList(BlogGenerator.BLOGS);
-//        }
+
     }
 
 
@@ -87,11 +87,26 @@ public class ConnectionListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyConnectionListRecyclerViewAdapter(mConnections,mListener));
+            //recyclerView.setAdapter(new MyConnectionListRecyclerViewAdapter(mConnections,mListener));
+            mConnectionAdapter = new MyConnectionListRecyclerViewAdapter(mConnections, mListener);
+            recyclerView.setAdapter(mConnectionAdapter);
         }
 
         return view;
     }
+
+    public void removeItems(ArrayList<Connection> c) {
+        if (null != c && null != mConnections) {
+            for(int i = 0; i<c.size();i++) {
+
+                mConnectionAdapter.removeItem(c.get(i));
+                mConnectionAdapter.notifyDataSetChanged();
+            }
+
+        }
+    }
+
+
 
 
 
@@ -146,12 +161,10 @@ public class ConnectionListFragment extends Fragment {
         // TODO: Update argument type and name
 
 
-        void onListFragmentInteraction(Connection mItem);
-
-
-
 
         void onCheckBoxListInteraction(View v, Connection mItem);
+
+        void onUncheckBoxListInteraction(View v, Connection mItem);
     }
 
 

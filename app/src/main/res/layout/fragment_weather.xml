@@ -10,14 +10,14 @@
 
     <EditText
         android:id="@+id/edittext_fragment_weather_search"
-        android:layout_width="242dp"
+        android:layout_width="200dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:hint="@string/text_fragment_weather_zip"
-        android:inputType="textPostalAddress"
+        android:inputType="number"
         app:layout_constraintEnd_toStartOf="@+id/imagebutton_fragment_weather_search"
         app:layout_constraintStart_toEndOf="@+id/imagebutton_fragment_weather_map"
         app:layout_constraintTop_toTopOf="parent" />
@@ -38,9 +38,21 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="24dp"
         android:background="@drawable/background_gradient"
         android:src="@drawable/ic_search"
+        app:layout_constraintEnd_toStartOf="@+id/imagebutton_fragment_weather_favorites"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imagebutton_fragment_weather_favorites"
+        style="@style/textview_chatter_accept_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/background_gradient"
+        android:src="@drawable/ic_favorite_red"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -70,18 +82,6 @@
                     android:layout_marginStart="8dp"
                     android:text="@string/text_fragment_weather_10_days"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/button_fragment_weather_favorites"
-                    style="@style/textview_chatter_accept_cancel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/text_fragment_weather_favorites"
-                    app:layout_constraintEnd_toStartOf="@+id/button_weather_fragment_today"
-                    app:layout_constraintStart_toEndOf="@+id/button_weather_fragment_10_day"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
