@@ -380,7 +380,6 @@ public class HomeActivity extends AppCompatActivity
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
-
                 if (resultsJSON.has("data")) {
                     JSONArray data = resultsJSON.getJSONArray("data");
                     List<ChatThread> chatList = new ArrayList<>();
@@ -396,21 +395,26 @@ public class HomeActivity extends AppCompatActivity
                     chatAsArray = chatList.toArray(chatAsArray);
                     Bundle args = new Bundle();
                     args.putSerializable(RecentChatFragment.ARG_CONNECTION_LIST, chatAsArray);
-                    args.putSerializable(getString(R.string.keys_intent_jwt), mJwToken);
-                    Fragment frag = new RecentChatFragment();
-                    frag.setArguments(args);
-                    Log.d("CHATTT","fghjkl");
+                    mRecentChatFragment = new RecentChatFragment();
+                    mRecentChatFragment.setArguments(args);
+
+                    onWaitFragmentInteractionHide();
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.layout_fragment_home_chats_container, frag, RecentChatFragment.TAG)
+                            .replace(R.id.layout_fragment_home_chats_container, mRecentChatFragment)
                             .addToBackStack(null)
                             .commit();
                     onWaitFragmentInteractionHide();
+
+
+                    setTitle("Recent Chats");
                 } else {
                     Log.e("ERROR!", "No data array");
                     //notify user
                     onWaitFragmentInteractionHide();
                 }
+
+
             } else {
                 Log.e("ERROR!", "No response");
                 //notify user
@@ -871,19 +875,19 @@ public class HomeActivity extends AppCompatActivity
                 .commit();
 
         // Alex Recent chat on homepage
-//        Uri uri = new Uri.Builder()
-//                .scheme("https")
-//                .appendPath(getString(R.string.ep_base_url))
-//                .appendPath(getString(R.string.ep_recentChats))
-//                .appendQueryParameter("username", mCredentials.getUsername())
-//                .build();
-//
-//        new GetAsyncTask.Builder(uri.toString())
-//                .onPreExecute(this::onWaitFragmentInteractionShow)
-//                .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
-//                .onCancelled(this::handleErrorsInTask)
-//                .addHeaderField("authorization", mJwToken)
-//                .build().execute();
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_recentChats))
+                .appendQueryParameter("username", mCredentials.getUsername())
+                .build();
+
+        new GetAsyncTask.Builder(uri.toString())
+                .onPreExecute(this::onWaitFragmentInteractionShow)
+                .onPostExecute(this::handleRecentChatHomepageGetOnPostExecute)
+                .onCancelled(this::handleErrorsInTask)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
     }
 
     @Override
